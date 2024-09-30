@@ -63,7 +63,7 @@ const ProfileInformationPage = () => {
               {/* Facebook Username */}
               <Form.Item
                 name="facebook"
-                label="Facebook Username"
+                label="Facebook Link"
               >
                 <Input placeholder="Facebook username" />
               </Form.Item>
