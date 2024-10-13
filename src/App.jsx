@@ -13,6 +13,7 @@ import LoginPage from './pages/influencer/authen/LoginPage';
 import Navbar from './components/Navbar';
 import AppLayout from './components/AppLayout';
 import { Button, ConfigProvider } from 'antd';
+import WorkshopPage from './pages/influencer/workshop/WorkshopPage';
 
 function App() {
 
@@ -23,7 +24,7 @@ function App() {
           "token": {
             "colorPrimary": "#722ed1",
             "colorInfo": "#722ed1",
-            "colorText":"#fff"
+            "colorText": "#fff"
           },
           components: {
             Collapse: {
@@ -33,15 +34,19 @@ function App() {
             },
             Layout: {
               bodyBg: "#000",
-              headerColor:"#fff"
+              headerColor: "#fff"
             },
-            Card:{
-              headerBg:"#722ed1",
-              colorBgContainer:"#fff",
-              colorText:"#000"
+            Card: {
+              headerBg: "#722ed1",
+              colorBgContainer: "#fff",
+              colorText: "#000"
             },
-            Input:{
-              colorText:"#000"
+            Input: {
+              colorText: "#000"
+            },
+            Form: {
+              labelColor: "#000",
+              colorText: "#000"
             }
           }
         }}
@@ -60,6 +65,7 @@ function App() {
             <Route path='/work-space' element={<WorkSpacePage />} />
             <Route path='/work-darft' element={<WorkDraftPage />} />
             <Route path='/finance' element={<FinanceManagementPage />} />
+            <Route path='/work-shop' element={<WorkshopPage />} />
           </Routes>
         </AppLayout>
       </ConfigProvider>
