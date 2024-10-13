@@ -1,6 +1,6 @@
 // LoginPage.js
 import React from 'react';
-import { Form, Input, Button, Row, Col, Typography, Divider } from 'antd';
+import { Form, Input, Button, Row, Col, Typography, Divider, Card } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -13,74 +13,79 @@ const LoginPage = () => {
     };
 
     return (
-        <Row justify="center" style={{ padding: '50px' }}>
-            <Col span={8}>
-                <Title level={2} style={{ textAlign: 'center' }}>Login</Title>
-                <Form
-                    name="login"
-                    layout="vertical"
-                    onFinish={onFinish}
-                >
-                    {/* Email */}
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[
-                            {
-                                type: 'email',
-                                message: 'The input is not valid E-mail!',
-                            },
-                            {
-                                required: true,
-                                message: 'Please input your E-mail!',
-                            },
-                        ]}
+        <Row justify="center" >
+            <Col xs={0} md={12} style={{ background: 'grey' }}>
+
+            </Col>
+            <Col xs={24} md={12}>
+                <Card title="Login">
+
+                    <Form
+                        name="login"
+                        layout="vertical"
+                        onFinish={onFinish}
                     >
-                        <Input placeholder="Enter your email" />
-                    </Form.Item>
-
-                    {/* Password */}
-                    <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input your password!',
-                            },
-                        ]}
-                    >
-                        <Input.Password placeholder="Enter your password" />
-                    </Form.Item>
-
-                    {/* ปุ่ม Login */}
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
-                            Login
-                        </Button>
-                    </Form.Item>
-                </Form>
-
-                {/* OAuth Options */}
-                <Divider>Or Login with</Divider>
-                <Row justify="center" gutter={16}>
-                    <Col>
-                        <Button
-                            icon={<GoogleOutlined />}
-                            style={{ backgroundColor: '#DB4437', color: '#fff' }}
+                        {/* Email */}
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                {
+                                    type: 'email',
+                                    message: 'The input is not valid E-mail!',
+                                },
+                                {
+                                    required: true,
+                                    message: 'Please input your E-mail!',
+                                },
+                            ]}
                         >
-                            Google
-                        </Button>
-                    </Col>
-                    <Col>
-                        <Button
-                            icon={<AppleOutlined />}
-                            style={{ backgroundColor: '#000', color: '#fff' }}
+                            <Input placeholder="Enter your email" />
+                        </Form.Item>
+
+                        {/* Password */}
+                        <Form.Item
+                            label="Password"
+                            name="password"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your password!',
+                                },
+                            ]}
                         >
-                            Apple
-                        </Button>
-                    </Col>
-                </Row>
+                            <Input.Password placeholder="Enter your password" />
+                        </Form.Item>
+
+                        {/* ปุ่ม Login */}
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                                Login
+                            </Button>
+                        </Form.Item>
+                    </Form>
+
+                    {/* OAuth Options */}
+                    <Divider>Or Login with</Divider>
+                    <Row justify="center" gutter={16}>
+                        <Col>
+                            <Button
+                                icon={<GoogleOutlined />}
+                                style={{ backgroundColor: '#DB4437', color: '#fff' }}
+                            >
+                                Google
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button
+                                icon={<AppleOutlined />}
+                                style={{ backgroundColor: '#000', color: '#fff' }}
+                            >
+                                Apple
+                            </Button>
+                        </Col>
+                    </Row>
+                </Card>
             </Col>
         </Row>
     );

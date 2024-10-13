@@ -1,110 +1,132 @@
 import React from "react";
-import { Layout, Menu, Button, Typography, Row, Col, Card } from "antd";
-import './style.css'
+import {
+  Layout,
+  Menu,
+  Button,
+  Typography,
+  Row,
+  Col,
+  Card,
+  Divider,
+  Tag,
+  Image,
+} from "antd";
+import "./style.css";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
 
 const HomePage = () => {
-    const navigate = useNavigate()
-    return (
-        <>
-            <Row gutter={12}>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('profile-information')}>
-                        profile-information
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('add-your-portfolio')}>
-                        add-your-portfolio
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('profile')}>
-                        profile
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('content-feed')}>
-                        content-feed
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('work-space')}>
-                        work-space
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('work-darft')}>
-                        work-darft
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='primary' onClick={() => navigate('finance')}>
-                        finance
-                    </Button>
-                </Col>
-            </Row>
-            {/* Content */}
-            <Content style={{ padding: "0 50px", marginTop: 64 }}>
-                <div
-                  /*   className="site-layout-content" */
-                >
-                    <Row justify="center" gutter={[16, 16]}>
-                        <Col span={12}>
-                            <Title level={2}>Welcome to Influlance</Title>
-                            <Paragraph>
-                                Influlance is the marketplace where brands and influencers can
-                                connect and collaborate. Whether you are a brand looking to
-                                promote your products or an influencer looking for new
-                                opportunities, Influlance makes it easy and efficient.
-                            </Paragraph>
-                            <Button type="primary" size="large">
-                                Get Started
-                            </Button>
-                        </Col>
-                        <Col span={12}>
-                            <img
-                                src="https://source.unsplash.com/random/800x600"
-                                alt="Influlance"
-                                style={{ width: "100%", height: "auto" }}
-                            />
-                        </Col>
-                    </Row>
-                </div>
+  const navigate = useNavigate();
+  const screen = useBreakpoint();
+  return (
+    <>
+      <Row gutter={12}>
+        <Col>
+          <Button
+            type="primary"
+            onClick={() => navigate("profile-information")}
+          >
+            profile-information
+          </Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={() => navigate("profile")}>
+            profile
+          </Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={() => navigate("content-feed")}>
+            content-feed
+          </Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={() => navigate("work-space")}>
+            work-space
+          </Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={() => navigate("finance")}>
+            finance
+          </Button>
+        </Col>
+      </Row>
+      {/* Content */}
 
-                {/* Feature Section */}
-                <div style={{ marginTop: 50 }}>
-                    <Row justify="center" gutter={[16, 16]}>
-                        <Col span={8}>
-                            <Card title="Find Influencers" bordered={false}>
-                                Browse through hundreds of influencers to find the perfect fit
-                                for your campaign.
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card title="Post Jobs" bordered={false}>
-                                Post jobs and receive applications from influencers who match
-                                your needs.
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card title="Secure Payments" bordered={false}>
-                                Secure payment system ensuring transparency and safety for both
-                                brands and influencers.
-                            </Card>
-                        </Col>
-                    </Row>
-                </div>
-            </Content>
+      <Row style={{ margin: "2rem 0" }}>
+        <Image
+          preview={false}
+          width={"100%"}
+          height={400}
+          src="error"
+          fallback="picture/BannerTest.png"
+        />
+      </Row>
 
-            {/* Footer */}
-            <Footer style={{ textAlign: "center" }}>
-                Influlance Â©2024 Created by Your Team
-            </Footer>
-        </>
-    );
+      <Row
+        justify={screen.xs ? "center" : "start"}
+        gutter={[0, 0]}
+        style={{ margin: "2rem 0" }}
+      >
+        <Col xs={24} md={18}>
+          <Title level={2}>ยินดีต้อนรับเข้าสู่ Influlance</Title>
+          <Paragraph>
+            Influlance
+            เป็นตลาดกลางที่เชื่อมต่อและทำให้แบรนด์กับอินฟลูเอนเซอร์สามารถทำงานร่วมกันได้
+            ไม่ว่าคุณจะเป็นแบรนด์ที่ต้องการโปรโมตสินค้าหรือเป็นอินฟลูเอนเซอร์ที่กำลังมองหาโอกาสใหม่
+            ๆ Influlance ทำให้ทุกอย่างง่ายและมีประสิทธิภาพ
+          </Paragraph>
+          {/* <Button type="primary" size="large">
+                Get Started
+              </Button> */}
+        </Col>
+      </Row>
+
+      {/* Job Recommendations */}
+      <>
+        <Divider
+          orientation="left"
+          style={{ fontSize: "20px", margin: "2rem 0" }}
+        >
+          Newest Jobs For You
+        </Divider>
+        <Row justify="center" gutter={[16, 16]} style={{ margin: "2rem 0" }}>
+          {/* Job Card Example */}
+          {[...Array(6)].map((_, index) => (
+            <Col key={index} xs={12} md={8}>
+              <Card
+                title="UX Designer"
+                extra={<span>$200K</span>}
+                actions={[
+                  <Button type="primary">Apply</Button>,
+                  <span>24 Applied</span>,
+                ]}
+                bordered={false}
+                style={{
+                  textAlign: "center",
+                  background: "#141414",
+                  color: "#fff",
+                }}
+              >
+                <Tag color="blue">Fulltime</Tag>
+                <Tag color="purple">Onsite</Tag>
+                <Paragraph style={{ color: "#fff" }}>
+                  Advoti Digital Agency
+                </Paragraph>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </>
+
+      {/* Footer */}
+      {/* <Footer style={{ textAlign: "center" }}>
+        Influlance ©2024 Created by Your Team
+      </Footer> */}
+    </>
+  );
 };
 
 export default HomePage;
