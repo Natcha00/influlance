@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/influencer/home/HomePage";
 import RegisterPage from "./pages/influencer/authen/RegisterPage";
 import ProfileInfomationPage from "./pages/influencer/authen/ProfileInfomationPage";
 import AddYourPortfolioPage from "./pages/influencer/authen/AddYourPortfolioPage";
@@ -13,6 +12,9 @@ import LoginPage from "./pages/influencer/authen/LoginPage";
 import Navbar from "./components/Navbar";
 import AppLayout from "./components/AppLayout";
 import { Button, ConfigProvider } from "antd";
+import MainHomePage from "./pages/mainHomePage";
+import InfluencerHomePage from "./pages/influencer/home/InfluencerHomePage";
+import MarketerHomePage from "./pages/marketer/home/MarketerHomePage";
 
 function App() {
   return (
@@ -20,12 +22,12 @@ function App() {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "#722ed1",
+            colorPrimary: "#7367F0",
             colorText: "#fff",
           },
           components: {
             Collapse: {
-              colorFillAlter: "#722ed1",
+              colorFillAlter: "#7367F0",
               colorBgContainer: "#000", //check
             },
             Layout: {
@@ -36,7 +38,7 @@ function App() {
               colorTextHeading: "#000",
             },
             Card: {
-              headerBg: "#722ed1",
+              headerBg: "linear-gradient(to right, #7367F0, #A582F7, #CE9FFC)",
               colorBgContainer: "#fff",
               colorText: "#000",
             },
@@ -47,7 +49,7 @@ function App() {
               colorTextHeading: "#000",
             },
             Button: {
-              colorText: "#722ed1",
+              colorText: "#7367F0",
             },
             Tag: {
               defaultColor: "#000",
@@ -79,7 +81,9 @@ function App() {
         <Navbar />
         <AppLayout>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<MainHomePage />} />
+            <Route path="/influencer-homepage" element={<InfluencerHomePage />} />
+            <Route path="/marketer-homepage" element={<MarketerHomePage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route

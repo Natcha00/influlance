@@ -1,28 +1,38 @@
 import { Menu, Layout, Row, Col, Button } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { IoMdMenu } from "react-icons/io";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
 
 const { Header } = Layout;
 
 function Navbar() {
   const navigate = useNavigate();
   const screen = useBreakpoint();
+  const email = Cookies.get('email')
+  const { isAuth } = useSelector(state => state.auth)
   const menuItems = [
+    // {
+    //   label: <div onClick={() => navigate("/")}>Home</div>,
+    //   key: "home",
+    // },
     {
-      label: <div onClick={() => navigate("/")}>Home</div>,
-      key: "home",
-    },
-    {
-      label: <div onClick={() => navigate("/login")}>Login</div>,
+      label: <div style={{display: isAuth ? 'none': 'flex'}} onClick={() => navigate("/login")}>Login</div>,
       key: "login",
     },
     {
-      label: <div onClick={() => navigate("/register")}>Register</div>,
+      label: <div style={{display: isAuth ? 'none': 'flex'}} onClick={() => navigate("/register")}>Register</div>,
       key: "register",
     },
+    {
+      label: <div style={{display: isAuth ? 'flex': 'none'}}>{email}</div>
+    },
+    {
+      label: <div style={{display: isAuth ? 'flex': 'none'}}>logout</div>
+    }
   ];
   return (
     <Header

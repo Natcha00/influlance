@@ -78,7 +78,7 @@ const FinanceManagementPage = () => {
     <>
 
         <Typography.Title level={16}>
-          การจัดการบัญชี
+          จัดการบัญชี
         </Typography.Title>
 
         <Row gutter={[16,16]}>
@@ -87,7 +87,7 @@ const FinanceManagementPage = () => {
             <Card
               style={{
                 padding: 10,
-                background: 'linear-gradient(to right, #8E2DE2, #4A00E0)',
+                background: '#7367F0',
                 borderRadius: '10px',
                 color: '#fff',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)',

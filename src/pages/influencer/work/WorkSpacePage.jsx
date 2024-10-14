@@ -232,7 +232,7 @@ const WorkSpacePage = () => {
       theme={{
         components: {
           Card: {
-            headerBg: "#722ed1",
+            headerBg: "#7367F0",
             colorBgContainer: "#2c2c2c",
           },
           Typography: {
