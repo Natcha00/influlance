@@ -16,25 +16,62 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CommunicationsImage from "/communications.png";
+import { useLocation, useNavigate } from "react-router-dom";
+import { categories } from '../../../shared/mockup/category'
+import { useMeQuery, useRegisterMutation } from "../../../api/authApi";
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../slices/authSlice";
+import TextArea from "antd/es/input/TextArea";
 
 const { Option } = Select;
 const { Title } = Typography;
+
 const ProfileInformationPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate()
+  const { email, password } = location.state || {}; // Retrieve email and password from state
+  if (!email || !password) {
+    navigate('/register')
+  }
+  const dispatch = useDispatch()
+  const [register, { isLoading }] = useRegisterMutation()
+  const { data, isLoading: isLoadingMe, refetch: me } = useMeQuery()
+
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
 
-  const handleUpload = (info) => {
-    const { file, fileList } = info;
-    if (file.status === "done") {
-      message.success(`${file.name} uploaded successfully.`);
-    } else if (file.status === "error") {
-      message.error(`${file.name} upload failed.`);
+  const onFinish = async (values) => {
+    try {
+      console.log("Form values: ", values);
+      const resp = await register({
+        email,
+        password,
+        ...values,
+        profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+      }).unwrap()
+
+      if (resp) {
+        Cookies.set('accessToken', resp.accessToken)
+        const respMe = await me().unwrap()
+        if (respMe) {
+          Cookies.set('email', respMe.email)
+          dispatch(setIsAuth(true))
+          message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
+        }
+        setTimeout(() => {
+          navigate('/')
+        }, 500)
+      }
+    } catch (error) {
+      console.log(error)
+      if (error.data) {
+        message.error(error.data)
+      } else {
+        message.error("found issue")
+      }
     }
-    setFileList(fileList);
-  };
 
-  const onFinish = (values) => {
-    console.log("Form values: ", values);
+    message.success("สมัครสมาชิกสำเร็จ")
   };
 
   return (
@@ -55,6 +92,17 @@ const ProfileInformationPage = () => {
               name="influencerProfile"
               layout="vertical"
               onFinish={onFinish}
+              initialValues={{
+                firstName: "influ",
+                lastName: "001",
+                facebook: "facebook.com/influencer",
+                instagram: "instagram.com/influencer",
+                profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+                x: "x.com/influencer",
+                tiktok: "tiktok.com/@influencer",
+                categories: ["fashion", "lifestyle"],
+                yourInfo: "กิน เที่ยว เล่นเกม หนัง"
+              }}
             >
               {/* Upload Profile Picture */}
               <Row gutter={10}>
@@ -134,27 +182,19 @@ const ProfileInformationPage = () => {
                       },
                     ]}
                   >
-                    <Select mode="multiple" placeholder="เลือกประเภท">
-                      <Option value="fashion">Fashion</Option>
-                      <Option value="tech">Technology</Option>
-                      <Option value="beauty">Beauty</Option>
-                      <Option value="lifestyle">Lifestyle</Option>
-                    </Select>
+                    <Select mode="multiple" placeholder="เลือกประเภท" options={categories} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
                     name="profilePicture"
                     label="รูปโปรไฟล์"
-                    valuePropName="fileList"
-                    getValueFromEvent={({ fileList }) => fileList}
+
                   >
                     <Upload
                       name="profilePicture"
                       listType="picture"
-                      action="/upload" // your backend upload URL here
-                      fileList={fileList}
-                      onChange={handleUpload}
+                      beforeUpload={() => false}
                     >
                       <Button
                         type="primary"
@@ -166,6 +206,19 @@ const ProfileInformationPage = () => {
                     </Upload>
                   </Form.Item>
                 </Col>
+              </Row>
+
+              <Row gutter={10}>
+                <Col span={24}>
+                  <Form.Item
+                    name="yourInfo"
+                    label="อธิบายเกี่ยวกับตัวเอง"
+
+                  >
+                    <TextArea placeholder="อธิบายเกี่ยวกับตัวเอง" />
+                  </Form.Item>
+                </Col>
+
               </Row>
 
               <Row justify={"end"}>

@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import RegisterPage from "./pages/influencer/authen/RegisterPage";
 import ProfileInfomationPage from "./pages/influencer/authen/ProfileInfomationPage";
-import AddYourPortfolioPage from "./pages/influencer/authen/AddYourPortfolioPage";
 import ProfilePage from "./pages/influencer/profile/ProfilePage";
 import ContentFeedPage from "./pages/influencer/content/ContentFeedPage";
 import SearchWorkPage from "./pages/influencer/content/SearchWorkPage";
@@ -99,19 +98,12 @@ function App() {
             <Route
               path="/profile-information"
               element={
-                <ProtectedAuthRoute>
-                  <ProfileInfomationPage />
-                </ProtectedAuthRoute>
+
+                <ProfileInfomationPage />
+
               }
             />
-            <Route
-              path="/add-your-portfolio"
-              element={
-                <ProtectedAuthRoute>
-                  <AddYourPortfolioPage />
-                </ProtectedAuthRoute>
-              }
-            />
+
             <Route path="/profile" element={
               <ProtectedAuthRoute>
                 <ProfilePage />

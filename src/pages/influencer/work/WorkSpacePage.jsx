@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   Card,
@@ -15,15 +15,24 @@ import {
   Typography,
   ConfigProvider,
   Table,
+  Tag,
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
+import { useCancelEnrollMutation, useJobEnrollsQuery } from "../../../api/jobApi";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
 
 const WorkSpacePage = () => {
   const [form] = useForm();
+  const { data: jobEnrolls, isLoading: isLoadingJobEnroll, refetch: refetchJobEnroll } = useJobEnrollsQuery(null)
+  const [cancelEnroll, { isLoading: isLoadingCancelEnroll }] = useCancelEnrollMutation()
+  useEffect(() => {
+    refetchJobEnroll()
+    setAppliedJobs(jobEnrolls)
+  }, [jobEnrolls])
+
   const allAppliedJobs = [
     {
       id: 1,
@@ -111,7 +120,7 @@ const WorkSpacePage = () => {
     },
   ];
 
-  const [appliedJobs, setAppliedJobs] = useState(allAppliedJobs);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
   const [fileList, setFileList] = useState([]);
@@ -123,8 +132,6 @@ const WorkSpacePage = () => {
 
   // Function to handle editing a draft
   const handleViewDraft = (job, draftIndex) => {
-    console.log(job);
-    console.log(draftIndex);
     setIsView(true);
     console.log("object :>> ", job.draftHistory[draftIndex]);
     form.setFieldValue("jobDetails", job.draftHistory[draftIndex].jobDetails);
@@ -133,37 +140,8 @@ const WorkSpacePage = () => {
     setIsModalVisible(true); // Open the modal
   };
 
-  // Function to handle updating the draft
-  const handleUpdateDraft = (values) => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-
-      // Update the selected draft in the draftHistory
-      const updatedJobs = appliedJobs.map((j) => {
-        if (j.id === currentJob.id) {
-          const updatedDraftHistory = [...j.draftHistory];
-          updatedDraftHistory[currentDraftIndex] = values.jobDetails;
-
-          return {
-            ...j,
-            draftHistory: updatedDraftHistory,
-          };
-        }
-        return j;
-      });
-
-      setAppliedJobs(updatedJobs); // Update the job list
-      message.success("Draft updated successfully!");
-      setIsEditDraftModalVisible(false); // Close the modal
-    }, 1500);
-  };
 
   // Filter jobs into different categories
-  const pendingJobs = appliedJobs.filter((job) => job.status === "Pending");
-  const jobsToSubmit = appliedJobs.filter((job) => job.status === "Reviewed");
-  const completedJobs = appliedJobs.filter((job) => job.status === "Accepted");
 
   // Open modal for submitting a draft
   const showDraftModal = (job) => {
@@ -186,12 +164,12 @@ const WorkSpacePage = () => {
             ...job,
             draft: values.jobDetails, // Store the current draft
             draftHistory: [...job.draftHistory,
-               {
-                ...values,
-                draftStatus:"waiting review",
-                upload:values.upload.fileList
-              }
-              ], // Append to draft history
+            {
+              ...values,
+              draftStatus: "waiting review",
+              upload: values.upload.fileList
+            }
+            ], // Append to draft history
           };
         }
         return job;
@@ -204,10 +182,12 @@ const WorkSpacePage = () => {
   };
 
   // Handle job cancellation
-  const cancelJob = (jobId) => {
-    const updatedJobs = appliedJobs.filter((job) => job.id !== jobId);
-    setAppliedJobs(updatedJobs);
-    message.success("Job canceled successfully");
+  const cancelJob = async (jobId) => {
+    const resp = await cancelEnroll({ jobId }).unwrap()
+    if (resp) {
+      refetchJobEnroll()
+      message.success("Job canceled successfully");
+    }
   };
 
   const showConfirm = (jobId) => {
@@ -223,10 +203,10 @@ const WorkSpacePage = () => {
       },
     });
   };
- // Handle file upload
- const handleUploadChange = ({ fileList }) => {
-  setFileList(fileList);
-};
+  // Handle file upload
+  const handleUploadChange = ({ fileList }) => {
+    setFileList(fileList);
+  };
   return (
     <ConfigProvider
       theme={{
@@ -258,23 +238,26 @@ const WorkSpacePage = () => {
               <TabPane tab="งานที่รอดำเนินการ" key="1">
                 <List
                   grid={{ gutter: 16, column: 1 }}
-                  dataSource={pendingJobs}
+                  dataSource={jobEnrolls?.enrollsJob}
                   renderItem={(job) => (
                     <List.Item>
                       <Card
-                        title={`${job.title} at ${job.company}`}
+                        title={`${job?.title}`}
                         extra={
                           <Button
-                            disabled={job.status !== "Pending"}
                             color="danger"
-                            onClick={() => showConfirm(job.id)} // Pass the job ID for cancellation
+                            onClick={() => showConfirm(job.jobId)} // Pass the job ID for cancellation
                           >
                             ยกเลิกงาน
                           </Button>
                         }
                       >
+                        <p style={{ color: "#fff" }}>{job.description}</p>
                         <p style={{ color: "#fff" }}>
-                          <strong>สถานะ:</strong> {job.status}
+                          <strong>ประเภทของงาน:</strong><Tag> {job.category}</Tag>
+                        </p>
+                        <p style={{ color: "#fff" }}>
+                          <strong>แบรนด์:</strong> {job.brand}
                         </p>
                       </Card>
                     </List.Item>
@@ -283,10 +266,74 @@ const WorkSpacePage = () => {
               </TabPane>
 
               {/* Tab 2: Jobs to Submit */}
-              <TabPane tab="งานที่ต้องส่ง" key="2">
+              <TabPane tab="งานที่ต้องส่ง Draft" key="2">
                 <List
                   grid={{ gutter: 16, column: 1 }}
-                  dataSource={jobsToSubmit}
+                  dataSource={jobEnrolls?.waitDraftJob}
+                  renderItem={(job) => (
+                    <List.Item>
+                      <Card
+                        title={`${job.title}`}
+                        extra={
+                          <Button
+                            onClick={() => showDraftModal(job)}
+                            style={{ marginRight: "10px" }}
+                          >
+                            กดส่งแบบร่าง
+                          </Button>
+                        }
+                      >
+                        <p style={{ color: "#fff" }}>
+                          <strong>สถานะ:</strong> {"รอส่งแบบร่าง"}
+                        </p>
+                        {/* Display Draft History in a Table */}
+                        <p style={{ color: "#fff" }}>
+                          <strong>ประวัติการส่งแบบร่าง:</strong>
+                        </p>
+                        <Table
+                          columns={[
+                            {
+                              title: "ลำดับ",
+                              dataIndex: "draftNumber",
+                              key: "draftNumber",
+                              render: (text, record, index) =>
+                                `Draft ${index + 1}`,
+                            },
+                            {
+                              title: "สถานะแบบร่าง",
+                              dataIndex: "draftStatus",
+                              key: "draftStatus",
+                            },
+                            {
+                              title: "แบบร่าง",
+                              dataIndex: "action",
+                              key: "action",
+                              render: (text, record, index) => (
+                                <Button
+                                  type="link"
+                                  onClick={() => handleViewDraft(job, index)}
+                                >
+                                  view
+                                </Button>
+                              ),
+                            },
+                          ]}
+                          dataSource={job.draftHistory}
+                          pagination={false}
+                          style={{ color: "#fff", overflowX: 'scroll' }}
+
+                        />
+                      </Card>
+                    </List.Item>
+                  )}
+                />
+              </TabPane>
+
+              {/* Tab 3: Jobs to Submit */}
+              <TabPane tab="งานที่ต้อง post จริง" key="3">
+                <List
+                  grid={{ gutter: 16, column: 1 }}
+                  dataSource={jobEnrolls?.waitPostJob}
                   renderItem={(job) => (
                     <List.Item>
                       <Card
@@ -343,7 +390,7 @@ const WorkSpacePage = () => {
                           ]}
                           dataSource={job.draftHistory}
                           pagination={false}
-                          style={{ color: "#fff",overflowX:'scroll' }}
+                          style={{ color: "#fff", overflowX: 'scroll' }}
 
                         />
                       </Card>
@@ -353,10 +400,10 @@ const WorkSpacePage = () => {
               </TabPane>
 
               {/* Tab 3: Completed Jobs */}
-              <TabPane tab="งานที่เสร็จสิ้น" key="3">
+              <TabPane tab="งานที่เสร็จสิ้น" key="4">
                 <List
                   grid={{ gutter: 16, column: 1 }}
-                  dataSource={completedJobs}
+                  dataSource={jobEnrolls?.completeJob}
                   renderItem={(job) => (
                     <List.Item>
                       <Card title={`${job.title} at ${job.company}`}>
@@ -408,13 +455,13 @@ const WorkSpacePage = () => {
             <Form.Item
               name="jobDetails"
               label="รายละเอียดงาน"
-              
+
               rules={[
                 { required: true, message: "กรุณาระบุรายละเอียดงาน" },
               ]}
             >
               <TextArea
-                 disabled={isView}
+                disabled={isView}
                 rows={4}
                 placeholder="ระบุรายละเอียดงานที่กำลังส่ง..."
               />
@@ -424,7 +471,7 @@ const WorkSpacePage = () => {
             <Form.Item
               name="posterName"
               label="ชื่อของผู้ว่าจ้าง"
-              
+
               rules={[
                 {
                   required: true,
@@ -458,27 +505,27 @@ const WorkSpacePage = () => {
                   <InboxOutlined />
                 </p>
                 <p style={{ color: "GrayText" }}>
-                คลิกหรือลากไฟล์ไปยังพื้นที่นี้เพื่ออัปโหลด
+                  คลิกหรือลากไฟล์ไปยังพื้นที่นี้เพื่ออัปโหลด
                 </p>
                 <p className="ant-upload-hint">
-                รองรับการอัปโหลดแบบเดี่ยวหรือเป็นกลุ่ม ห้ามอัปโหลดข้อมูลบริษัทหรือไฟล์ต้องห้ามอื่นๆ โดยเด็ดขาด
+                  รองรับการอัปโหลดแบบเดี่ยวหรือเป็นกลุ่ม ห้ามอัปโหลดข้อมูลบริษัทหรือไฟล์ต้องห้ามอื่นๆ โดยเด็ดขาด
                 </p>
               </Upload.Dragger>
             </Form.Item>
 
             {/* Submit Button */}
             <Form.Item>
-            {
-              !isView && <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                style={{ width: "100%" }}
-              >
-                ยืนยัน
-              </Button>
-            }
-              
+              {
+                !isView && <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  style={{ width: "100%" }}
+                >
+                  ยืนยัน
+                </Button>
+              }
+
             </Form.Item>
           </Form>
         </Modal>

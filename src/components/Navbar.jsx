@@ -71,7 +71,7 @@ function Navbar() {
     >
       <Row style={{ width: "100%" }} justify={"space-between"} align={"middle"}>
         <Col xs={18} sm={6}>
-          <div className="logo" onClick={() => navigate("/")} />
+          <div className="logo" onClick={() => navigate("/influencer-homepage")} />
         </Col>
 
         <Col xs={0} sm={18}>
