@@ -1,5 +1,5 @@
 import { Menu, Layout, Row, Col, Button } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { IoMdMenu } from "react-icons/io";
@@ -17,6 +17,10 @@ function Navbar() {
   const email = Cookies.get('email')
   const dispatch = useDispatch()
   const menuItems = [
+    // {
+    //   label: <div onClick={() => navigate("/")}>Home</div>,
+    //   key: "home",
+    // },
     {
       label: <div onClick={() => navigate("/login")}>เข้าสู่ระบบ</div>,
       isAuth: false
@@ -49,6 +53,12 @@ function Navbar() {
       }}>ออกจากระบบ</div>,
       isAuth: true
     },
+    {
+      label: <div style={{display: isAuth ? 'flex': 'none'}}>{email}</div>
+    },
+    {
+      label: <div style={{display: isAuth ? 'flex': 'none'}}>logout</div>
+    }
   ];
   return (
     <Header

@@ -9,55 +9,26 @@ import {
   Card,
   Divider,
   Tag,
+  Image,
 } from "antd";
-import "./style.css";
 import { useNavigate } from "react-router-dom";
+import BannerImage from "/BannerTest.png";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
 
-const HomePage = () => {
+const MainHomePage = () => {
   const navigate = useNavigate();
 
   return (
     <>
-      {/* Navigation Buttons */}
-
-      <Row gutter={12} justify={"center"}>
-        <Col>
-          <Button
-            type="primary"
-            onClick={() => navigate("profile-information")}
-          >
-            profile-information
-          </Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => navigate("profile")}>
-            profile
-          </Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => navigate("content-feed")}>
-            content-feed
-          </Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => navigate("work-space")}>
-            work-space
-          </Button>
-        </Col>
-        <Col>
-          <Button type="primary" onClick={() => navigate("finance")}>
-            finance
-          </Button>
-        </Col>
-      </Row>
-
       {/* Main Content */}
       {/* Introduction Section */}
+      <Row style={{ margin: "2rem 0" }}>
+        <Image preview={false}  width={1500} height={300} src={BannerImage} />
+      </Row>
 
-      <Row justify="center" gutter={[16, 16]}>
+      <Row justify="left" gutter={[16, 16]}>
         <Col span={12}>
           <Title level={2}>Welcome to Influlance</Title>
           <Paragraph>
@@ -66,17 +37,7 @@ const HomePage = () => {
             ไม่ว่าคุณจะเป็นแบรนด์ที่ต้องการโปรโมตสินค้าหรือเป็นอินฟลูเอนเซอร์ที่กำลังมองหาโอกาสใหม่
             ๆ Influlance ทำให้ทุกอย่างง่ายและมีประสิทธิภาพ
           </Paragraph>
-          <Button type="primary" size="large">
-            Get Started
-          </Button>
-        </Col>
-        <Col span={12}>
-          <Image
-            width={200}
-            height={200}
-            src="error"
-            fallback="/Users/pinpin/Desktop/Hippo_influlance/Hippo_influlance/picture/BannerTest.png"
-          />
+          
         </Col>
       </Row>
 
@@ -88,20 +49,26 @@ const HomePage = () => {
             style={{
               borderRadius: "15px",
               textAlign: "center",
-              padding: "30px",
+              padding: "25px",
+              background:'linear-gradient(to right, #7367F0, #A582F7, #CE9FFC)'
             }}
-            bodyStyle={{ backgroundColor: "#E3F5FF" }}
+            bodyStyle={{ backgroundColor: "#000" }}
           >
             <img
               src="path_to_influencer_image"
               alt="Influencer"
               style={{ width: "100%", height: "auto", borderRadius: "15px" }}
             />
-            <Title level={3} style={{ marginTop: "20px", color: "#00A8FF" }}>
-              สมัครเป็น Influencer
+            <Title level={3} style={{ marginTop: "20px", color: "#FF00A8" }}>
+              สมัครเป็น Influencer 
             </Title>
             <Paragraph>รับงานรีวิวสินค้าจากแบรนด์คุณภาพได้ทันที</Paragraph>
-            <Button type="primary" shape="round" size="large">
+            <Button
+              type="primary"
+              shape="round"
+              size="large"
+              onClick={() => navigate("/influencer-homepage")}
+            >
               เริ่มต้น
             </Button>
           </Card>
@@ -112,16 +79,17 @@ const HomePage = () => {
             style={{
               borderRadius: "15px",
               textAlign: "center",
-              padding: "30px",
+              padding: "25px",
+              background:'linear-gradient(to right, #CE9FFC, #A582F7, #7367F0)'
             }}
-            bodyStyle={{ backgroundColor: "#FFE3F5" }}
+            bodyStyle={{ backgroundColor: "#000" }}
           >
             <img
               src="path_to_marketer_image"
               alt="Marketer"
               style={{ width: "100%", height: "auto", borderRadius: "15px" }}
             />
-            <Title level={3} style={{ marginTop: "20px", color: "#FF00A8" }}>
+            <Title level={3} style={{ marginTop: "20px", color: "#00A8FF" }}>
               เปิดบัญชีเป็น Marketer
             </Title>
             <Paragraph>เพื่อเริ่มสร้างแคมเปญรีวิวสินค้า</Paragraph>
@@ -135,4 +103,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default MainHomePage;

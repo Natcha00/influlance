@@ -11,14 +11,14 @@ import {
   Tag,
   Image,
 } from "antd";
-import "./style.css";
 import { useNavigate } from "react-router-dom";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import BannerImage from '/BannerTest.png'
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
 
-const HomePage = () => {
+const InfluencerHomePage = () => {
   const navigate = useNavigate();
   const screen = useBreakpoint();
   return (
@@ -27,28 +27,28 @@ const HomePage = () => {
         <Col>
           <Button
             type="primary"
-            onClick={() => navigate("profile-information")}
+            onClick={() => navigate("/profile-information")}
           >
             profile-information
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("profile")}>
+          <Button type="primary" onClick={() => navigate("/profile")}>
             profile
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("content-feed")}>
+          <Button type="primary" onClick={() => navigate("/content-feed")}>
             content-feed
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("work-space")}>
+          <Button type="primary" onClick={() => navigate("/work-space")}>
             work-space
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("finance")}>
+          <Button type="primary" onClick={() => navigate("/finance")}>
             finance
           </Button>
         </Col>
@@ -56,13 +56,7 @@ const HomePage = () => {
       {/* Content */}
 
       <Row style={{ margin: "2rem 0" }}>
-        <Image
-          preview={false}
-          width={"100%"}
-          height={400}
-          src="error"
-          fallback="picture/BannerTest.png"
-        />
+      <Image preview={false}  width={1500} height={300} src={BannerImage} />
       </Row>
 
       <Row
@@ -129,4 +123,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default InfluencerHomePage;
