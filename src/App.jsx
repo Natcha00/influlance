@@ -13,6 +13,8 @@ import LoginPage from "./pages/influencer/authen/LoginPage";
 import Navbar from "./components/Navbar";
 import AppLayout from "./components/AppLayout";
 import { Button, ConfigProvider } from "antd";
+import ProtectedNoAuthRoute from "./components/ProtectedNoAuthRoute";
+import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
 
 function App() {
   return (
@@ -80,22 +82,62 @@ function App() {
         <AppLayout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={
+              <ProtectedNoAuthRoute>
+                <RegisterPage />
+              </ProtectedNoAuthRoute>
+            } />
+            <Route path="/login" element={
+              <ProtectedNoAuthRoute>
+                <LoginPage />
+              </ProtectedNoAuthRoute>
+            } />
             <Route
               path="/profile-information"
-              element={<ProfileInfomationPage />}
+              element={
+                <ProtectedAuthRoute>
+                  <ProfileInfomationPage />
+                </ProtectedAuthRoute>
+              }
             />
             <Route
               path="/add-your-portfolio"
-              element={<AddYourPortfolioPage />}
+              element={
+                <ProtectedAuthRoute>
+                  <AddYourPortfolioPage />
+                </ProtectedAuthRoute>
+              }
             />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/content-feed" element={<ContentFeedPage />} />
-            <Route path="/search" element={<SearchWorkPage />} />
-            <Route path="/work-space" element={<WorkSpacePage />} />
-            <Route path="/work-darft" element={<WorkDraftPage />} />
-            <Route path="/finance" element={<FinanceManagementPage />} />
+            <Route path="/profile" element={
+              <ProtectedAuthRoute>
+                <ProfilePage />
+              </ProtectedAuthRoute>
+            } />
+            <Route path="/content-feed" element={
+              <ProtectedAuthRoute>
+                <ContentFeedPage />
+              </ProtectedAuthRoute>
+            } />
+            <Route path="/search" element={
+              <ProtectedAuthRoute>
+                <SearchWorkPage />
+              </ProtectedAuthRoute>
+            } />
+            <Route path="/work-space" element={
+              <ProtectedAuthRoute>
+                <WorkSpacePage />
+              </ProtectedAuthRoute>
+            } />
+            <Route path="/work-darft" element={
+              <ProtectedAuthRoute>
+                <WorkDraftPage />
+              </ProtectedAuthRoute>
+            } />
+            <Route path="/finance" element={
+              <ProtectedAuthRoute>
+                <FinanceManagementPage />
+              </ProtectedAuthRoute>
+            } />
           </Routes>
         </AppLayout>
       </ConfigProvider>
