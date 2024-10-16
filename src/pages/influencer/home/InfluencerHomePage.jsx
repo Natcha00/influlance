@@ -55,28 +55,37 @@ const InfluencerHomePage = () => {
       </Row>
       {/* Content */}
 
-      <Row style={{ margin: "2rem 0" }}>
-      <Image preview={false}  width={1500} height={300} src={BannerImage} />
-      </Row>
-
-      <Row
-        justify={screen.xs ? "center" : "start"}
-        gutter={[0, 0]}
-        style={{ margin: "2rem 0" }}
-      >
-        <Col xs={24} md={18}>
-          <Title level={2}>ยินดีต้อนรับเข้าสู่ Influlance</Title>
-          <Paragraph>
-            Influlance
-            เป็นตลาดกลางที่เชื่อมต่อและทำให้แบรนด์กับอินฟลูเอนเซอร์สามารถทำงานร่วมกันได้
-            ไม่ว่าคุณจะเป็นแบรนด์ที่ต้องการโปรโมตสินค้าหรือเป็นอินฟลูเอนเซอร์ที่กำลังมองหาโอกาสใหม่
-            ๆ Influlance ทำให้ทุกอย่างง่ายและมีประสิทธิภาพ
-          </Paragraph>
-          {/* <Button type="primary" size="large">
-                Get Started
-              </Button> */}
-        </Col>
-      </Row>
+      <Content style={{ padding: "50px", margin: "2rem 0" }}>
+        {/* Hero Section */}
+        <div
+          style={{
+            background: "linear-gradient(to right, #7367F0, #E0479E)",
+            padding: "60px",
+            borderRadius: "12px",
+          }}
+        >
+          <Row justify="center" align="middle" gutter={24}>
+            <Col span={12}>
+              <Title level={1} style={{ color: "#fff" }}>
+                Reach Millions with Influlance
+              </Title>
+              <Paragraph style={{ color: "#fff", fontSize: "18px" }}>
+                Start your campaign and connect with the best influencers in the
+                industry to maximize your brand's reach.
+              </Paragraph>
+              <Button type="primary" size="large">
+                Start Your Campaign
+              </Button>
+            </Col>
+            <Col span={12}>
+              <img
+                src="https://source.unsplash.com/random/800x600"
+                alt="Marketer"
+                style={{ width: "100%", borderRadius: "12px" }}
+              />
+            </Col>
+          </Row>
+        </div>
 
       {/* Job Recommendations */}
       <>
@@ -119,6 +128,7 @@ const InfluencerHomePage = () => {
       {/* <Footer style={{ textAlign: "center" }}>
         Influlance ©2024 Created by Your Team
       </Footer> */}
+      </Content>
     </>
   );
 };
