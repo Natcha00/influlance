@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Input,
   Row,
@@ -14,64 +14,29 @@ import {
   Modal,
   message,
 } from "antd";
-import { SearchOutlined, CloseCircleOutlined,ExclamationCircleFilled } from "@ant-design/icons";
+import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobsQuery } from '../../../api/jobApi'
+
 
 const { Search } = Input;
 const { Option } = Select;
 
 
 const ContentFeedPage = () => {
-  const allPosts = [
-    {
-      id: 1,
-      title: "Frontend Developer Needed",
-      category: "พัฒนา",
-      brand: "apple",
-      description:
-        "We are looking for a frontend developer with React.js experience.",
-    },
-    {
-      id: 2,
-      title: "Graphic Designer for Social Media",
-      category: "Design",
-      brand: "samsung",
-      description: "We need a graphic designer to work on social media posts.",
-    },
-    {
-      id: 3,
-      title: "Marketing Manager for New Campaign",
-      category: "Marketing",
-      brand: "7-11",
-      description:
-        "Looking for an experienced  manager for a new campaign.",
-    },
-    {
-      id: 4,
-      title: "Backend Developer for API Integration",
-      category: "Development",
-      brand: "pepsi",
-      description:
-        "Looking for a backend developer to integrate third-party APIs.",
-    },
-    {
-      id: 5,
-      title: "UI/UX Designer",
-      category: "Design",
-      brand: "apple",
-      description: "We need a UI/UX designer to redesign our application.",
-    },
-  ];
+  const { data: jobs, isLoading: isLoadingJobs, refetch } = useJobsQuery(null)
+  const { data: categories, isLoading: isLoadingCategories } = useCategoriesQuery(null)
+  const [enroll, { isLoading: LoadingEnroll }] = useEnrollMutation()
 
-  const allCategories = ["พัฒนา", "Design", "Marketing", "Food"];
 
+  useEffect(() => {
+    setFilteredPosts(jobs)
+  }, [jobs])
   // State for filtered posts, selected tags, and selected category
-  const [filteredPosts, setFilteredPosts] = useState(allPosts);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
-  //const [selectedCategory, setSelectedCategory] = useState('All'); // Added selectedCategory state
-
   // Handle search
   const onSearch = (value) => {
-    const filtered = allPosts.filter(
+    const filtered = jobs.filter(
       (post) =>
         (post.title.toLowerCase().includes(value.toLowerCase()) &&
           (selectedTags.length === 0 ||
@@ -83,47 +48,45 @@ const ContentFeedPage = () => {
 
   // Handle adding/removing tags
   const addTag = (tag) => {
-    if (!selectedTags.includes(tag)) {
+    if (!selectedTags.map(el => el.value).includes(tag.value)) {
       const newTags = [...selectedTags, tag];
       setSelectedTags(newTags);
-      const filtered = allPosts.filter((post) =>
-        newTags.includes(post.category)
+      const filtered = jobs.filter((post) =>
+        newTags.map(el => el.value).includes(post.category)
       );
       setFilteredPosts(filtered);
     }
   };
 
   const removeTag = (tag) => {
-    const newTags = selectedTags.filter((t) => t !== tag);
+    const newTags = selectedTags.filter((t) => t.value !== tag.value);
     setSelectedTags(newTags);
     if (newTags.length === 0) {
-      setFilteredPosts(allPosts);
+      setFilteredPosts(jobs);
     } else {
-      const filtered = allPosts.filter((post) =>
-        newTags.includes(post.category)
+      const filtered = jobs.filter((post) =>
+        newTags.map(el => el.value).includes(post.category)
       );
       setFilteredPosts(filtered);
     }
   };
 
-  // Handle category change from dropdown
-  // const handleCategoryChange = (category) => {
-  //   setSelectedCategory(category);
-  //   if (category === 'All') {
-  //     setFilteredPosts(allPosts);
-  //   } else {
-  //     const filtered = allPosts.filter(post => post.category === category);
-  //     setFilteredPosts(filtered);
-  //   }
-  // };
 
-  const showConfirm = () => {
+  const showConfirm = (post) => {
     Modal.confirm({
       title: 'ต้องการสมัครนี้ใช่หรือไม่?',
       icon: <ExclamationCircleFilled />,
       content: '',
-      onOk() {
-        message.success('สมัครงานเรียบร้อย')
+      async onOk() {
+        const resp = await enroll({
+          jobId: post.jobId,
+          marketerId: post.marketerId
+        }).unwrap()
+
+        if (resp) {
+          message.success('สมัครงานเรียบร้อย')
+          refetch()
+        }
       },
       onCancel() {
         console.log('Cancel');
@@ -158,23 +121,6 @@ const ContentFeedPage = () => {
         </Col>
       </Row>
 
-      {/* Category Filter
-      <Row justify="center" style={{ marginBottom: '20px' }}>
-        <Col span={18}>
-          <Select
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            size="large"
-            style={{ width: '100%', borderRadius: '10px' }}
-          >
-            <Option value="All">All Categories</Option>
-            <Option value="Development">Development</Option>
-            <Option value="Design">Design</Option>
-            <Option value="Marketing">Marketing</Option>
-          </Select>
-        </Col>
-      </Row> */}
-
       {/* Tag Filter */}
       <Row justify="center" style={{ marginBottom: "20px" }}>
         <Col span={18}>
@@ -191,7 +137,7 @@ const ContentFeedPage = () => {
                   borderRadius: "10px",
                 }}
               >
-                {tag} <CloseCircleOutlined />
+                {tag.label} <CloseCircleOutlined />
               </Tag>
             ))}
           </Space>
@@ -202,11 +148,11 @@ const ContentFeedPage = () => {
       <Row justify="center" style={{ marginBottom: "20px" }}>
         <Col span={18}>
           <Space size={[0, 8]} wrap>
-            {allCategories.map((category) => (
+            {categories?.map((category) => (
               <Tag
-                key={category}
+                key={category.value}
                 onClick={() => addTag(category)}
-                color={selectedTags.includes(category) ? "purple" : "default"}
+                color={selectedTags.map(el => el.value).includes(category.value) ? "purple" : "default"}
                 style={{
                   fontSize: "16px",
                   padding: "5px 10px",
@@ -214,7 +160,7 @@ const ContentFeedPage = () => {
                   cursor: "pointer",
                 }}
               >
-                {category}
+                {category.label}
               </Tag>
             ))}
           </Space>
@@ -233,8 +179,8 @@ const ContentFeedPage = () => {
               <List.Item>
                 <Card
                   title={post.title}
-                  extra={            
-                      <Button type="primary" onClick={showConfirm}>สมัครงาน</Button>
+                  extra={
+                    <Button type="primary" onClick={() => showConfirm(post)} loading={LoadingEnroll}>สมัครงาน</Button>
                   }
                   style={{
                     borderRadius: "10px",
@@ -245,7 +191,7 @@ const ContentFeedPage = () => {
                 >
                   <p style={{ color: "#fff" }}>{post.description}</p>
                   <p style={{ color: "#fff" }}>
-                  <strong>ประเภทของงาน:</strong><Tag> {post.category}</Tag>
+                    <strong>ประเภทของงาน:</strong><Tag> {post.category}</Tag>
                   </p>
                   <p style={{ color: "#fff" }}>
                     <strong>แบรนด์:</strong> {post.brand}

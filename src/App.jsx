@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import RegisterPage from "./pages/influencer/authen/RegisterPage";
 import ProfileInfomationPage from "./pages/influencer/authen/ProfileInfomationPage";
-import AddYourPortfolioPage from "./pages/influencer/authen/AddYourPortfolioPage";
 import ProfilePage from "./pages/influencer/profile/ProfilePage";
 import ContentFeedPage from "./pages/influencer/content/ContentFeedPage";
 import SearchWorkPage from "./pages/influencer/content/SearchWorkPage";
@@ -19,7 +18,8 @@ import MarketerWorkSpacePage from "./pages/marketer/work/MarketerWorkSpacePage";
 import CheckWorkPage from "./pages/marketer/work/CheckWorkPage";
 import CreateWorkPage from "./pages/marketer/work/CreateWorkPage";
 import MarketerProfilePage from "./pages/marketer/profile/MarketerProfilePage";
-
+import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
+import ProtectedNoAuth from "./components/ProtectedNoAuthRoute";
 
 function App() {
   const influTheme = {
@@ -78,21 +78,38 @@ function App() {
         colorSplit: "#fff",
       },
     },
-  }
+  };
   return (
     <>
-      <ConfigProvider
-        theme={influTheme}
-      >
+      <ConfigProvider theme={influTheme}>
         <Navbar />
         <AppLayout>
           <Routes>
             <Route path="/" element={<MainHomePage />} />
-            <Route path="/influencer-homepage" element={<InfluencerHomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile-information" element={<ProfileInfomationPage />} />
-            <Route path="/add-your-portfolio" element={<AddYourPortfolioPage />} />
+            <Route
+              path="/influencer-homepage"
+              element={<InfluencerHomePage />}
+            />
+            <Route
+              path="/register"
+              element={
+                <ProtectedNoAuth>
+                  <RegisterPage />
+                </ProtectedNoAuth>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <ProtectedNoAuth>
+                  <LoginPage />
+                </ProtectedNoAuth>
+              }
+            />
+            <Route
+              path="/profile-information"
+              element={<ProfileInfomationPage />}
+            />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/content-feed" element={<ContentFeedPage />} />
             <Route path="/search" element={<SearchWorkPage />} />
@@ -102,9 +119,65 @@ function App() {
 
             <Route path="/marketer-homepage" element={<MarketerHomePage />} />
             <Route path="/marketer-profile" element={<MarketerProfilePage />} />
-            <Route path="/marketer-work-space" element={<MarketerWorkSpacePage />} />
+            <Route
+              path="/marketer-work-space"
+              element={<MarketerWorkSpacePage />}
+            />
             <Route path="/check-work" element={<CheckWorkPage />} />
             <Route path="/create-work" element={<CreateWorkPage />} />
+            <Route
+              path="/profile-information"
+              element={<ProfileInfomationPage />}
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedAuthRoute>
+                  <ProfilePage />
+                </ProtectedAuthRoute>
+              }
+            />
+            <Route
+              path="/content-feed"
+              element={
+                <ProtectedAuthRoute>
+                  <ContentFeedPage />
+                </ProtectedAuthRoute>
+              }
+            />
+            <Route
+              path="/search"
+              element={
+                <ProtectedAuthRoute>
+                  <SearchWorkPage />
+                </ProtectedAuthRoute>
+              }
+            />
+            <Route
+              path="/work-space"
+              element={
+                <ProtectedAuthRoute>
+                  <WorkSpacePage />
+                </ProtectedAuthRoute>
+              }
+            />
+            <Route
+              path="/work-darft"
+              element={
+                <ProtectedAuthRoute>
+                  <WorkDraftPage />
+                </ProtectedAuthRoute>
+              }
+            />
+            <Route
+              path="/finance"
+              element={
+                <ProtectedAuthRoute>
+                  <FinanceManagementPage />
+                </ProtectedAuthRoute>
+              }
+            />
           </Routes>
         </AppLayout>
       </ConfigProvider>

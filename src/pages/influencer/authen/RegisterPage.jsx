@@ -1,32 +1,61 @@
 // RegisterPage.js
 import React from 'react';
-import { Form, Input, Button, Row, Col, Typography, Divider, Card } from 'antd';
+import { Form, Input, Button, Row, Col, Typography, Divider, Card, message } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRegisterInfo } from '../../../slices/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { useCheckEmailMutation } from '../../../api/authApi';
 
 const { Title } = Typography;
 
 const RegisterPage = () => {
+  const [checkEmail, { isLoading }] = useCheckEmailMutation()
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   // ฟังก์ชันในการจัดการการส่งฟอร์ม
-  const onFinish = (values) => {
-    console.log('Form values: ', values);
-    // สามารถเพิ่มการนำค่าฟอร์มไปใช้งาน เช่น ส่งไปยัง backend หรือไปหน้าถัดไปได้
+  const onFinish = async (values) => {
+    try {
+      console.log('Form values: ', values);
+      // สามารถเพิ่มการนำค่าฟอร์มไปใช้งาน เช่น ส่งไปยัง backend หรือไปหน้าถัดไปได้
+      const resp = await checkEmail({ email: values.email }).unwrap()
+
+      if (resp) {
+        navigate('/profile-information', { state: { email: values.email, password: values.password } })
+      }
+
+    } catch (error) {
+      console.log(error)
+      if (error.data) {
+        message.error(error.data)
+      } else {
+        message.error("found issue")
+      }
+    }
+
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('errorInfo', errorInfo)
+    message.error(errorInfo)
   }
   return (
     <Row justify="center" >
       <Col xs={0} md={12} style={{ background: 'grey' }}>
 
       </Col>
-      <Col xs={24}  md={12}>
+      <Col xs={24} md={12}>
         <Card title={"Register"}>
           <Form
             name="register"
             layout="vertical"
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
+            initialValues={{
+              email: "cine@test.com",
+              password: "1234",
+              'confirm-password': '1234'
+            }}
           >
             {/* Email */}
             <Form.Item
