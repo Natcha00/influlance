@@ -212,7 +212,7 @@ const WorkSpacePage = () => {
       theme={{
         components: {
           Card: {
-            headerBg: "#7367F0",
+            headerBg: "linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)",
             colorBgContainer: "#2c2c2c",
           },
           Typography: {

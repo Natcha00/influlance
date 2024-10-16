@@ -87,7 +87,7 @@ const FinanceManagementPage = () => {
             <Card
               style={{
                 padding: 10,
-                background: '#7367F0',
+                background: '#5A4FF5',
                 borderRadius: '10px',
                 color: '#fff',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)',

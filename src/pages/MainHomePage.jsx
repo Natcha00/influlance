@@ -50,7 +50,7 @@ const MainHomePage = () => {
               borderRadius: "15px",
               textAlign: "center",
               padding: "25px",
-              background:'linear-gradient(to right, #7367F0, #A582F7, #CE9FFC)'
+              background:'linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)'
             }}
             bodyStyle={{ backgroundColor: "#000" }}
           >
@@ -80,7 +80,7 @@ const MainHomePage = () => {
               borderRadius: "15px",
               textAlign: "center",
               padding: "25px",
-              background:'linear-gradient(to right, #CE9FFC, #A582F7, #7367F0)'
+              background:'linear-gradient(to right, #CE9FFC, #A582F7, #5A4FF5)'
             }}
             bodyStyle={{ backgroundColor: "#000" }}
           >
@@ -93,7 +93,12 @@ const MainHomePage = () => {
               เปิดบัญชีเป็น Marketer
             </Title>
             <Paragraph>เพื่อเริ่มสร้างแคมเปญรีวิวสินค้า</Paragraph>
-            <Button type="primary" shape="round" size="large">
+            <Button 
+              type="primary" 
+              shape="round" 
+              size="large"
+              onClick={() => navigate("/marketer-homepage")}
+              >
               เริ่มต้น
             </Button>
           </Card>
