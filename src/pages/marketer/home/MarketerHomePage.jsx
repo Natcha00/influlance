@@ -9,9 +9,10 @@ const { Title, Paragraph } = Typography;
 const MarketerHomePage = () => {
   const navigate = useNavigate();
   const screen = useBreakpoint();
+
   return (
     <>
-    <Row gutter={12}>
+      <Row gutter={12}>
         <Col>
           <Button
             type="primary"
@@ -25,18 +26,11 @@ const MarketerHomePage = () => {
             profile
           </Button>
         </Col>
-        {/* <Col>
-          <Button type="primary" onClick={() => navigate("/create-work")}>
-          create-work
-          </Button>
-        </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("/check-work")}>
-          check-work
-          </Button>
-        </Col> */}
-        <Col>
-          <Button type="primary" onClick={() => navigate("/marketer-work-space")}>
+          <Button
+            type="primary"
+            onClick={() => navigate("/marketer-work-space")}
+          >
             work-space
           </Button>
         </Col>
@@ -53,6 +47,7 @@ const MarketerHomePage = () => {
             background: "linear-gradient(to right, #FFD700, #FFB6C1)",
             padding: "60px",
             borderRadius: "12px",
+            position: "relative",
           }}
         >
           <Row justify="center" align="middle" gutter={24}>
@@ -70,9 +65,15 @@ const MarketerHomePage = () => {
             </Col>
             <Col span={12}>
               <img
-                src="https://source.unsplash.com/random/800x600"
+                src="public/PIC_Banner.png"  // Adjust the path accordingly
                 alt="Marketer"
-                style={{ width: "100%", borderRadius: "12px" }}
+                style={{
+                  width: "400px", // Adjust the size as needed
+                  position: "absolute",
+                  top: "0",
+                  right: "0",
+                  zIndex: 1, 
+                }}
               />
             </Col>
           </Row>
@@ -128,11 +129,6 @@ const MarketerHomePage = () => {
             </Col>
           </Row>
         </div>
-
-        {/* Footer */}
-        <Footer style={{ textAlign: "center", marginTop: "50px" }}>
-          Influlance ©2024 Created by Your Team
-        </Footer>
       </Content>
     </>
   );

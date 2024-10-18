@@ -52,7 +52,7 @@ const RegisterPage = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
             initialValues={{
-              email: "cine@test.com",
+              email: "Natcha@test.com",
               password: "1234",
               'confirm-password': '1234'
             }}
