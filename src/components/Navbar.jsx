@@ -67,16 +67,16 @@ function Navbar() {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: screen.xs ? "0 1rem" : "0 16rem",
+        padding: screen.xs ? "0 1rem" : "0 16rem"
       }}
     >
-      <Row style={{ width: "100%" }} justify={"space-between"} align={"middle"}>
-        <Col xs={18} sm={6}>
+      <Row onClick={() => navigate("/")} style={{ cursor: 'pointer',width: "100%" }} justify={"space-between"} align={"middle"}>
+        <Col xs={18} sm={6} style={ {display: 'flex', width: '100%', height: "100%"} }>
           <img
             src={Logo}
             alt="Logo"
-            style={{ height:"150px", width:"250px", top:"px"}}
-             onClick={() => navigate("/")}
+            style={{ height:"100px", width:"95px"}}
+             
           />
          
         </Col>

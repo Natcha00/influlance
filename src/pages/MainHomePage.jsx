@@ -20,7 +20,7 @@ const MainHomePage = () => {
         {/* Hero Section */}
         <div
           style={{
-            background: "linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)",
+            background: "linear-gradient(to bottom, #003554, #fabec0)",
             padding: "60px",
             borderRadius: "12px",
             position: "relative",
@@ -28,10 +28,19 @@ const MainHomePage = () => {
         >
           <Row justify="center" align="middle" gutter={24}>
             <Col span={12}>
-              <Title level={1} style={{ color: "#fff" }}>
+              <Title
+                level={1}
+                style={{
+                  color:'#fff'
+                  // background: "linear-gradient(to bottom, #bfdbf7, #022b3a)",
+                  // WebkitBackgroundClip: "text",
+                  // WebkitTextFillColor: "transparent",
+                }}
+              >
                 เชื่อมต่อแบรนด์และอินฟลูเอนเซอร์อย่างง่ายดาย
               </Title>
-              <Paragraph style={{ color: "#fff", fontSize: "18px" }}>
+
+              <Paragraph style={{ color: "#ffff", fontSize: "18px" }}>
                 ค้นหาและร่วมงานกับอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
               </Paragraph>
             </Col>
@@ -54,8 +63,8 @@ const MainHomePage = () => {
                   top: "100px",
                   right: "-200px",
                   zIndex: 1,
-                }} */}
-              />
+                }}
+              /> */}
             </Col>
           </Row>
         </div>
@@ -83,7 +92,7 @@ const MainHomePage = () => {
                 textAlign: "center",
                 padding: "15px",
                 background:
-                  "linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)",
+                  "linear-gradient(to bottom, #16425b, #ffafcc)",
               }}
               bodyStyle={{ backgroundColor: "#000" }}
             >
@@ -114,7 +123,7 @@ const MainHomePage = () => {
                 textAlign: "center",
                 padding: "15px",
                 background:
-                  "linear-gradient(to right, #CE9FFC, #A582F7, #5A4FF5)",
+                  "linear-gradient(to bottom, #ffafcc, #16425b)",
               }}
               bodyStyle={{ backgroundColor: "#000" }}
             >

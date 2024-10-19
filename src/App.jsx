@@ -35,6 +35,8 @@ function App() {
       Layout: {
         bodyBg: "#000",
         headerColor: "#fff",
+        headerHeight: "100px",
+        // headerBg:'#fff'
       },
       Divider: {
         colorTextHeading: "#000",

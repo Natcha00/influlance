@@ -2,6 +2,7 @@ import React from "react";
 import { Layout, Row, Col, Button, Typography, Card, Divider } from "antd";
 import { useNavigate } from "react-router-dom";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import BannerImage from "/Banner_Market.gif";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
@@ -44,7 +45,7 @@ const MarketerHomePage = () => {
         {/* Hero Section */}
         <div
           style={{
-            background: "linear-gradient(to right, #FFD700, #FFB6C1)",
+            background: "linear-gradient(to right, #003554,#6096ba, #a9d6e5)",
             padding: "60px",
             borderRadius: "12px",
             position: "relative",
@@ -53,26 +54,29 @@ const MarketerHomePage = () => {
           <Row justify="center" align="middle" gutter={24}>
             <Col span={12}>
               <Title level={1} style={{ color: "#fff" }}>
-                Reach Millions with Influlance
+                ค้นหาอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
               </Title>
               <Paragraph style={{ color: "#fff", fontSize: "18px" }}>
-                Start your campaign and connect with the best influencers in the
-                industry to maximize your brand's reach.
+                ยินดีต้อนรับสู่ Influlance!
+                ที่นี่คุณสามารถค้นหาและร่วมงานกับอินฟลูเอนเซอร์ที่ตรงกับความต้องการของแบรนด์คุณ
+                ไม่ว่าจะเป็นแคมเปญขนาดใหญ่หรือเล็ก
+                เรามีอินฟลูเอนเซอร์มากมายที่พร้อมจะช่วยส่งเสริมแบรนด์ของคุณอย่างสร้างสรรค์และมีประสิทธิภาพ
               </Paragraph>
               <Button type="primary" size="large">
-                Start Your Campaign
+                เริ่มต้น
               </Button>
             </Col>
             <Col span={12}>
               <img
-                src="public/PIC_Banner.png"  // Adjust the path accordingly
+                src={BannerImage}// Adjust the path accordingly
                 alt="Marketer"
                 style={{
-                  width: "400px", // Adjust the size as needed
+                  width: "130%",
+                  borderRadius: "12px",
                   position: "absolute",
-                  top: "0",
-                  right: "0",
-                  zIndex: 1, 
+                  top: "-190px",
+                  right: "-90px",
+                  zIndex: 1,
                 }}
               />
             </Col>
@@ -82,12 +86,12 @@ const MarketerHomePage = () => {
         {/* Features Section */}
         <div style={{ marginTop: "50px" }}>
           <Divider orientation="left" style={{ fontSize: "24px" }}>
-            Why Use Influlance?
+            ทำไมต้องใช้ Influlance?
           </Divider>
           <Row justify="center" gutter={[16, 16]}>
             <Col span={8}>
               <Card
-                title="Find Influencers"
+                title="ประหยัดเวลาในการค้นหาและจ้างงาน"
                 bordered={false}
                 style={{
                   textAlign: "center",
@@ -95,13 +99,16 @@ const MarketerHomePage = () => {
                   borderRadius: "12px",
                 }}
               >
-                Easily search and filter through thousands of influencers to
-                find the perfect match for your brand.
+                ไม่ต้องเสียเวลาในการค้นหาอินฟลูเอนเซอร์จากหลายช่องทาง เพราะ
+                Influlance
+                รวบรวมอินฟลูเอนเซอร์จากหลากหลายสายงานไว้ให้คุณเลือกในที่เดียว
+                คุณสามารถสร้างแคมเปญ ระบุความต้องการ
+                และรับใบสมัครจากอินฟลูเอนเซอร์ที่ตรงกับงานของคุณโดยตรง
               </Card>
             </Col>
             <Col span={8}>
               <Card
-                title="Create Campaigns"
+                title="การทำงานที่โปร่งใสและควบคุมได้ง่าย"
                 bordered={false}
                 style={{
                   textAlign: "center",
@@ -109,13 +116,16 @@ const MarketerHomePage = () => {
                   borderRadius: "12px",
                 }}
               >
-                Launch influencer marketing campaigns in just a few clicks with
-                our intuitive platform.
+                คุณสามารถติดตามความคืบหน้าของแคมเปญได้อย่างง่ายดาย
+                ตั้งแต่การเลือกอินฟลูเอนเซอร์ การส่งงาน
+                ไปจนถึงการตรวจสอบผลงานและการชำระเงิน
+                ระบบมีการบันทึกและแสดงสถานะทุกขั้นตอนอย่างชัดเจน
+                ช่วยให้คุณควบคุมการทำงานและงบประมาณได้เต็มที่
               </Card>
             </Col>
             <Col span={8}>
               <Card
-                title="Track Results"
+                title="จัดการการชำระเงินง่ายและปลอดภัย"
                 bordered={false}
                 style={{
                   textAlign: "center",
@@ -123,8 +133,8 @@ const MarketerHomePage = () => {
                   borderRadius: "12px",
                 }}
               >
-                Track campaign performance and ROI in real-time with detailed
-                analytics.
+                ระบบการชำระเงินผ่านเครดิตช่วยให้การทำธุรกรรมระหว่างคุณกับอินฟลูเอนเซอร์เป็นไปอย่างราบรื่นและปลอดภัย
+                คุณสามารถเติมเครดิตไว้ในระบบและชำระเงินเมื่อแคมเปญเสร็จสิ้นได้โดยไม่ต้องกังวลเรื่องความปลอดภัย
               </Card>
             </Col>
           </Row>
