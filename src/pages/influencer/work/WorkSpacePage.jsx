@@ -19,7 +19,10 @@ import {
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
-import { useCancelEnrollMutation, useJobEnrollsQuery } from "../../../api/jobApi";
+import { useCancelEnrollMutation, useJobEnrollsQuery, useSaveDraftMutation, useSavePostMutation } from "../../../api/jobApi";
+import { FcCheckmark } from "react-icons/fc";
+import { IoCheckmarkCircleSharp } from "react-icons/io5";
+import DraggerUpload from "../../../components/DraggerUpload";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -28,6 +31,8 @@ const WorkSpacePage = () => {
   const [form] = useForm();
   const { data: jobEnrolls, isLoading: isLoadingJobEnroll, refetch: refetchJobEnroll } = useJobEnrollsQuery(null)
   const [cancelEnroll, { isLoading: isLoadingCancelEnroll }] = useCancelEnrollMutation()
+  const [saveDraft, { isLoading: isLoadingSaveDraft }] = useSaveDraftMutation()
+  const [savePost, { isLoading: isLoadingSavePost }] = useSavePostMutation()
   useEffect(() => {
     refetchJobEnroll()
     setAppliedJobs(jobEnrolls)
@@ -50,7 +55,7 @@ const WorkSpacePage = () => {
       draft: "",
       draftHistory: [
         {
-          jobDetails: "Design Studios Detail",
+          content: "Design Studios Detail",
           posterName: "posterName Name",
           draftStatus: "waiting review",
           upload: [
@@ -100,7 +105,7 @@ const WorkSpacePage = () => {
       draft: "",
       draftHistory: [
         {
-          jobDetails: "Design Studios dadasdasda",
+          content: "Design Studios dadasdasda",
           posterName: "posterName Nasdasdadame",
           draftStatus: "waiting review",
           upload: [
@@ -131,12 +136,38 @@ const WorkSpacePage = () => {
   const [currentDraftIndex, setCurrentDraftIndex] = useState(null); // Track which draft is being edited
 
   // Function to handle editing a draft
-  const handleViewDraft = (job, draftIndex) => {
+  const handleViewDraft = (job, index) => {
     setIsView(true);
-    console.log("object :>> ", job.draftHistory[draftIndex]);
-    form.setFieldValue("jobDetails", job.draftHistory[draftIndex].jobDetails);
-    form.setFieldValue("posterName", job.draftHistory[draftIndex].posterName);
-    setFileList(job.draftHistory[draftIndex].upload)
+    if (job.jobStatus == 'wait draft') {
+      form.setFieldValue("content", job.draft[index].content);
+      form.setFieldValue("reasonReject", job.draft[index].reasonReject);
+      const upload = [
+        ...job.draft[index]?.pictureURL,
+        ...job.draft[index]?.videoURL,
+      ].map((el, i) => ({
+        uid: `-${i + 1}`,
+        type: "image/png",
+        url: el,
+        thumbUrl: el,
+        status: "done",
+      }))
+      setFileList(upload)
+    } else if (job.jobStatus == 'wait post') {
+      form.setFieldValue("content", job.post[index].content);
+      form.setFieldValue("reasonReject", job.post[index].reasonReject);
+      const upload = [
+        ...job.post[index]?.pictureURL,
+        ...job.post[index]?.videoURL,
+      ].map((el, i) => ({
+        uid: `-${i + 1}`,
+        type: "image/png",
+        url: el,
+        thumbUrl: el,
+        status: "done",
+      }))
+      setFileList(upload)
+    }
+
     setIsModalVisible(true); // Open the modal
   };
 
@@ -150,35 +181,43 @@ const WorkSpacePage = () => {
   };
 
   // Handle form submission and save draft to job's history
-  const handleSubmit = (values) => {
-    setLoading(true);
-    console.log(values);
-    // Simulate API call or submit logic
-    setTimeout(() => {
-      setLoading(false);
+  const handleSubmit = async (values, currentJob) => {
+    try {
+      console.log('values', values)
+      console.log('currentJob', currentJob)
+      if (currentJob.jobStatus == 'wait draft') {
+        const resp = await saveDraft({
+          content: values.content,
+          pictureURL: values.upload.map(el => el.url),
+          videoURL: [],
+          jobEnrollId: currentJob.jobEnrollId
+        })
 
-      // Update the job with new draft submission
-      const updatedJobs = appliedJobs.map((job) => {
-        if (job.id === currentJob.id) {
-          return {
-            ...job,
-            draft: values.jobDetails, // Store the current draft
-            draftHistory: [...job.draftHistory,
-            {
-              ...values,
-              draftStatus: "waiting review",
-              upload: values.upload.fileList
-            }
-            ], // Append to draft history
-          };
+        if (resp) {
+          message.success("บันทึกงานสำเร็จ !");
+          refetchJobEnroll()
+          setIsModalVisible(false);
         }
-        return job;
-      });
-      setAppliedJobs(updatedJobs);
+      } else if (currentJob.jobStatus == 'wait post') {
+        const resp = await savePost({
+          content: values.content,
+          pictureURL: values.upload.map(el => el.url),
+          videoURL: [],
+          jobEnrollId: currentJob.jobEnrollId
+        })
 
-      message.success("Work submitted successfully!");
-      setIsModalVisible(false);
-    }, 500);
+        if (resp) {
+          message.success("บันทึกงานสำเร็จ !");
+          refetchJobEnroll()
+          setIsModalVisible(false);
+        }
+      }
+
+    } catch (error) {
+      console.log('error', error)
+      message.error("เกิดข้อผิดพลาด")
+    }
+
   };
 
   // Handle job cancellation
@@ -278,6 +317,7 @@ const WorkSpacePage = () => {
                           <Button
                             onClick={() => showDraftModal(job)}
                             style={{ marginRight: "10px" }}
+                            disabled={job?.draft.some(e => e.status == 'approve')}
                           >
                             กดส่งแบบร่าง
                           </Button>
@@ -301,8 +341,15 @@ const WorkSpacePage = () => {
                             },
                             {
                               title: "สถานะแบบร่าง",
-                              dataIndex: "draftStatus",
-                              key: "draftStatus",
+                              dataIndex: "status",
+                              key: "status",
+                              render: (_, record) => <Tag color={
+                                record.status == 'approve' ?
+                                  "green" :
+                                  record.status == 'reject' ?
+                                    "red" :
+                                    "blue"
+                              }>{record.status}</Tag>
                             },
                             {
                               title: "แบบร่าง",
@@ -318,7 +365,7 @@ const WorkSpacePage = () => {
                               ),
                             },
                           ]}
-                          dataSource={job.draftHistory}
+                          dataSource={job?.draft}
                           pagination={false}
                           style={{ color: "#fff", overflowX: 'scroll' }}
 
@@ -337,23 +384,24 @@ const WorkSpacePage = () => {
                   renderItem={(job) => (
                     <List.Item>
                       <Card
-                        title={`${job.title} at ${job.company}`}
+                        title={`${job?.title}`}
                         extra={
                           <Button
                             //type="primary"
                             onClick={() => showDraftModal(job)}
                             style={{ marginRight: "10px" }}
+                            disabled={job?.post.some(e => e.status == 'approve')}
                           >
-                            {job.draft ? "Resubmit Draft" : "กดส่งแบบร่าง"}
+                            กดส่งแบบร่าง
                           </Button>
                         }
                       >
                         <p style={{ color: "#fff" }}>
-                          <strong>สถานะ:</strong> {job.status}
+                          <strong>สถานะ:</strong> {job?.status}
                         </p>
                         <p style={{ color: "#fff" }}>
                           <strong>ส่งแบบร่าง:</strong>{" "}
-                          {job.draft ? "Yes" : "No"}
+                          {job?.post ? "Yes" : "No"}
                         </p>
 
                         {/* Display Draft History in a Table */}
@@ -371,8 +419,15 @@ const WorkSpacePage = () => {
                             },
                             {
                               title: "สถานะแบบร่าง",
-                              dataIndex: "draftStatus",
-                              key: "draftStatus",
+                              dataIndex: "status",
+                              key: "status",
+                              render: (_, record) => <Tag color={
+                                record.status == 'approve' ?
+                                  "green" :
+                                  record.status == 'reject' ?
+                                    "red" :
+                                    "blue"
+                              }>{record.status}</Tag>
                             },
                             {
                               title: "แบบร่าง",
@@ -388,7 +443,7 @@ const WorkSpacePage = () => {
                               ),
                             },
                           ]}
-                          dataSource={job.draftHistory}
+                          dataSource={job?.post}
                           pagination={false}
                           style={{ color: "#fff", overflowX: 'scroll' }}
 
@@ -399,29 +454,24 @@ const WorkSpacePage = () => {
                 />
               </TabPane>
 
-              {/* Tab 3: Completed Jobs */}
+              {/* Tab 4: Completed Jobs */}
               <TabPane tab="งานที่เสร็จสิ้น" key="4">
                 <List
                   grid={{ gutter: 16, column: 1 }}
                   dataSource={jobEnrolls?.completeJob}
                   renderItem={(job) => (
                     <List.Item>
-                      <Card title={`${job.title} at ${job.company}`}>
+                      <Card
+                        title={`${job?.title}`}
+                        extra={<IoCheckmarkCircleSharp size={32} color="green" />}
+                      >
+                        <p style={{ color: "#fff" }}>{job.description}</p>
                         <p style={{ color: "#fff" }}>
-                          <strong>สถานะ:</strong> {job.status}
+                          <strong>ประเภทของงาน:</strong><Tag> {job.category}</Tag>
                         </p>
                         <p style={{ color: "#fff" }}>
-                          <strong>ส่งแบบร่าง:</strong>{" "}
-                          {job.draft ? "Yes" : "No"}
+                          <strong>แบรนด์:</strong> {job.brand}
                         </p>
-                        <p style={{ color: "#fff" }}>
-                          <strong>ประวัติแบบร่าง:</strong>
-                        </p>
-                        <ul style={{ color: "#fff" }}>
-                          {job.draftHistory.map((draft, index) => (
-                            <li key={index}>{draft}</li>
-                          ))}
-                        </ul>
                       </Card>
                     </List.Item>
                   )}
@@ -448,12 +498,12 @@ const WorkSpacePage = () => {
           <Form
             form={form}
             layout="vertical"
-            onFinish={handleSubmit}
+            onFinish={(values) => handleSubmit(values, currentJob)}
             initialValues={{}}
           >
             {/* Job Details */}
             <Form.Item
-              name="jobDetails"
+              name="content"
               label="รายละเอียดงาน"
 
               rules={[
@@ -467,22 +517,6 @@ const WorkSpacePage = () => {
               />
             </Form.Item>
 
-            {/* Poster Name */}
-            <Form.Item
-              name="posterName"
-              label="ชื่อของผู้ว่าจ้าง"
-
-              rules={[
-                {
-                  required: true,
-                  message:
-                    "กรุณากรอกชื่อผู้ลงประกาศงาน!",
-                },
-              ]}
-            >
-              <Input disabled={isView} placeholder="ระบุชื่อผู้ลงประกาศงาน..." />
-            </Form.Item>
-
             {/* File Upload */}
             <Form.Item
               name="upload"
@@ -491,27 +525,22 @@ const WorkSpacePage = () => {
                 { required: true, message: "กรุณาอัพโหลดไฟล์งานของคุณ" },
               ]}
             >
-              <Upload.Dragger
-                name="files"
-                multiple
-                listType="picture-card"
-                beforeUpload={() => false} // Prevent automatic upload
-                accept="image/*,video/*"
-                fileList={fileList}
-                onChange={handleUploadChange}
-                disabled={isView}
-              >
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p style={{ color: "GrayText" }}>
-                  คลิกหรือลากไฟล์ไปยังพื้นที่นี้เพื่ออัปโหลด
-                </p>
-                <p className="ant-upload-hint">
-                  รองรับการอัปโหลดแบบเดี่ยวหรือเป็นกลุ่ม ห้ามอัปโหลดข้อมูลบริษัทหรือไฟล์ต้องห้ามอื่นๆ โดยเด็ดขาด
-                </p>
-              </Upload.Dragger>
+              <DraggerUpload fileList={fileList} setFileList={setFileList} form={form} multiple={true} maxCount={5} name={"upload"} />
             </Form.Item>
+
+            {/* Reason Reject */}
+            {
+              isView && <Form.Item
+                name="reasonReject"
+                label="เหตุผลที่ปฏิเสธ"
+              >
+                <TextArea
+                  disabled={isView}
+                  rows={4}
+                  placeholder="-"
+                />
+              </Form.Item>
+            }
 
             {/* Submit Button */}
             <Form.Item>

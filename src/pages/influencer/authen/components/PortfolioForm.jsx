@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Upload, message, Row, Col, List, Card, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import DraggerUpload from '../../../../components/DraggerUpload';
 
 
 const PortfolioForm = ({ onAdd, visible, onClose }) => {
@@ -20,7 +21,7 @@ const PortfolioForm = ({ onAdd, visible, onClose }) => {
   const handleSubmit = (values) => {
     onAdd({
       ...values,
-      images: fileList.map((file) => ({
+      images: values.files.map((file) => ({
         url: file.url || file.thumbUrl, // Handle both uploaded and locally selected images
         name: file.name,
       })),
@@ -61,17 +62,9 @@ const PortfolioForm = ({ onAdd, visible, onClose }) => {
         <Form.Item
           name="files"
           label="อัพโหลดรูปภาพ"
+          valuePropName='fileList'
         >
-          <Upload
-            name="files"
-            listType="picture"
-            fileList={fileList}
-            onChange={handleUpload}
-            multiple
-            beforeUpload={() => false}  // Prevent automatic upload
-          >
-            <Button icon={<UploadOutlined />}>คลิกเพื่ออัปโหลด</Button>
-          </Upload>
+          <DraggerUpload fileList={fileList} setFileList={setFileList} form={form} multiple={true} maxCount={5} name={"files"} />
         </Form.Item>
 
         {/* Submit Button */}

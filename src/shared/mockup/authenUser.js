@@ -12,7 +12,8 @@ export const authenUsers = [
         x: "x.com/influencer",
         tiktok: "tiktok.com/@influencer",
         categories: ["fashion", "lifestyle"],
-        yourInfo: "กิน เที่ยว เล่นเกม หนัง"
+        yourInfo: "กิน เที่ยว เล่นเกม หนัง",
+        accountId: 1,
     },
     {
         influId: 2,
@@ -26,7 +27,8 @@ export const authenUsers = [
         profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
         x: "x link",
         tiktok: "tiktok link",
-        categories: ["fashion", "lifestyle"]
+        categories: ["fashion", "lifestyle"],
+        accountId: 2,
     },
 ]
 

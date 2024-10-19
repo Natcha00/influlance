@@ -5,16 +5,16 @@ import { delay } from "../shared/utils/delay";
 import { portfolios } from "../shared/mockup/portfolio";
 import { jobs } from "../shared/mockup/job";
 import { categories } from '../shared/mockup/category'
-import { jobEnrolls } from "../shared/mockup/jobEnroll";
+import { workSpace } from "../shared/mockup/workspace";
 
 const mockBaseQuery = async (arg) => {
     // Handle different endpoints (arg contains the query path or params)
-    let jobEnrollsStorage = localStorage.getItem('jobEnrolls')
-    if (!jobEnrollsStorage) {
-        localStorage.setItem('jobEnrolls', JSON.stringify(jobEnrolls))
-        jobEnrollsStorage = jobEnrolls
+    let workspaceStorage = localStorage.getItem('workspaceStorage')
+    if (!workspaceStorage) {
+        localStorage.setItem('workspaceStorage', JSON.stringify(workSpace))
+        workspaceStorage = workSpace
     } else {
-        jobEnrollsStorage = JSON.parse(localStorage.getItem('jobEnrolls'))
+        workspaceStorage = JSON.parse(localStorage.getItem('workspaceStorage'))
     }
     if (arg.url === '/jobs') {
         const token = Cookies.get('accessToken')
@@ -24,7 +24,7 @@ const mockBaseQuery = async (arg) => {
         const findToken = authenUsers.find(auth => auth.accessToken == token)
         const influId = findToken.influId
 
-        const hadEnroll = jobEnrollsStorage.filter(je => je.influId == influId)
+        const hadEnroll = workspaceStorage.filter(je => je.influId == influId)
 
         await delay()
         return {
@@ -42,7 +42,17 @@ const mockBaseQuery = async (arg) => {
         }
         const findToken = authenUsers.find(auth => auth.accessToken == token)
         const influId = findToken.influId
-        const enrollsJob = jobEnrollsStorage.filter(je => je.influId == influId && je.status == 'wait hiring').map(je => {
+
+        const enrollsJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == 'wait hiring').map(je => {
+            const findJob = jobs.find(j => j.jobId == je.jobId)
+            return {
+                ...je,
+                ...findJob
+            }
+        })
+        console.log(enrollsJob)
+
+        const waitDraftJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "wait draft").map(je => {
             const findJob = jobs.find(j => j.jobId == je.jobId)
             return {
                 ...je,
@@ -50,7 +60,7 @@ const mockBaseQuery = async (arg) => {
             }
         })
 
-        const waitDraftJob = jobEnrollsStorage.filter(je => je.influId == influId && je.status == "wait draft").map(je => {
+        const waitPostJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "wait post").map(je => {
             const findJob = jobs.find(j => j.jobId == je.jobId)
             return {
                 ...je,
@@ -58,15 +68,7 @@ const mockBaseQuery = async (arg) => {
             }
         })
 
-        const waitPostJob = jobEnrollsStorage.filter(je => je.influId == influId && je.status == "wait post").map(je => {
-            const findJob = jobs.find(j => j.jobId == je.jobId)
-            return {
-                ...je,
-                ...findJob
-            }
-        })
-
-        const completeJob = jobEnrollsStorage.filter(je => je.influId == influId && je.status == "confirm").map(je => {
+        const completeJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "confirm").map(je => {
             const findJob = jobs.find(j => j.jobId == je.jobId)
             return {
                 ...je,
@@ -93,17 +95,18 @@ const mockBaseQuery = async (arg) => {
         const { jobId, marketerId } = arg.body
         await delay(500)
 
-        const newJobEnrollsStorage = [
-            ...jobEnrollsStorage,
+        const newWorkspaceStorage = [
+            ...workspaceStorage,
             {
-                jobEnrollId: jobEnrolls.length + 1,
+                jobEnrollId: workSpace.length + 1,
                 jobId,
                 influId,
-                marketerId
+                marketerId,
+                jobStatus: "wait hiring"
             }
         ]
 
-        localStorage.setItem('jobEnrolls', JSON.stringify(newJobEnrollsStorage))
+        localStorage.setItem('workspaceStorage', JSON.stringify(newWorkspaceStorage))
 
 
         return {
@@ -119,10 +122,69 @@ const mockBaseQuery = async (arg) => {
 
         const { jobId } = arg.body
         await delay(500)
-        console.log(jobId, influId)
-        const newJobEnrollsStorage = jobEnrollsStorage.filter(je => (je.jobId != jobId && je.influId == influId) || (je.influId != influId))
-        console.log(newJobEnrollsStorage)
-        localStorage.setItem('jobEnrolls', JSON.stringify(newJobEnrollsStorage))
+
+        const newWorkspaceStorage = workspaceStorage.filter(je => (je.jobId != jobId && je.influId == influId) || (je.influId != influId))
+        localStorage.setItem('workspaceStorage', JSON.stringify(newWorkspaceStorage))
+
+        return {
+            data: "success"
+        }
+    } else if (arg.url == '/save-darft') {
+        const token = Cookies.get('accessToken')
+        if (!token) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const influId = findToken.influId
+
+        const {
+            content,
+            pictureURL,
+            videoURL,
+            jobEnrollId
+        } = arg.body
+
+        const findJobEnrollId = workspaceStorage.find(je => je.influId == influId && je.jobEnrollId == jobEnrollId)
+
+        findJobEnrollId.draft = [...findJobEnrollId.draft, {
+            jobDraftId: findJobEnrollId.draft.length + 1,
+            content,
+            pictureURL,
+            videoURL,
+            status: "pending"
+        }]
+
+        localStorage.setItem('workspaceStorage', JSON.stringify(workspaceStorage))
+
+        return {
+            data: "success"
+        }
+    } else if (arg.url == '/save-post') {
+        const token = Cookies.get('accessToken')
+        if (!token) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const influId = findToken.influId
+
+        const {
+            content,
+            pictureURL,
+            videoURL,
+            jobEnrollId
+        } = arg.body
+
+        const findJobEnrollId = workspaceStorage.find(je => je.influId == influId && je.jobEnrollId == jobEnrollId)
+
+        findJobEnrollId.post = [...findJobEnrollId.post, {
+            jobPostId: findJobEnrollId.post.length + 1,
+            content,
+            pictureURL,
+            videoURL,
+            status: "pending"
+        }]
+
+        localStorage.setItem('workspaceStorage', JSON.stringify(workspaceStorage))
 
         return {
             data: "success"
@@ -181,6 +243,46 @@ export const jobApi = createApi({
                         jobId,
                     }
                 })
+            }),
+            saveDraft: builder.mutation({
+                query: ({
+                    content,
+                    pictureURL,
+                    videoURL,
+                    jobEnrollId
+                }) => ({
+                    url: "/save-darft",
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: {
+                        content,
+                        pictureURL,
+                        videoURL,
+                        jobEnrollId
+                    }
+                })
+            }),
+            savePost: builder.mutation({
+                query: ({
+                    content,
+                    pictureURL,
+                    videoURL,
+                    jobEnrollId
+                }) => ({
+                    url: "/save-post",
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: {
+                        content,
+                        pictureURL,
+                        videoURL,
+                        jobEnrollId
+                    }
+                })
             })
         }
     }
@@ -191,5 +293,7 @@ export const {
     useCategoriesQuery,
     useJobEnrollsQuery,
     useEnrollMutation,
-    useCancelEnrollMutation
+    useCancelEnrollMutation,
+    useSaveDraftMutation,
+    useSavePostMutation
 } = jobApi

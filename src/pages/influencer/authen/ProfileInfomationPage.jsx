@@ -23,6 +23,7 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setIsAuth } from "../../../slices/authSlice";
 import TextArea from "antd/es/input/TextArea";
+import DraggerUpload from "../../../components/DraggerUpload";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -30,6 +31,7 @@ const { Title } = Typography;
 const ProfileInformationPage = () => {
   const location = useLocation();
   const navigate = useNavigate()
+  const [fileList, setFileList] = useState([])
   const { email, password } = location.state || {}; // Retrieve email and password from state
   if (!email || !password) {
     navigate('/register')
@@ -47,7 +49,7 @@ const ProfileInformationPage = () => {
         email,
         password,
         ...values,
-        profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+        profilePicture: values.profilePicture[0].url
       }).unwrap()
 
       if (resp) {
@@ -97,7 +99,14 @@ const ProfileInformationPage = () => {
                 lastName: "001",
                 facebook: "facebook.com/influencer",
                 instagram: "instagram.com/influencer",
-                profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+                profilePicture: [
+                  {
+                    uid: "-1",
+                    url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+                    thumbUrl: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+                    status: "done"
+                  }
+                ],
                 x: "x.com/influencer",
                 tiktok: "tiktok.com/@influencer",
                 categories: ["fashion", "lifestyle"],
@@ -189,21 +198,9 @@ const ProfileInformationPage = () => {
                   <Form.Item
                     name="profilePicture"
                     label="รูปโปรไฟล์"
-
+                    valuePropName="fileList"
                   >
-                    <Upload
-                      name="profilePicture"
-                      listType="picture"
-                      beforeUpload={() => false}
-                    >
-                      <Button
-                        type="primary"
-                        variant="outlined"
-                        icon={<UploadOutlined />}
-                      >
-                        คลิกเพื่ออัปโหลด
-                      </Button>
-                    </Upload>
+                    <DraggerUpload fileList={fileList} setFileList={setFileList} form={form} name={"profilePicture"} />
                   </Form.Item>
                 </Col>
               </Row>
