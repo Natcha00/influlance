@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import BannerImage from "/Influ_banner.gif";
+import BannerImage from "/Banner_Influ.gif";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
@@ -59,7 +59,7 @@ const InfluencerHomePage = () => {
         {/* Hero Section */}
         <div
           style={{
-            background: "linear-gradient(to right, #7367F0, #E0479E)",
+            background: "linear-gradient(to right, #ffafcc, #E0479E)",
             padding: "60px",
             borderRadius: "12px",
           }}
@@ -67,7 +67,7 @@ const InfluencerHomePage = () => {
           <Row justify="center" align="middle" gutter={24}>
             <Col span={12}>
               <Title level={1} style={{ color: "#fff" }}>
-              เชื่อมต่อกับแบรนด์ที่ใช่
+                เชื่อมต่อกับแบรนด์ที่ถูกใจ
               </Title>
               <Paragraph style={{ color: "#fff", fontSize: "18px" }}>
                 ยินดีต้อนรับสู่ Influlance!
@@ -83,7 +83,14 @@ const InfluencerHomePage = () => {
               <img
                 src={BannerImage}
                 alt="Marketer"
-                style={{ width: "100%", borderRadius: "12px" }}
+                style={{
+                  width: "100%",
+                  borderRadius: "12px",
+                  position: "absolute",
+                  top: "-150px",
+                  right: "-40px",
+                  zIndex: 1,
+                }}
               />
             </Col>
           </Row>
@@ -104,9 +111,7 @@ const InfluencerHomePage = () => {
                 <Card
                   title="ชื่องาน"
                   extra={<span>฿2000</span>}
-                  actions={[
-                    <Button type="primary">เพิ่มเติม</Button>,
-                  ]}
+                  actions={[<Button type="primary">เพิ่มเติม</Button>]}
                   bordered={false}
                   style={{
                     textAlign: "center",
@@ -114,11 +119,9 @@ const InfluencerHomePage = () => {
                     color: "#fff",
                   }}
                 >
-                <Paragraph style={{ color: "#fff" }}>
-                    ชื่อแบรนด์
-                  </Paragraph>
-                  <Tag >ประเภทงาน</Tag>
-                  <Tag >ประเภทงาน</Tag>
+                  <Paragraph style={{ color: "#fff" }}>ชื่อแบรนด์</Paragraph>
+                  <Tag>ประเภทงาน</Tag>
+                  <Tag>ประเภทงาน</Tag>
                 </Card>
               </Col>
             ))}
