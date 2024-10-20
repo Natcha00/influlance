@@ -5,7 +5,7 @@ import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRegisterInfo } from '../../../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
-import { useCheckEmailMutation } from '../../../api/authApi';
+import { useCheckEmailMutation } from '../../../api/influencer/authApi';
 
 const { Title } = Typography;
 
@@ -22,7 +22,7 @@ const RegisterPage = () => {
       const resp = await checkEmail({ email: values.email }).unwrap()
 
       if (resp) {
-        navigate('/profile-information', { state: { email: values.email, password: values.password } })
+        navigate('/influencer/profile-information', { state: { email: values.email, password: values.password } })
       }
 
     } catch (error) {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Form, Input, Button, Row, Col, Typography, Divider, Card, message } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
-import { useLoginMutation, useMeQuery } from '../../../api/authApi';
+import { useLoginMutation, useMeQuery } from '../../../api/marketer/authApi';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { setIsAuth } from '../../../slices/authSlice';
@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
-const LoginPage = () => {
+const MarketerLoginPage = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [login, { isLoading }] = useLoginMutation()
@@ -24,11 +24,12 @@ const LoginPage = () => {
                 const respMe = await me().unwrap()
                 if (respMe) {
                     Cookies.set('email', respMe.email)
+                    Cookies.set("role", "marketer")
                     dispatch(setIsAuth(true))
                     message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
                 }
                 setTimeout(() => {
-                    navigate('/')
+                    navigate('/marketer')
                 }, 500)
             }
 
@@ -121,4 +122,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default MarketerLoginPage;

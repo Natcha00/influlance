@@ -6,11 +6,15 @@ export const authenUsers = [
         accessToken: "token1",
         firstName: "influ",
         lastName: "001",
-        facebook: "facebook.com/influencer",
-        instagram: "instagram.com/influencer",
         profilePicture: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+        facebook: "facebook.com/influencer",
+        facebookFollower: 21515,
+        instagram: "instagram.com/influencer",
+        instagramFollower: 41316,
         x: "x.com/influencer",
+        xFollower: 4887,
         tiktok: "tiktok.com/@influencer",
+        tiktokFollower: 84659,
         categories: ["fashion", "lifestyle"],
         yourInfo: "กิน เที่ยว เล่นเกม หนัง",
         accountId: 1,
@@ -30,8 +34,4 @@ export const authenUsers = [
         categories: ["fashion", "lifestyle"],
         accountId: 2,
     },
-]
-
-export const loginUsers = [
-
 ]

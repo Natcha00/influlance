@@ -17,46 +17,46 @@ const MarketerHomePage = () => {
         <Col>
           <Button
             type="primary"
-            onClick={() => navigate("/profile-information")}
+            onClick={() => navigate("/marketer/profile-information")}
           >
             profile-information
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("/marketer-profile")}>
+          <Button type="primary" onClick={() => navigate("/marketer/profile")}>
             profile
           </Button>
         </Col>
         <Col>
           <Button
             type="primary"
-            onClick={() => navigate("/marketer-work-space")}
+            onClick={() => navigate("/marketer/work-space")}
           >
             work-space
           </Button>
         </Col>
         <Col>
-          <Button type="primary" onClick={() => navigate("/finance")}>
+          <Button type="primary" onClick={() => navigate("/marketer/finance")}>
             finance
           </Button>
         </Col>
       </Row>
-      <Content style={{ padding: "50px", margin: "2rem 0" }}>
+      <Content>
         {/* Hero Section */}
         <div
           style={{
             background: "linear-gradient(to right, #003554,#6096ba, #a9d6e5)",
-            padding: "60px",
+            padding: "1.5rem",
             borderRadius: "12px",
-            position: "relative",
           }}
         >
           <Row justify="center" align="middle" gutter={24}>
-            <Col span={12}>
-              <Title level={1} style={{ color: "#fff" }}>
-                ค้นหาอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
+            <Col xs={24} md={12} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Title level={2} style={{ color: "#fff", textAlign: screen.xs ? "center" : undefined }}>
+                เปิดบัญชีเป็น <span style={{ color: "#FFCE1B" }}>Marketer</span> กับเรา <br />
+                เพื่อค้นหาอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
               </Title>
-              <Paragraph style={{ color: "#fff", fontSize: "18px" }}>
+              <Paragraph style={{ color: "#fff", fontSize: "18px", textAlign: screen.xs ? "center" : undefined }}>
                 ยินดีต้อนรับสู่ Influlance!
                 ที่นี่คุณสามารถค้นหาและร่วมงานกับอินฟลูเอนเซอร์ที่ตรงกับความต้องการของแบรนด์คุณ
                 ไม่ว่าจะเป็นแคมเปญขนาดใหญ่หรือเล็ก
@@ -66,17 +66,13 @@ const MarketerHomePage = () => {
                 เริ่มต้น
               </Button>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12} style={{ display: 'flex', justifyContent: 'center' }}>
               <img
                 src={BannerImage}// Adjust the path accordingly
                 alt="Marketer"
                 style={{
-                  width: "130%",
-                  borderRadius: "12px",
-                  position: "absolute",
-                  top: "-190px",
-                  right: "-90px",
-                  zIndex: 1,
+                  width: "120%",
+                  borderRadius: "12px"
                 }}
               />
             </Col>
@@ -89,7 +85,7 @@ const MarketerHomePage = () => {
             ทำไมต้องใช้ Influlance?
           </Divider>
           <Row justify="center" gutter={[16, 16]}>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Card
                 title="ประหยัดเวลาในการค้นหาและจ้างงาน"
                 bordered={false}
@@ -106,7 +102,7 @@ const MarketerHomePage = () => {
                 และรับใบสมัครจากอินฟลูเอนเซอร์ที่ตรงกับงานของคุณโดยตรง
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Card
                 title="การทำงานที่โปร่งใสและควบคุมได้ง่าย"
                 bordered={false}
@@ -123,7 +119,7 @@ const MarketerHomePage = () => {
                 ช่วยให้คุณควบคุมการทำงานและงบประมาณได้เต็มที่
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Card
                 title="จัดการการชำระเงินง่ายและปลอดภัย"
                 bordered={false}

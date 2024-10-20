@@ -17,7 +17,7 @@ function AppLayout({ children }) {
   }, [Cookies.get('email')])
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Content style={{ padding: screen.sm ? '2rem 16rem' : '1rem' }}>{children}</Content>
+      <Content style={{ padding: screen.sm ? '2rem 14rem' : '1rem' }}>{children}</Content>
     </Layout>
   );
 }

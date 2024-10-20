@@ -1,22 +1,37 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers, loginUsers } from "../shared/mockup/authenUser";
+import { authenUsers } from "../../shared/mockup/marketerAuthenUser";
 import Cookies from "js-cookie";
-import { delay } from "../shared/utils/delay";
-import { portfolios } from "../shared/mockup/portfolio";
+import { delay } from "../../shared/utils/delay";
+import { portfolios } from "../../shared/mockup/portfolio";
+import { supabase } from "../../shared/supabase";
+import { v4 as uuidv4 } from 'uuid';
 
 const mockBaseQuery = async (arg) => {
     // Handle different endpoints (arg contains the query path or params)
     if (arg.url === '/login') {
         const { email, password } = arg.body
-        const findAuth = authenUsers.find(auth => auth.email == email)
-        if (!findAuth) {
-            return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } }
+        const { data: marketerData, error } = await supabase
+            .from("marketer")
+            .select("email, password, accessToken")
+            .eq("email", email);
+
+        if (error) {
+            console.log('error', error)
+            return { error: { status: 500, data: "Internal Server Error" } };
         }
 
-        if (findAuth.password != password) {
-            return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } }
+        if (marketerData.length === 0) {
+            return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } };
         }
-        await delay()
+
+        const findAuth = marketerData[0]; // Supabase will return an array, so use the first entry.
+
+        if (findAuth.password !== password) {
+            return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } };
+        }
+
+        await delay();
+
         return {
             data: {
                 accessToken: findAuth.accessToken
@@ -27,14 +42,51 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("marketer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
         if (!findToken) {
             return { error: { status: 401, data: "unauthorize" } }
         }
 
+        const {
+            influId,
+            email,
+            accessToken,
+            firstName,
+            lastName,
+            profilePicture,
+            facebook,
+            instagram,
+            x,
+            tiktok,
+            categories,
+            yourInfo,
+            accountId
+        } = findToken
+
         return {
             data: {
-                ...findToken
+                influId,
+                email,
+                accessToken,
+                firstName,
+                lastName,
+                profilePicture,
+                facebook,
+                instagram,
+                x,
+                tiktok,
+                categories,
+                yourInfo,
+                accountId
             }
         }
     } else if (arg.url == '/register') {
@@ -48,33 +100,58 @@ const mockBaseQuery = async (arg) => {
             x,
             tiktok,
             profilePicture,
-            categories
+            categories,
+            yourInfo
         } = arg.body
-        const findEmail = authenUsers.find(auth => auth.email == email)
 
-        if (!!findEmail) {
-            return { error: { status: 400, data: "อีเมลนี้มีผู้ใช้งานอยู่แล้ว" } }
-        }
         await delay()
-        const id = authenUsers.length + 1
-        authenUsers.push({
-            influId: id,
-            email,
-            password,
-            accessToken: `token${id}`,
-            firstName,
-            lastName,
-            facebook,
-            instagram,
-            x,
-            tiktok,
-            profilePicture,
-            categories
-        })
+
+        const token = uuidv4()
+
+        const { data: registerData, error: insertError } = await supabase
+            .from("marketer")
+            .insert([
+                {
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    facebook,
+                    instagram,
+                    x,
+                    tiktok,
+                    profilePicture,
+                    categories,
+                    yourInfo,
+                    accessToken: token
+                }
+            ])
+            .select('marketerId')
+            .single()
+
+        if (insertError) {
+            console.log('insertError', insertError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+
+        const { data, error: insertAccountError } = await supabase
+            .from("account")
+            .insert([
+                {
+                    referenceUserId: registerData.marketerId,
+                    type: 'marketer'
+                }
+            ])
+
+        if (insertAccountError) {
+            console.log('insertError', insertAccountError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
         return {
             data: {
-                accessToken: `token${id}`
+                accessToken: token
             }
         };
 
@@ -82,84 +159,30 @@ const mockBaseQuery = async (arg) => {
         const {
             email,
         } = arg.body
-        const findEmail = authenUsers.find(auth => auth.email == email)
+        const { data: findEmail, error } = await supabase
+            .from("marketer")
+            .select()
+            .eq("email", email);
 
-        if (!!findEmail) {
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (findEmail.length != 0) {
             return { error: { status: 400, data: "อีเมลนี้มีผู้ใช้งานอยู่แล้ว" } }
         }
         return {
             status: 200,
             data: "สามารถใช้อีเมลนี้ได้"
         }
-    } else if (arg.url == '/portfolio') {
-        const token = Cookies.get('accessToken')
-        if (!token) {
-            return { error: { status: 401, data: "unauthorize" } }
-        }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
-
-        const influId = findToken.influId
-
-        const portfolio = portfolios.find(el => el.influId == influId) ?? []
-        return {
-            data: portfolio.portfolio
-        }
-
-    } else if (arg.url == '/add-portfolio') {
-        const token = Cookies.get('accessToken')
-        if (!token) {
-            return { error: { status: 401, data: "unauthorize" } }
-        }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
-
-        const influId = findToken.influId
-
-        let findPortfolio = portfolios.find(el => el.influId == influId)
-
-        const {
-            title,
-            description,
-            firstImage,
-            images
-        } = arg.body
-
-        if (findPortfolio) {
-            findPortfolio.portfolio = [...findPortfolio.portfolio, {
-                title,
-                description,
-                firstImage,
-                images
-            }]
-        } else {
-            portfolios.push({
-                influId: influId,
-                portfolio: [
-                    {
-                        title,
-                        description,
-                        firstImage,
-                        images
-                    }
-                ]
-            })
-        }
-
-
-        return {
-            data: "success"
-        }
-
-
-
     }
-
     // You can add more mock responses for other endpoints here.
     return { error: { status: 404, data: 'Not found' } };
 };
 
 
-export const authApi = createApi({
-    reducerPath: "authApi",
+export const mktAuthApi = createApi({
+    reducerPath: "mktAuthApi",
     baseQuery: mockBaseQuery,
     endpoints: (builder) => {
         return {
@@ -194,7 +217,8 @@ export const authApi = createApi({
                     x,
                     tiktok,
                     profilePicture,
-                    categories
+                    categories,
+                    yourInfo
                 }) => ({
                     url: "/register",
                     method: "POST",
@@ -211,7 +235,8 @@ export const authApi = createApi({
                         x,
                         tiktok,
                         profilePicture,
-                        categories
+                        categories,
+                        yourInfo
                     }
                 }),
             }),
@@ -264,4 +289,4 @@ export const {
     useCheckEmailMutation,
     usePortfolioQuery,
     useAddPortfolioMutation
-} = authApi
+} = mktAuthApi

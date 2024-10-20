@@ -13,28 +13,68 @@ import {
   ConfigProvider,
   Image,
   Card,
+  InputNumber,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CommunicationsImage from "/communications.png";
+import { useLocation, useNavigate } from "react-router-dom";
+import { categories } from '../../../shared/mockup/category'
+import { useMeQuery, useRegisterMutation } from "../../../api/marketer/authApi";
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { setIsAuth } from "../../../slices/authSlice";
+import TextArea from "antd/es/input/TextArea";
+import DraggerUpload from "../../../components/DraggerUpload";
 
 const { Option } = Select;
 const { Title } = Typography;
-const ProfileInformationPage = () => {
+
+const MarketerProfileInformationPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate()
+  const [fileList, setFileList] = useState([])
+  const { email, password } = location.state || {}; // Retrieve email and password from state
+  if (!email || !password) {
+    navigate('/marketer/register')
+  }
+  const dispatch = useDispatch()
+  const [register, { isLoading }] = useRegisterMutation()
+  const { data, isLoading: isLoadingMe, refetch: me } = useMeQuery()
+
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
 
-  const handleUpload = (info) => {
-    const { file, fileList } = info;
-    if (file.status === "done") {
-      message.success(`${file.name} uploaded successfully.`);
-    } else if (file.status === "error") {
-      message.error(`${file.name} upload failed.`);
+  const onFinish = async (values) => {
+    try {
+      console.log("Form values: ", values);
+      const resp = await register({
+        email,
+        password,
+        ...values,
+        profilePicture: values.profilePicture[0].url
+      }).unwrap()
+
+      if (resp) {
+        Cookies.set('accessToken', resp.accessToken)
+        const respMe = await me().unwrap()
+        if (respMe) {
+          Cookies.set('email', respMe.email)
+          dispatch(setIsAuth(true))
+          message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
+        }
+        setTimeout(() => {
+          navigate('/marketer')
+        }, 500)
+      }
+    } catch (error) {
+      console.log(error)
+      if (error.data) {
+        message.error(error.data)
+      } else {
+        message.error("found issue")
+      }
     }
-    setFileList(fileList);
-  };
 
-  const onFinish = (values) => {
-    console.log("Form values: ", values);
+    message.success("สมัครสมาชิกสำเร็จ")
   };
 
   return (
@@ -52,9 +92,27 @@ const ProfileInformationPage = () => {
           <Card title={"Profile Information"}>
             <Form
               form={form}
-              name="influencerProfile"
+              name="marketerProfile"
               layout="vertical"
               onFinish={onFinish}
+              initialValues={{
+                firstName: "marketer",
+                lastName: "001",
+                facebook: "facebook.com/marketer",
+                instagram: "instagram.com/marketer",
+                x: "x.com/marketer",
+                tiktok: "tiktok.com/@marketer",
+                profilePicture: [
+                  {
+                    uid: "-1",
+                    url: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
+                    thumbUrl: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
+                    status: "done"
+                  }
+                ],
+                categories: ["fashion", "lifestyle"],
+                yourInfo: "กิน เที่ยว เล่นเกม หนัง"
+              }}
             >
               {/* Upload Profile Picture */}
               <Row gutter={10}>
@@ -123,10 +181,10 @@ const ProfileInformationPage = () => {
 
               <Row gutter={10}>
                 <Col span={12}>
-                  {/* Influencer Categories */}
+                  {/* marketer Categories */}
                   <Form.Item
                     name="categories"
-                    label="ฉันเป็น Influencer"
+                    label="ฉันเป็น marketer"
                     rules={[
                       {
                         required: true,
@@ -134,12 +192,7 @@ const ProfileInformationPage = () => {
                       },
                     ]}
                   >
-                    <Select mode="multiple" placeholder="เลือกประเภท">
-                      <Option value="fashion">Fashion</Option>
-                      <Option value="tech">Technology</Option>
-                      <Option value="beauty">Beauty</Option>
-                      <Option value="lifestyle">Lifestyle</Option>
-                    </Select>
+                    <Select mode="multiple" placeholder="เลือกประเภท" options={categories} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -147,25 +200,23 @@ const ProfileInformationPage = () => {
                     name="profilePicture"
                     label="รูปโปรไฟล์"
                     valuePropName="fileList"
-                    getValueFromEvent={({ fileList }) => fileList}
                   >
-                    <Upload
-                      name="profilePicture"
-                      listType="picture"
-                      action="/upload" // your backend upload URL here
-                      fileList={fileList}
-                      onChange={handleUpload}
-                    >
-                      <Button
-                        type="primary"
-                        variant="outlined"
-                        icon={<UploadOutlined />}
-                      >
-                        คลิกเพื่ออัปโหลด
-                      </Button>
-                    </Upload>
+                    <DraggerUpload fileList={fileList} setFileList={setFileList} form={form} name={"profilePicture"} />
                   </Form.Item>
                 </Col>
+              </Row>
+
+              <Row gutter={10}>
+                <Col span={24}>
+                  <Form.Item
+                    name="yourInfo"
+                    label="อธิบายเกี่ยวกับตัวเอง"
+
+                  >
+                    <TextArea placeholder="อธิบายเกี่ยวกับตัวเอง" />
+                  </Form.Item>
+                </Col>
+
               </Row>
 
               <Row justify={"end"}>
@@ -179,9 +230,9 @@ const ProfileInformationPage = () => {
             </Form>
           </Card>
         </Col>
-      </Row>
+      </Row >
     </>
   );
 };
 
-export default ProfileInformationPage;
+export default MarketerProfileInformationPage;

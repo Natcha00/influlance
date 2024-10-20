@@ -1,11 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers, loginUsers } from "../shared/mockup/authenUser";
+import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../shared/utils/delay";
-import { portfolios } from "../shared/mockup/portfolio";
-import { jobs } from "../shared/mockup/job";
-import { categories } from '../shared/mockup/category'
-import { workSpace } from "../shared/mockup/workspace";
+import { delay } from "../../shared/utils/delay";
+import { portfolios } from "../../shared/mockup/portfolio";
+import { categories } from '../../shared/mockup/category'
+import { workSpace } from "../../shared/mockup/workspace";
+import { supabase } from "../../shared/supabase";
+
 
 const mockBaseQuery = async (arg) => {
     // Handle different endpoints (arg contains the query path or params)
@@ -21,14 +22,55 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
 
-        const hadEnroll = workspaceStorage.filter(je => je.influId == influId)
+        let { data: jobs, error: errorJobs } = await supabase
+            .from("job")
+            .select(`
+                 * ,
+                marketer (
+                    firstName,
+                    lastName,
+                    profilePicture
+                ),
+                jobEnroll (
+                    *
+                )
+                `)
+
+
+        if (errorJobs) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        console.log('jobs', jobs)
+
+        jobs = jobs.filter((j) => {
+            const enroll = j.jobEnroll.map(je => je.influId)
+            if (enroll.includes(influId)) {
+                return false
+            } else {
+                return true
+            }
+        })
 
         await delay()
         return {
-            data: jobs.filter(j => !hadEnroll.map(e => e.jobId).includes(j.jobId))
+            data: jobs
         };
     } else if (arg.url == '/categories') {
         await delay()

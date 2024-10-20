@@ -13,9 +13,10 @@ import {
   Popconfirm,
   Modal,
   message,
+  Image,
 } from "antd";
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
-import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobsQuery } from '../../../api/jobApi'
+import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobsQuery } from '../../../api/influencer/jobApi'
 
 
 const { Search } = Input;
@@ -31,7 +32,7 @@ const ContentFeedPage = () => {
   useEffect(() => {
     setFilteredPosts(jobs)
   }, [jobs])
-  // State for filtered posts, selected tags, and selected category
+  // State for filtered posts, selected tags, and selected tag
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   // Handle search
@@ -40,7 +41,7 @@ const ContentFeedPage = () => {
       (post) =>
         (post.title.toLowerCase().includes(value.toLowerCase()) &&
           (selectedTags.length === 0 ||
-            selectedTags.includes(post.category))) ||
+            selectedTags.includes(post.tag))) ||
         post.brand.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredPosts(filtered);
@@ -52,7 +53,7 @@ const ContentFeedPage = () => {
       const newTags = [...selectedTags, tag];
       setSelectedTags(newTags);
       const filtered = jobs.filter((post) =>
-        newTags.map(el => el.value).includes(post.category)
+        newTags.map(el => el.value).includes(post.tag)
       );
       setFilteredPosts(filtered);
     }
@@ -65,7 +66,7 @@ const ContentFeedPage = () => {
       setFilteredPosts(jobs);
     } else {
       const filtered = jobs.filter((post) =>
-        newTags.map(el => el.value).includes(post.category)
+        newTags.map(el => el.value).includes(post.tag)
       );
       setFilteredPosts(filtered);
     }
@@ -144,15 +145,15 @@ const ContentFeedPage = () => {
         </Col>
       </Row>
 
-      {/* Category Filter with clickable Tags */}
+      {/* tag Filter with clickable Tags */}
       <Row justify="center" style={{ marginBottom: "20px" }}>
         <Col span={18}>
           <Space size={[0, 8]} wrap>
-            {categories?.map((category) => (
+            {categories?.map((tag) => (
               <Tag
-                key={category.value}
-                onClick={() => addTag(category)}
-                color={selectedTags.map(el => el.value).includes(category.value) ? "purple" : "default"}
+                key={tag.value}
+                onClick={() => addTag(tag)}
+                color={selectedTags.map(el => el.value).includes(tag.value) ? "purple" : "default"}
                 style={{
                   fontSize: "16px",
                   padding: "5px 10px",
@@ -160,7 +161,7 @@ const ContentFeedPage = () => {
                   cursor: "pointer",
                 }}
               >
-                {category.label}
+                {tag.label}
               </Tag>
             ))}
           </Space>
@@ -178,7 +179,7 @@ const ContentFeedPage = () => {
             renderItem={(post) => (
               <List.Item>
                 <Card
-                  title={post.title}
+                  title={post.jobTitle}
                   extra={
                     <Button type="primary" onClick={() => showConfirm(post)} loading={LoadingEnroll}>สมัครงาน</Button>
                   }
@@ -189,13 +190,34 @@ const ContentFeedPage = () => {
                     color: "#fff",
                   }}
                 >
-                  <p style={{ color: "#fff" }}>{post.description}</p>
-                  <p style={{ color: "#fff" }}>
-                    <strong>ประเภทของงาน:</strong><Tag> {post.category}</Tag>
-                  </p>
-                  <p style={{ color: "#fff" }}>
+                  <Row gutter={[20, 20]}>
+                    <Col span={16}>
+                      <p style={{ color: "#fff" }}>{post.jobDescription}</p>
+                      <p style={{ color: "#fff" }}>
+                        <strong>ประเภทของงาน : </strong><Tag> {post.tag}</Tag>
+                      </p>
+                      <p>
+                        <strong>รายได้ : </strong> {post.paymentPerInfluencer}
+                      </p>
+                      <p>
+                        <strong>สิ้นสุดรับสมัคร : </strong> {post.dueDate}
+                      </p>
+                      <p>
+                        <strong>จำนวนผู้ติดตามขั้นต่ำ : </strong> {post.follower}
+                      </p>
+                      <p>
+                        <strong>จำนวนรับสมัคร : </strong> {post.influencerCount}
+                      </p>
+                    </Col>
+                    <Col span={8}>
+                      <Image src={post?.files[0]} width={'100%'} preview={false} />
+                    </Col>
+
+                  </Row>
+
+                  {/* <p style={{ color: "#fff" }}>
                     <strong>แบรนด์:</strong> {post.brand}
-                  </p>
+                  </p> */}
                 </Card>
               </List.Item>
             )}

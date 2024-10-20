@@ -1,8 +1,8 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers, loginUsers } from "../shared/mockup/authenUser";
+import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../shared/utils/delay";
-import { transactions } from "../shared/mockup/transaction";
+import { delay } from "../../shared/utils/delay";
+import { transactions } from "../../shared/mockup/transaction";
 import dayjs from 'dayjs'
 
 const mockBaseQuery = async (arg) => {

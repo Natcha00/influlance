@@ -2,14 +2,45 @@ import { message, Upload } from 'antd';
 import React, { useState } from 'react'
 import { InboxOutlined } from '@ant-design/icons';
 import { useUploadMutation } from '../api/uploadApi';
+import { supabase } from '../shared/supabase';
+import { v4 as uuidv4 } from 'uuid';
+const bucketName = 'influ'; // Replace with your bucket name
+
+async function uploadFile(file) {
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExtension}`; // Generate a UUID and append the file extension
+    const filePath = `uploads/${fileName}`; // Path where you want to store the file
+
+    const { data, error } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(filePath, file);
+
+    if (error) {
+        console.error('Error uploading file:', error.message);
+        message.error("Error on upload file")
+        return { error: error.message };
+    }
+
+    const { data: getUrl, error2 } = await supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+
+    if (error2) {
+        console.error('Error uploading file:', error2.message);
+        message.error("Error on upload file")
+        return { error: error2.message };
+    }
+
+    return { url: getUrl.publicUrl };
+}
 
 const DraggerUpload = ({ fileList, setFileList, form, name, multiple = false, maxCount = 1 }) => {
-    const [upload, { isLoading }] = useUploadMutation()
-    // Function to handle image upload
     const customUpload = async ({ file, onSuccess, onProgress }) => {
         try {
-            console.log(file)
-            const resp = await upload({ image: file }).unwrap()
+            // console.log(file)
+            const resp = await uploadFile(file)
             if (resp) {
                 file.url = resp.url
                 file.thumbUrl = resp.url
@@ -23,7 +54,7 @@ const DraggerUpload = ({ fileList, setFileList, form, name, multiple = false, ma
     return (
         <Upload.Dragger
             name="files"
-            multiple={true}
+            multiple={multiple}
             maxCount={maxCount}
             listType="picture-card"
             customRequest={customUpload}

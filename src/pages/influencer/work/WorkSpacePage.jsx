@@ -19,7 +19,7 @@ import {
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
-import { useCancelEnrollMutation, useJobEnrollsQuery, useSaveDraftMutation, useSavePostMutation } from "../../../api/jobApi";
+import { useCancelEnrollMutation, useJobEnrollsQuery, useSaveDraftMutation, useSavePostMutation } from "../../../api/influencer/jobApi";
 import { FcCheckmark } from "react-icons/fc";
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import DraggerUpload from "../../../components/DraggerUpload";

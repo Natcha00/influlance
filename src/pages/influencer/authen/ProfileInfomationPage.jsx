@@ -13,12 +13,13 @@ import {
   ConfigProvider,
   Image,
   Card,
+  InputNumber,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CommunicationsImage from "/communications.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { categories } from '../../../shared/mockup/category'
-import { useMeQuery, useRegisterMutation } from "../../../api/authApi";
+import { useMeQuery, useRegisterMutation } from "../../../api/influencer/authApi";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setIsAuth } from "../../../slices/authSlice";
@@ -34,7 +35,7 @@ const ProfileInformationPage = () => {
   const [fileList, setFileList] = useState([])
   const { email, password } = location.state || {}; // Retrieve email and password from state
   if (!email || !password) {
-    navigate('/register')
+    navigate('/influencer/register')
   }
   const dispatch = useDispatch()
   const [register, { isLoading }] = useRegisterMutation()
@@ -61,7 +62,7 @@ const ProfileInformationPage = () => {
           message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
         }
         setTimeout(() => {
-          navigate('/')
+          navigate('/influencer')
         }, 500)
       }
     } catch (error) {
@@ -98,7 +99,13 @@ const ProfileInformationPage = () => {
                 firstName: "influ",
                 lastName: "001",
                 facebook: "facebook.com/influencer",
+                facebookFollower: 13212,
                 instagram: "instagram.com/influencer",
+                instagramFollower: 22121,
+                x: "x.com/influencer",
+                xFollower: 0,
+                tiktok: "tiktok.com/@influencer",
+                tiktokFollower: 44185,
                 profilePicture: [
                   {
                     uid: "-1",
@@ -107,8 +114,6 @@ const ProfileInformationPage = () => {
                     status: "done"
                   }
                 ],
-                x: "x.com/influencer",
-                tiktok: "tiktok.com/@influencer",
                 categories: ["fashion", "lifestyle"],
                 yourInfo: "กิน เที่ยว เล่นเกม หนัง"
               }}
@@ -165,6 +170,21 @@ const ProfileInformationPage = () => {
 
               <Row gutter={10}>
                 <Col span={12}>
+                  {/* Facebook Username */}
+                  <Form.Item name="facebookFollower" label="จำนวนผู้ติดตาม Facebook">
+                    <InputNumber placeholder="จำนวนผู้ติดตาม Facebook" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  {/* Instagram Username */}
+                  <Form.Item name="instagramFollower" label="จำนวนผู้ติดตาม Instagram">
+                    <InputNumber placeholder="จำนวนผู้ติดตาม Instagram" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={10}>
+                <Col span={12}>
                   {/* X (Twitter) Username */}
                   <Form.Item name="x" label="X (Twitter) Username">
                     <Input placeholder="X (Twitter) username" />
@@ -174,6 +194,20 @@ const ProfileInformationPage = () => {
                   {/* TikTok Username */}
                   <Form.Item name="tiktok" label="TikTok Username">
                     <Input placeholder="TikTok username" />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={10}>
+                <Col span={12}>
+                  {/* Facebook Username */}
+                  <Form.Item name="xFollower" label="จำนวนผู้ติดตาม X">
+                    <InputNumber placeholder="จำนวนผู้ติดตาม X" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  {/* Instagram Username */}
+                  <Form.Item name="tiktokFollower" label="จำนวนผู้ติดตาม Tiktok">
+                    <InputNumber placeholder="จำนวนผู้ติดตาม Tiktok" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -229,7 +263,7 @@ const ProfileInformationPage = () => {
             </Form>
           </Card>
         </Col>
-      </Row>
+      </Row >
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Row, Col, Card, Form, Input, InputNumber, Button, Table, Typography, Divider, Select, message, Tag } from 'antd';
 import { BankOutlined, DollarOutlined } from '@ant-design/icons';
-import { useDepositMutation, useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/financeApi';
+import { useDepositMutation, useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/influencer/financeApi';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;

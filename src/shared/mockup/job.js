@@ -1,3 +1,4 @@
+
 export const jobs = [
     {
         jobId: 1,
@@ -7,7 +8,10 @@ export const jobs = [
         brand: "Urban Wear",
         income: 5000,
         brandImage: "https://example.com/urbanwear-logo.jpg",
-        marketerId: 101
+        marketerId: 101,
+        dueDate: "2025-04-01",
+        influencerCount: 5,
+        minimumFollower: 10000
     },
     {
         jobId: 2,
@@ -17,7 +21,10 @@ export const jobs = [
         brand: "TechMart",
         income: 8000,
         brandImage: "https://example.com/techmart-logo.jpg",
-        marketerId: 102
+        marketerId: 102,
+        dueDate: "2025-03-15",
+        influencerCount: 3,
+        minimumFollower: 20000
     },
     {
         jobId: 3,
@@ -27,7 +34,10 @@ export const jobs = [
         brand: "GlowSkincare",
         income: 6000,
         brandImage: "https://example.com/glowskincare-logo.jpg",
-        marketerId: 103
+        marketerId: 103,
+        dueDate: "2025-03-25",
+        influencerCount: 7,
+        minimumFollower: 15000
     },
     {
         jobId: 4,
@@ -37,7 +47,10 @@ export const jobs = [
         brand: "EcoHome",
         income: 4500,
         brandImage: "https://example.com/ecohome-logo.jpg",
-        marketerId: 104
+        marketerId: 104,
+        dueDate: "2025-04-05",
+        influencerCount: 4,
+        minimumFollower: 12000
     },
     {
         jobId: 5,
@@ -47,7 +60,10 @@ export const jobs = [
         brand: "GreenPlate",
         income: 7000,
         brandImage: "https://example.com/greenplate-logo.jpg",
-        marketerId: 105
+        marketerId: 105,
+        dueDate: "2025-04-10",
+        influencerCount: 6,
+        minimumFollower: 18000
     },
     {
         jobId: 6,
@@ -57,17 +73,23 @@ export const jobs = [
         brand: "FitLife",
         income: 7500,
         brandImage: "https://example.com/fitlife-logo.jpg",
-        marketerId: 106
+        marketerId: 106,
+        dueDate: "2025-04-15",
+        influencerCount: 10,
+        minimumFollower: 25000
     },
     {
         jobId: 7,
         title: "Gaming Influencer for Live Streaming Event",
         description: "Host a live streaming event for a new game release.",
-        category: "gamimg",
+        category: "gaming",
         brand: "GameZone",
         income: 10000,
         brandImage: "https://example.com/gamezone-logo.jpg",
-        marketerId: 107
+        marketerId: 107,
+        dueDate: "2025-03-30",
+        influencerCount: 2,
+        minimumFollower: 50000
     },
     {
         jobId: 8,
@@ -77,7 +99,10 @@ export const jobs = [
         brand: "AthleX",
         income: 6000,
         brandImage: "https://example.com/athlex-logo.jpg",
-        marketerId: 108
+        marketerId: 108,
+        dueDate: "2025-04-08",
+        influencerCount: 5,
+        minimumFollower: 20000
     },
     {
         jobId: 9,
@@ -87,7 +112,10 @@ export const jobs = [
         brand: "TrendWear",
         income: 5500,
         brandImage: "https://example.com/trendwear-logo.jpg",
-        marketerId: 109
+        marketerId: 109,
+        dueDate: "2025-05-01",
+        influencerCount: 4,
+        minimumFollower: 15000
     },
     {
         jobId: 10,
@@ -97,7 +125,10 @@ export const jobs = [
         brand: "CompPro",
         income: 9000,
         brandImage: "https://example.com/comppro-logo.jpg",
-        marketerId: 110
+        marketerId: 110,
+        dueDate: "2025-04-12",
+        influencerCount: 3,
+        minimumFollower: 30000
     },
     {
         jobId: 11,
@@ -107,7 +138,10 @@ export const jobs = [
         brand: "BeautyGlow",
         income: 5800,
         brandImage: "https://example.com/beautyglow-logo.jpg",
-        marketerId: 111
+        marketerId: 111,
+        dueDate: "2025-04-20",
+        influencerCount: 8,
+        minimumFollower: 20000
     },
     {
         jobId: 12,
@@ -117,7 +151,10 @@ export const jobs = [
         brand: "SimpleLife",
         income: 4000,
         brandImage: "https://example.com/simplelife-logo.jpg",
-        marketerId: 112
+        marketerId: 112,
+        dueDate: "2025-05-05",
+        influencerCount: 3,
+        minimumFollower: 10000
     },
     {
         jobId: 13,
@@ -127,7 +164,10 @@ export const jobs = [
         brand: "HomeChef",
         income: 5000,
         brandImage: "https://example.com/homechef-logo.jpg",
-        marketerId: 113
+        marketerId: 113,
+        dueDate: "2025-04-25",
+        influencerCount: 6,
+        minimumFollower: 12000
     },
     {
         jobId: 14,
@@ -137,17 +177,23 @@ export const jobs = [
         brand: "ZenYoga",
         income: 7200,
         brandImage: "https://example.com/zenyoga-logo.jpg",
-        marketerId: 114
+        marketerId: 114,
+        dueDate: "2025-04-18",
+        influencerCount: 4,
+        minimumFollower: 17000
     },
     {
         jobId: 15,
         title: "Gaming Content Creator for Game Review",
         description: "Review and stream a new action-adventure game.",
-        category: "gamimg",
+        category: "gaming",
         brand: "GameMasters",
         income: 9500,
         brandImage: "https://example.com/gamemasters-logo.jpg",
-        marketerId: 115
+        marketerId: 115,
+        dueDate: "2025-04-20",
+        influencerCount: 3,
+        minimumFollower: 40000
     },
     {
         jobId: 16,
@@ -157,7 +203,10 @@ export const jobs = [
         brand: "OutdoorX",
         income: 6500,
         brandImage: "https://example.com/outdoorx-logo.jpg",
-        marketerId: 116
+        marketerId: 116,
+        dueDate: "2025-05-01",
+        influencerCount: 5,
+        minimumFollower: 15000
     },
     {
         jobId: 17,
@@ -167,7 +216,10 @@ export const jobs = [
         brand: "CoolStyle",
         income: 5300,
         brandImage: "https://example.com/coolstyle-logo.jpg",
-        marketerId: 117
+        marketerId: 117,
+        dueDate: "2025-11-15",
+        influencerCount: 5,
+        minimumFollower: 14000
     },
     {
         jobId: 18,
@@ -177,7 +229,10 @@ export const jobs = [
         brand: "SmartTech",
         income: 8500,
         brandImage: "https://example.com/smarttech-logo.jpg",
-        marketerId: 118
+        marketerId: 118,
+        dueDate: "2025-04-10",
+        influencerCount: 2,
+        minimumFollower: 25000
     },
     {
         jobId: 19,
@@ -187,7 +242,10 @@ export const jobs = [
         brand: "HairCarePro",
         income: 5900,
         brandImage: "https://example.com/haircarepro-logo.jpg",
-        marketerId: 119
+        marketerId: 119,
+        dueDate: "2025-04-30",
+        influencerCount: 4,
+        minimumFollower: 15000
     },
     {
         jobId: 20,
@@ -197,7 +255,10 @@ export const jobs = [
         brand: "BalanceLife",
         income: 4100,
         brandImage: "https://example.com/balancelife-logo.jpg",
-        marketerId: 120
+        marketerId: 120,
+        dueDate: "2025-01-30",
+        influencerCount: 8,
+        minimumFollower: 12000
     },
     {
         jobId: 21,
@@ -207,6 +268,9 @@ export const jobs = [
         brand: "BakeMaster",
         income: 5200,
         brandImage: "https://example.com/bakemaster-logo.jpg",
-        marketerId: 121
+        marketerId: 121,
+        dueDate: "2024-12-25",
+        influencerCount: 5,
+        minimumFollower: 5000
     }
 ]

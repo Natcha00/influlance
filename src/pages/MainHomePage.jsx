@@ -6,72 +6,75 @@ import Picinflu from "/Logoinflu.png";
 import Picmarket from "/market.png";
 import Pic2 from "/pic_beauty.png";
 import Pic3 from "/fire.gif";
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const MainHomePage = () => {
   const navigate = useNavigate();
-
+  const screen = useBreakpoint();
   return (
     <>
       {/* Main Content */}
-      <Content style={{ padding: "50px", margin: "2rem 0" }}>
+      <Content>
         {/* Hero Section */}
-        <div
-          style={{
-            background: "linear-gradient(to bottom, #003554, #fabec0)",
-            padding: "60px",
-            borderRadius: "12px",
-            position: "relative",
-          }}
-        >
-          <Row justify="center" align="middle" gutter={24}>
-            <Col span={12}>
-              <Title
-                level={1}
-                style={{
-                  color:'#fff'
-                  // background: "linear-gradient(to bottom, #bfdbf7, #022b3a)",
-                  // WebkitBackgroundClip: "text",
-                  // WebkitTextFillColor: "transparent",
-                }}
-              >
-                เชื่อมต่อแบรนด์และอินฟลูเอนเซอร์อย่างง่ายดาย
-              </Title>
 
-              <Paragraph style={{ color: "#ffff", fontSize: "18px" }}>
-                ค้นหาและร่วมงานกับอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
-              </Paragraph>
-            </Col>
-            <Col span={12}>
-              <img
-                src={PIC}
-                style={{
-                  width: "800px", // Adjust the size as needed
-                  position: "absolute",
-                  top: "-200px",
-                  right: "-40px",
-                  zIndex: 1,
-                }}
-              />
-              {/* <img
-                src={Pic3} // Use imported image here
-                style={{
-                  width: "800px", // Adjust the size as needed
-                  position: "absolute",
-                  top: "100px",
-                  right: "-200px",
-                  zIndex: 1,
-                }}
-              /> */}
-            </Col>
-          </Row>
-        </div>
+        <Row justify="center" align="middle" gutter={[12, 12]} style={{
+          background: "linear-gradient(to bottom, #003554, #fabec0)",
+          padding: "1.5rem",
+          borderRadius: "12px",
+          marginTop: '2rem'
+        }}>
+          <Col xs={24} md={0} style={{ justifyItems: "center", alignItems: 'center' }}>
+            <img
+              src={PIC}
+              style={{
+                width: "100%",
+                // position: "absolute",
+                // top: "100%",
+                // right: "55%",
+                // transform: "translate(50%, -55%)", /* Move the element back by half its size */
+                // zIndex: 1,
+              }}
+            />
+          </Col>
+          <Col xs={24} md={12}>
+            <Title
+              level={2}
+              style={{
+                color: '#fff',
+                textAlign: screen.xs ? "center" : undefined
+              }}
+
+            >
+              เชื่อมต่อแบรนด์และอินฟลูเอนเซอร์
+              อย่างง่ายดาย
+            </Title>
+
+            <Paragraph style={{ color: "#ffff", fontSize: "16px",textAlign: screen.xs ? "center" : undefined }}>
+              ค้นหาและร่วมงานกับอินฟลูเอนเซอร์ที่เหมาะสมสำหรับแคมเปญของคุณ
+            </Paragraph>
+          </Col>
+          <Col xs={0} md={12} style={{ position: "relative", justifyItems: "center", alignItems: 'center' }}>
+            <img
+              src={PIC}
+              style={{
+                width: "110%",
+                position: "absolute",
+                top: "50%",
+                right: "55%",
+                transform: "translate(50%, -50%)", /* Move the element back by half its size */
+                zIndex: 1,
+              }}
+            />
+          </Col>
+
+        </Row>
 
         {/* Welcome Section */}
         <Row justify="left" gutter={[16, 16]} style={{ marginTop: "40px" }}>
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Title level={2}>ยินดีต้อนรับสู่ Influlance</Title>
             <Paragraph>
               Influlance
@@ -84,7 +87,7 @@ const MainHomePage = () => {
 
         {/* Section 1 */}
         <Row justify="center" gutter={[16, 16]} style={{ marginTop: "40px" }}>
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card
               hoverable
               style={{
@@ -115,7 +118,7 @@ const MainHomePage = () => {
               </Button>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card
               hoverable
               style={{

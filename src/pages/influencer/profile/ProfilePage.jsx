@@ -23,19 +23,17 @@ import {
 import PortfolioForm from "../authen/components/PortfolioForm";
 import CrownImg from "/crown.png";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery } from "../../../api/authApi";
+import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery } from "../../../api/influencer/authApi";
 
 const ProfilePage = () => {
-  const onChange = (key) => {
-    console.log(key);
-  };
   const screen = useBreakpoint();
   const { data: me, isLoading: isLoadingMe } = useMeQuery(null)
   const { data: portfolios, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = usePortfolioQuery(null)
   const [addPortfolio, { isLoading: isLoadingAddPortfolio }] = useAddPortfolioMutation()
   const [portfolioItems, setPortfolioItems] = useState([]);
-  const [count, setCount] = useState(0); // State for counting items
   const [visible, setIsModalVisible] = useState(false);
+
+  console.log('portfolios', portfolios)
 
   useEffect(() => {
     setPortfolioItems(portfolios)
@@ -46,14 +44,10 @@ const ProfilePage = () => {
     try {
       const newPortfolioItem = {
         ...newItem,
-        // image: [{
-        //   url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        // }],
         title: `${newItem.title}`, // Add the count to the title,
-        firstImage: newItem.images[0]?.url, // fixed
+        images: newItem.images.map(el => el.url)
       };
 
-      console.log(newPortfolioItem)
       const resp = await addPortfolio(newPortfolioItem).unwrap()
 
       if (resp) {
@@ -132,18 +126,46 @@ const ProfilePage = () => {
               <Typography.Title level={1}>{me?.firstName} {me?.lastName}</Typography.Title>
               {/* Social Media Links */}
               <div>
-                <Typography.Text>
-                  <FacebookOutlined /> {me?.facebook}
-                </Typography.Text>
-                <Typography.Paragraph>
-                  <InstagramOutlined /> {me?.instagram}
-                </Typography.Paragraph>
-                <Typography.Paragraph>
-                  <TwitterOutlined /> {me?.x}
-                </Typography.Paragraph>
-                <Typography.Paragraph>
-                  <VideoCameraOutlined /> {me?.tiktok}
-                </Typography.Paragraph>
+                <Row>
+                  <Typography.Text>
+                    <FacebookOutlined /> {me?.facebook}
+                  </Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Text>
+                    {"Follower : " + me?.facebookFollower}
+                  </Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Paragraph>
+                    <InstagramOutlined /> {me?.instagram}
+                  </Typography.Paragraph>
+                </Row>
+                <Row>
+                  <Typography.Text>
+                    {"Follower : " + me?.instagramFollower}
+                  </Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Paragraph>
+                    <TwitterOutlined /> {me?.x}
+                  </Typography.Paragraph>
+                </Row>
+                <Row>
+                  <Typography.Text>
+                    {"Follower : " + me?.xFollower}
+                  </Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Paragraph>
+                    <VideoCameraOutlined /> {me?.tiktok}
+                  </Typography.Paragraph>
+                </Row>
+                <Row>
+                  <Typography.Text>
+                    {"Follower : " + me?.tiktokFollower}
+                  </Typography.Text>
+                </Row>
                 <Divider />
                 <Typography.Text>
                   {me?.yourInfo}
@@ -206,13 +228,13 @@ const ProfilePage = () => {
                 </Row>
 
                 <Row>
-                  {portfoilio.images.map((img, i) => {
+                  {portfoilio?.images.map((img, i) => {
                     return (
                       <Col span={6} style={{ cursor: "pointer" }}>
                         <Image
                           preview={false}
-                          src={img.url}
-                          onClick={() => handleChangeShowImage(index, img.url)}
+                          src={img}
+                          onClick={() => handleChangeShowImage(index, img)}
                         />
                       </Col>
                     );
@@ -234,7 +256,6 @@ const ProfilePage = () => {
                     },
                   ]}
                   defaultActiveKey={["0"]}
-                  onChange={onChange}
                 />
               </Col>
               <Divider />

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { authenUsers, loginUsers } from "../shared/mockup/authenUser";
+import { authenUsers } from "../shared/mockup/authenUser";
 import Cookies from "js-cookie";
 import { delay } from "../shared/utils/delay";
 

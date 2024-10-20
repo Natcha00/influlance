@@ -10,16 +10,19 @@ import FinanceManagementPage from "./pages/influencer/finance/FinanceManagementP
 import LoginPage from "./pages/influencer/authen/LoginPage";
 import Navbar from "./components/Navbar";
 import AppLayout from "./components/AppLayout";
-import { Button, ConfigProvider } from "antd";
+import { Button, ConfigProvider, DatePicker, Typography } from "antd";
 import MainHomePage from "./pages/mainHomePage";
 import InfluencerHomePage from "./pages/influencer/home/InfluencerHomePage";
 import MarketerHomePage from "./pages/marketer/home/MarketerHomePage";
 import MarketerWorkSpacePage from "./pages/marketer/work/MarketerWorkSpacePage";
 import CheckWorkPage from "./pages/marketer/work/CheckWorkPage";
-import CreateWorkPage from "./pages/marketer/work/CreateWorkPage";
 import MarketerProfilePage from "./pages/marketer/profile/MarketerProfilePage";
-import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
+import ProtectedInfluencerAuthRoute from "./components/ProtectedInfluencerAuthRoute";
 import ProtectedNoAuth from "./components/ProtectedNoAuthRoute";
+import MarketerLoginPage from "./pages/marketer/authen/LoginPage";
+import ProtectedMarketerAuthRoute from "./components/ProtectedMarketerAuthRoute";
+import MarketerRegisterPage from "./pages/marketer/authen/RegisterPage";
+import MarketerProfileInformationPage from "./pages/marketer/authen/ProfileInfomationPage";
 
 function App() {
   const influTheme = {
@@ -31,6 +34,9 @@ function App() {
       Collapse: {
         colorFillAlter: "#5A4FF5",
         colorBgContainer: "#000", //check
+      },
+      Typography:{
+        
       },
       Layout: {
         bodyBg: "#000",
@@ -79,6 +85,10 @@ function App() {
       Divider: {
         colorSplit: "#fff",
       },
+      DatePicker: {
+        colorTextHeading: "#000",
+        colorText: "#000"
+      }
     },
   };
   return (
@@ -89,11 +99,11 @@ function App() {
           <Routes>
             <Route path="/" element={<MainHomePage />} />
             <Route
-              path="/influencer-homepage"
+              path="/influencer"
               element={<InfluencerHomePage />}
             />
             <Route
-              path="/register"
+              path="/influencer/register"
               element={
                 <ProtectedNoAuth>
                   <RegisterPage />
@@ -101,7 +111,7 @@ function App() {
               }
             />
             <Route
-              path="/login"
+              path="/influencer/login"
               element={
                 <ProtectedNoAuth>
                   <LoginPage />
@@ -109,75 +119,138 @@ function App() {
               }
             />
             <Route
-              path="/profile-information"
-              element={<ProfileInfomationPage />}
-            />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/content-feed" element={<ContentFeedPage />} />
-            <Route path="/search" element={<SearchWorkPage />} />
-            <Route path="/work-space" element={<WorkSpacePage />} />
-            <Route path="/work-darft" element={<WorkDraftPage />} />
-            <Route path="/finance" element={<FinanceManagementPage />} />
-
-            <Route path="/marketer-homepage" element={<MarketerHomePage />} />
-            <Route path="/marketer-profile" element={<MarketerProfilePage />} />
-            <Route
-              path="/marketer-work-space"
-              element={<MarketerWorkSpacePage />}
-            />
-            <Route path="/check-work" element={<CheckWorkPage />} />
-            <Route path="/create-work" element={<CreateWorkPage />} />
-            <Route
-              path="/profile-information"
-              element={<ProfileInfomationPage />}
-            />
-
-            <Route
-              path="/profile"
+              path="/influencer/profile-information"
               element={
-                <ProtectedAuthRoute>
+                <ProfileInfomationPage />
+              }
+            />
+            <Route path="/influencer/profile" element={
+              <ProtectedInfluencerAuthRoute>
+                <ProfilePage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+            <Route path="/influencer/content-feed" element={
+              <ProtectedInfluencerAuthRoute>
+                <ContentFeedPage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+            <Route path="/influencer/search" element={
+              <ProtectedInfluencerAuthRoute>
+                <SearchWorkPage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+            <Route path="/influencer/work-space" element={
+              <ProtectedInfluencerAuthRoute>
+                <WorkSpacePage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+            <Route path="/influencer/work-darft" element={
+              <ProtectedInfluencerAuthRoute>
+                <WorkDraftPage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+            <Route path="/influencer/finance" element={
+              <ProtectedInfluencerAuthRoute>
+                <FinanceManagementPage />
+              </ProtectedInfluencerAuthRoute>
+            } />
+
+
+
+            <Route path="/marketer" element={<MarketerHomePage />} />
+            <Route
+              path="/marketer/login"
+              element={
+                <ProtectedNoAuth>
+                  <MarketerLoginPage />
+                </ProtectedNoAuth>
+              }
+            />
+            <Route
+              path="/marketer/register"
+              element={
+                <ProtectedNoAuth>
+                  <MarketerRegisterPage />
+                </ProtectedNoAuth>
+              }
+            />
+
+            <Route
+              path="/marketer/profile-information"
+              element={
+                <ProtectedNoAuth>
+                  <MarketerProfileInformationPage />
+                </ProtectedNoAuth>
+              }
+            />
+
+            <Route path="/marketer/profile" element={
+              <ProtectedMarketerAuthRoute>
+                <MarketerProfilePage />
+              </ProtectedMarketerAuthRoute>
+            } />
+            <Route
+              path="/marketer/work-space"
+              element={
+                <ProtectedMarketerAuthRoute>
+                  <MarketerWorkSpacePage />
+                </ProtectedMarketerAuthRoute>
+              }
+            />
+            <Route path="/marketer/check-work" element={
+              <ProtectedMarketerAuthRoute>
+                <CheckWorkPage />
+              </ProtectedMarketerAuthRoute>
+            } />
+
+
+
+            <Route
+              path="/marketer/profile"
+              element={
+                <ProtectedMarketerAuthRoute>
                   <ProfilePage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
             <Route
-              path="/content-feed"
+              path="/marketer/content-feed"
               element={
-                <ProtectedAuthRoute>
+                <ProtectedMarketerAuthRoute>
                   <ContentFeedPage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
             <Route
-              path="/search"
+              path="/marketer/search"
               element={
-                <ProtectedAuthRoute>
+                <ProtectedMarketerAuthRoute>
                   <SearchWorkPage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
             <Route
-              path="/work-space"
+              path="/marketer/work-space"
               element={
-                <ProtectedAuthRoute>
+                <ProtectedMarketerAuthRoute>
                   <WorkSpacePage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
             <Route
-              path="/work-darft"
+              path="/marketer/work-darft"
               element={
-                <ProtectedAuthRoute>
+                <ProtectedMarketerAuthRoute>
                   <WorkDraftPage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
             <Route
-              path="/finance"
+              path="/marketer/finance"
               element={
-                <ProtectedAuthRoute>
+                <ProtectedMarketerAuthRoute>
                   <FinanceManagementPage />
-                </ProtectedAuthRoute>
+                </ProtectedMarketerAuthRoute>
               }
             />
           </Routes>

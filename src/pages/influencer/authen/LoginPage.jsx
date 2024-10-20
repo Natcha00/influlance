@@ -2,7 +2,7 @@
 import React from 'react';
 import { Form, Input, Button, Row, Col, Typography, Divider, Card, message } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
-import { useLoginMutation, useMeQuery } from '../../../api/authApi';
+import { useLoginMutation, useMeQuery } from '../../../api/influencer/authApi';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { setIsAuth } from '../../../slices/authSlice';
@@ -24,11 +24,12 @@ const LoginPage = () => {
                 const respMe = await me().unwrap()
                 if (respMe) {
                     Cookies.set('email', respMe.email)
+                    Cookies.set("role","influencer")
                     dispatch(setIsAuth(true))
                     message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
                 }
                 setTimeout(() => {
-                    navigate('/')
+                    navigate('/influencer')
                 }, 500)
             }
 
