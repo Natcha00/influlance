@@ -112,7 +112,7 @@ const MainHomePage = () => {
                 type="primary"
                 shape="round"
                 size="large"
-                onClick={() => navigate("/influencer-homepage")}
+                onClick={() => navigate("/influencer")}
               >
                 เริ่มต้น
               </Button>
@@ -143,7 +143,7 @@ const MainHomePage = () => {
                 type="primary"
                 shape="round"
                 size="large"
-                onClick={() => navigate("/marketer-homepage")}
+                onClick={() => navigate("/marketer")}
               >
                 เริ่มต้น
               </Button>
