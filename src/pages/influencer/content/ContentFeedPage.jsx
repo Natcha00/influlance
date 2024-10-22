@@ -14,6 +14,7 @@ import {
   Modal,
   message,
   Image,
+  Typography,
 } from "antd";
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobsQuery } from '../../../api/influencer/jobApi'
@@ -21,6 +22,7 @@ import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobs
 
 const { Search } = Input;
 const { Option } = Select;
+const { Paragraph } = Typography
 
 
 const ContentFeedPage = () => {
@@ -181,7 +183,7 @@ const ContentFeedPage = () => {
                 <Card
                   title={post.jobTitle}
                   extra={
-                    <Button type="primary" onClick={() => showConfirm(post)} loading={LoadingEnroll}>สมัครงาน</Button>
+                    <Button type="primary" onClick={() => showConfirm(post)}>สมัครงาน</Button>
                   }
                   style={{
                     borderRadius: "10px",
@@ -192,22 +194,22 @@ const ContentFeedPage = () => {
                 >
                   <Row gutter={[20, 20]}>
                     <Col span={16}>
-                      <p style={{ color: "#fff" }}>{post.jobDescription}</p>
-                      <p style={{ color: "#fff" }}>
+                      <Paragraph style={{ color: "#fff" }}>{post.jobDescription}</Paragraph>
+                      <Paragraph style={{ color: "#fff" }}>
                         <strong>ประเภทของงาน : </strong><Tag> {post.tag}</Tag>
-                      </p>
-                      <p>
+                      </Paragraph>
+                      <Paragraph>
                         <strong>รายได้ : </strong> {post.paymentPerInfluencer}
-                      </p>
-                      <p>
+                      </Paragraph>
+                      <Paragraph>
                         <strong>สิ้นสุดรับสมัคร : </strong> {post.dueDate}
-                      </p>
-                      <p>
+                      </Paragraph>
+                      <Paragraph>
                         <strong>จำนวนผู้ติดตามขั้นต่ำ : </strong> {post.follower}
-                      </p>
-                      <p>
+                      </Paragraph>
+                      <Paragraph>
                         <strong>จำนวนรับสมัคร : </strong> {post.influencerCount}
-                      </p>
+                      </Paragraph>
                     </Col>
                     <Col span={8}>
                       <Image src={post?.files[0]} width={'100%'} preview={false} />
@@ -215,9 +217,9 @@ const ContentFeedPage = () => {
 
                   </Row>
 
-                  {/* <p style={{ color: "#fff" }}>
+                  {/* <Paragraph style={{ color: "#fff" }}>
                     <strong>แบรนด์:</strong> {post.brand}
-                  </p> */}
+                  </Paragraph> */}
                 </Card>
               </List.Item>
             )}

@@ -57,8 +57,6 @@ const mockBaseQuery = async (arg) => {
             return { error: { status: 500, data: "Internal Server Error" } }
         }
 
-        console.log('jobs', jobs)
-
         jobs = jobs.filter((j) => {
             const enroll = j.jobEnroll.map(je => je.influId)
             if (enroll.includes(influId)) {
@@ -82,48 +80,57 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
 
-        const enrollsJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == 'wait hiring').map(je => {
-            const findJob = jobs.find(j => j.jobId == je.jobId)
-            return {
-                ...je,
-                ...findJob
-            }
-        })
-        console.log(enrollsJob)
+        const { data: enrollsJob, errorEnrollsJob } = await supabase
+            .from("jobEnroll")
+            .select(`
+                *,
+                marketer(
+                    firstName,
+                    lastName,
+                    profilePicture
+                ),
+                job(
+                *
+                ),
+                jobDraft(
+                *
+                ),
+                jobPost(
+                *
+                )
+                `)
+            .eq("influId", influId)
 
-        const waitDraftJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "wait draft").map(je => {
-            const findJob = jobs.find(j => j.jobId == je.jobId)
-            return {
-                ...je,
-                ...findJob
-            }
-        })
 
-        const waitPostJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "wait post").map(je => {
-            const findJob = jobs.find(j => j.jobId == je.jobId)
-            return {
-                ...je,
-                ...findJob
-            }
-        })
+        console.log('enrollsJob', enrollsJob)
+        if (errorEnrollsJob) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
-        const completeJob = workspaceStorage.filter(je => je.influId == influId && je.jobStatus == "confirm").map(je => {
-            const findJob = jobs.find(j => j.jobId == je.jobId)
-            return {
-                ...je,
-                ...findJob
-            }
-        })
+
 
         return {
             data: {
-                enrollsJob,
-                waitDraftJob,
-                waitPostJob,
-                completeJob
+                enrollsJob: enrollsJob.filter(el => el.jobStatus == 'pending').map(el => ({ ...el, ...el.marketer, ...el.job })),
+                waitDraftJob: enrollsJob.filter(el => el.jobStatus == 'wait draft').map(el => ({ ...el, ...el.marketer, ...el.job })),
+                waitPostJob: enrollsJob.filter(el => el.jobStatus == 'wait post').map(el => ({ ...el, ...el.marketer, ...el.job })),
+                completeJob: enrollsJob.filter(el => el.jobStatus == 'complete').map(el => ({ ...el, ...el.marketer, ...el.job })),
             }
         }
     } else if (arg.url == '/enroll') {
@@ -131,24 +138,38 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
-
         const { jobId, marketerId } = arg.body
-        await delay(500)
 
-        const newWorkspaceStorage = [
-            ...workspaceStorage,
-            {
-                jobEnrollId: workSpace.length + 1,
-                jobId,
-                influId,
-                marketerId,
-                jobStatus: "wait hiring"
-            }
-        ]
+        const { data: enrollData, error: insertError } = await supabase
+            .from("jobEnroll")
+            .insert([
+                {
+                    jobId,
+                    marketerId,
+                    influId,
+                    jobStatus: "pending"
+                }
+            ])
 
-        localStorage.setItem('workspaceStorage', JSON.stringify(newWorkspaceStorage))
+        if (insertError) {
+            console.log('insertError', insertError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
 
         return {
@@ -159,14 +180,33 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
 
-        const { jobId } = arg.body
-        await delay(500)
+        const { jobEnrollId } = arg.body
 
-        const newWorkspaceStorage = workspaceStorage.filter(je => (je.jobId != jobId && je.influId == influId) || (je.influId != influId))
-        localStorage.setItem('workspaceStorage', JSON.stringify(newWorkspaceStorage))
+        const { data: _, errorUpdate } = await supabase
+            .from("jobEnroll")
+            .update({ jobStatus: "cancel" })
+            .eq('jobEnrollId', jobEnrollId)
+            .eq('influId', influId)
+
+        if (errorUpdate) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
         return {
             data: "success"
@@ -176,27 +216,47 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
 
         const {
+            jobId,
             content,
             pictureURL,
             videoURL,
             jobEnrollId
         } = arg.body
 
-        const findJobEnrollId = workspaceStorage.find(je => je.influId == influId && je.jobEnrollId == jobEnrollId)
+        const { data: _, error: insertError } = await supabase
+            .from("jobDraft")
+            .insert([
+                {
+                    jobId,
+                    content,
+                    pictureURL,
+                    videoURL,
+                    jobEnrollId,
+                    status: "pending"
+                }
+            ])
 
-        findJobEnrollId.draft = [...findJobEnrollId.draft, {
-            jobDraftId: findJobEnrollId.draft.length + 1,
-            content,
-            pictureURL,
-            videoURL,
-            status: "pending"
-        }]
-
-        localStorage.setItem('workspaceStorage', JSON.stringify(workspaceStorage))
+        if (insertError) {
+            console.log('insertError', insertError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
         return {
             data: "success"
@@ -206,27 +266,46 @@ const mockBaseQuery = async (arg) => {
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const influId = findToken.influId
 
         const {
-            content,
+            jobId,
             pictureURL,
-            videoURL,
+            postLink,
             jobEnrollId
         } = arg.body
 
-        const findJobEnrollId = workspaceStorage.find(je => je.influId == influId && je.jobEnrollId == jobEnrollId)
+        const { data: _, error: insertError } = await supabase
+            .from("jobPost")
+            .insert([
+                {
+                    jobId,
+                    pictureURL,
+                    postLink,
+                    jobEnrollId,
+                    status: "pending"
+                }
+            ])
 
-        findJobEnrollId.post = [...findJobEnrollId.post, {
-            jobPostId: findJobEnrollId.post.length + 1,
-            content,
-            pictureURL,
-            videoURL,
-            status: "pending"
-        }]
+        if (insertError) {
+            console.log('insertError', insertError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
 
-        localStorage.setItem('workspaceStorage', JSON.stringify(workspaceStorage))
 
         return {
             data: "success"
@@ -275,19 +354,20 @@ export const jobApi = createApi({
                 })
             }),
             cancelEnroll: builder.mutation({
-                query: ({ jobId }) => ({
+                query: ({ jobEnrollId }) => ({
                     url: "/cancel-enroll",
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: {
-                        jobId,
+                        jobEnrollId,
                     }
                 })
             }),
             saveDraft: builder.mutation({
                 query: ({
+                    jobId,
                     content,
                     pictureURL,
                     videoURL,
@@ -299,6 +379,7 @@ export const jobApi = createApi({
                         'Content-Type': 'application/json'
                     },
                     body: {
+                        jobId,
                         content,
                         pictureURL,
                         videoURL,
@@ -308,9 +389,9 @@ export const jobApi = createApi({
             }),
             savePost: builder.mutation({
                 query: ({
-                    content,
+                    jobId,
                     pictureURL,
-                    videoURL,
+                    postLink,
                     jobEnrollId
                 }) => ({
                     url: "/save-post",
@@ -319,9 +400,9 @@ export const jobApi = createApi({
                         'Content-Type': 'application/json'
                     },
                     body: {
-                        content,
+                        jobId,
                         pictureURL,
-                        videoURL,
+                        postLink,
                         jobEnrollId
                     }
                 })

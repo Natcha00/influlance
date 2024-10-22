@@ -36,7 +36,7 @@ async function uploadFile(file) {
     return { url: getUrl.publicUrl };
 }
 
-const DraggerUpload = ({ fileList, setFileList, form, name, multiple = false, maxCount = 1 }) => {
+const DraggerUpload = ({ fileList, setFileList, form, name, multiple = false, maxCount = 1, disabled = false, beforeUpload = false }) => {
     const customUpload = async ({ file, onSuccess, onProgress }) => {
         try {
             // console.log(file)
@@ -53,11 +53,13 @@ const DraggerUpload = ({ fileList, setFileList, form, name, multiple = false, ma
     };
     return (
         <Upload.Dragger
+            disabled={disabled}
             name="files"
             multiple={multiple}
             maxCount={maxCount}
             listType="picture-card"
             customRequest={customUpload}
+            beforeUpload={beforeUpload}
             onChange={(info) => {
                 const { status } = info.file;
                 let newFileList = [...info.fileList]

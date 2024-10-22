@@ -98,6 +98,7 @@ const mockBaseQuery = async (arg) => {
         }
 
         const marketerId = findToken.marketerId
+
         const { data: jobs, errorJobs } = await supabase
             .from("job")
             .select(`
