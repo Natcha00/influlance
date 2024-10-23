@@ -76,7 +76,7 @@ const MainHomePage = () => {
         <Row justify="left" gutter={[16, 16]} style={{ marginTop: "40px" }}>
           <Col xs={24} md={12}>
             <Title level={2}>ยินดีต้อนรับสู่ Influlance</Title>
-            <Paragraph>
+            <Paragraph style={ {fontSize: "14px"}}>
               Influlance
               เป็นตลาดกลางที่เชื่อมต่อและทำให้แบรนด์กับอินฟลูเอนเซอร์สามารถทำงานร่วมกันได้
               ไม่ว่าคุณจะเป็นแบรนด์ที่ต้องการโปรโมตสินค้าหรือเป็นอินฟลูเอนเซอร์ที่กำลังมองหาโอกาสใหม่
