@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Layout,
   Tabs,
@@ -22,6 +22,7 @@ import { useForm } from "antd/es/form/Form";
 import { useApproveDraftMutation, useApprovePostMutation, useCheckDraftQuery, useCheckPostQuery, useRejectDraftMutation, useRejectPostMutation } from "../../../api/marketer/jobApi";
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useApprovePaycreditMutation } from "../../../api/marketer/financeApi";
+import { supabase } from "../../../shared/supabase";
 
 const { Content } = Layout;
 const { Paragraph } = Typography;
@@ -31,7 +32,7 @@ const CheckWorkPage = () => {
   const location = useLocation()
   const [form] = useForm()
   const [formPost] = useForm()
-  const { jobId,jobTitle } = location?.state
+  const { jobId, jobTitle } = location?.state
   // State to manage rejection reason modal
   const [visible, setVisible] = useState(false);
   const [visiblePost, setVisiblePost] = useState(false);
@@ -47,6 +48,45 @@ const CheckWorkPage = () => {
 
   const [approvePayCredit, { isLoading: isLoadingApprovePayCredit }] = useApprovePaycreditMutation()
 
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: "jobDraft",
+      },
+      (payload) => {
+        if (jobId == payload?.new?.jobId) {
+          refetchChechDraft(jobId)
+        }
+      }
+    )
+    .subscribe()
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: "jobPost",
+      },
+      (payload) => {
+        if (jobId == payload?.new?.jobId) {
+          refetchChechPost(jobId)
+        }
+      }
+    )
+    .subscribe()
+
+  useEffect(() => {
+    refetchChechDraft(jobId)
+    refetchChechPost(jobId)
+  }, [jobId])
 
   const showConfirmApproveDraft = (jobDraft) => {
     Modal.confirm({

@@ -19,6 +19,8 @@ import { Link, useNavigate } from "react-router-dom";
 import CreateWork from "./components/CreateWork";
 import { useGetJobsQuery, useHireMutation, useRejectMutation, useRemoveJobMutation } from "../../../api/marketer/jobApi";
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { supabase } from "../../../shared/supabase";
+import { useMeQuery } from "../../../api/marketer/authApi";
 
 const { Content } = Layout;
 const { Paragraph } = Typography;
@@ -26,11 +28,68 @@ const { Paragraph } = Typography;
 const MarketerWorkSpace = () => {
 
   const navigate = useNavigate();
+  const { data: me, isLoading } = useMeQuery()
   const { data: jobs, isLoading: isLoadingGetJobs, refetch: refetchGetJobs } = useGetJobsQuery(null)
   const [hire, { isLoading: isLoadingHire }] = useHireMutation()
   const [reject, { isLoading: isLoadingReject }] = useRejectMutation()
   const [removeJob, { isLoading: isLoadingRemoveJob }] = useRemoveJobMutation()
   // Dummy data for tasks and applicants
+
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: "jobEnroll",
+      },
+      (payload) => {
+        if (me.marketerId == payload?.new?.marketerId) {
+          refetchGetJobs()
+        }
+      }
+    )
+    .subscribe()
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: "jobDraft",
+      },
+      (payload) => {
+        const setOfJobs = new Set(jobs.map(el => el.jobId))
+        console.log('setOfJobs', setOfJobs)
+        if (setOfJobs.has(payload?.new?.jobId)) {
+          refetchGetJobs()
+        }
+      }
+    )
+    .subscribe()
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: "jobPost",
+      },
+      (payload) => {
+        const setOfJobs = new Set(jobs.map(el => el.jobId))
+        if (setOfJobs.has(payload?.new?.jobId)) {
+          refetchGetJobs()
+        }
+      }
+    )
+    .subscribe()
+
   const pendingTasks = [
     {
       title: "Campaign for Product X",

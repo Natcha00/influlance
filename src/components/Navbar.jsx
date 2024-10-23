@@ -16,9 +16,10 @@ function Navbar() {
   const navigate = useNavigate();
   const screen = useBreakpoint();
   const { isAuth } = useSelector((state) => state.auth);
-  const email = Cookies.get("email");
-  const dispatch = useDispatch();
   const location = useLocation()
+  const email = Cookies.get("email");
+  const role = Cookies.get("role")
+  const dispatch = useDispatch()
 
   const mainPath = [
     {

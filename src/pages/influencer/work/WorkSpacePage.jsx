@@ -28,6 +28,8 @@ import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import DraggerUpload from "../../../components/DraggerUpload";
 import dayjs from "dayjs";
 import Title from "antd/es/typography/Title";
+import { supabase } from "../../../shared/supabase";
+import { useMeQuery } from "../../../api/influencer/authApi";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -36,16 +38,68 @@ const { Paragraph } = Typography
 const WorkSpacePage = () => {
   const [form] = useForm();
   const [formPost] = useForm()
+  const { data: me } = useMeQuery()
   const { data: jobEnrolls, isLoading: isLoadingJobEnroll, refetch: refetchJobEnroll } = useJobEnrollsQuery(null)
   const [cancelEnroll, { isLoading: isLoadingCancelEnroll }] = useCancelEnrollMutation()
   const [saveDraft, { isLoading: isLoadingSaveDraft }] = useSaveDraftMutation()
   const [savePost, { isLoading: isLoadingSavePost }] = useSavePostMutation()
-  useEffect(() => {
-    refetchJobEnroll()
-    setAppliedJobs(jobEnrolls)
-  }, [jobEnrolls])
 
-  const [appliedJobs, setAppliedJobs] = useState([]);
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: "jobEnroll",
+      },
+      (payload) => {
+        if (me?.influId == payload?.new?.influId) {
+          refetchJobEnroll()
+        }
+      }
+    )
+    .subscribe()
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: "jobDraft",
+      },
+      (payload) => {
+        const setOfJobsEnroll = new Set(jobEnrolls?.waitDraftJob
+          .map(el => el.jobEnrollId))
+        console.log('setOfJobsEnroll', setOfJobsEnroll)
+        if (setOfJobsEnroll.has(payload?.new?.jobEnrollId)) {
+          refetchJobEnroll()
+        }
+      }
+    )
+    .subscribe()
+
+  supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: "jobPost",
+      },
+      (payload) => {
+        const setOfJobsEnroll = new Set(jobEnrolls?.waitPostJob
+          .map(el => el.jobEnrollId))
+        if (setOfJobsEnroll.has(payload?.new?.jobEnrollId)) {
+          refetchJobEnroll()
+        }
+      }
+    )
+    .subscribe()
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalPostVisible, setIsModalPostVisible] = useState(false)
   const [currentJob, setCurrentJob] = useState(null);

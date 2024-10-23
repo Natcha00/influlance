@@ -57,7 +57,7 @@ const mockBaseQuery = async (arg) => {
         }
 
         const {
-            influId,
+            marketerId,
             email,
             accessToken,
             firstName,
@@ -74,7 +74,7 @@ const mockBaseQuery = async (arg) => {
 
         return {
             data: {
-                influId,
+                marketerId,
                 email,
                 accessToken,
                 firstName,
