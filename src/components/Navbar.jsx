@@ -7,7 +7,7 @@ import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsAuth } from "../slices/authSlice";
 import Cookies from "js-cookie";
-import Logo from "/Logo.png";
+import Logo from "/logo2.png";
 import Banner from "/pic_beauty.png";
 
 const { Header } = Layout;
@@ -127,7 +127,7 @@ function Navbar() {
           <img
             src={Logo}
             alt="Logo"
-            style={{ height: "100px", width: "95px" }}
+            style={{ height: "40%", width: "40%" }}
             onClick={() => {
               if (location.pathname == '/') {
                 navigate('/')

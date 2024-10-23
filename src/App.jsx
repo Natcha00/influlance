@@ -43,7 +43,7 @@ function App() {
       Layout: {
         bodyBg: "#000",
         headerColor: "#fff",
-        headerHeight: "100px",
+        headerHeight: "100%",
         // headerBg:'#fff'
       },
       Divider: {
