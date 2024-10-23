@@ -96,6 +96,65 @@ const mockBaseQuery = async (arg) => {
                 accountId,
             }
         }
+    } else if (arg.url.includes('/view-profile')) {
+        const token = Cookies.get('accessToken')
+        if (!token) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
+        const influId = arg.params
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("influId", influId)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+
+
+        const {
+            email,
+            accessToken,
+            firstName,
+            lastName,
+            profilePicture,
+            facebook,
+            facebookFollower,
+            instagram,
+            instagramFollower,
+            x,
+            xFollower,
+            tiktok,
+            tiktokFollower,
+            categories,
+            yourInfo,
+            accountId,
+        } = findToken
+
+        return {
+            data: {
+                influId,
+                email,
+                accessToken,
+                firstName,
+                lastName,
+                profilePicture,
+                facebook,
+                facebookFollower,
+                instagram,
+                instagramFollower,
+                x,
+                xFollower,
+                tiktok,
+                tiktokFollower,
+                categories,
+                yourInfo,
+                accountId,
+            }
+        }
     } else if (arg.url == '/register') {
         const {
             email,
@@ -118,6 +177,23 @@ const mockBaseQuery = async (arg) => {
 
         const token = uuidv4()
 
+
+
+        const { data: account, error: insertAccountError } = await supabase
+            .from("account")
+            .insert([
+                {
+                    type: 'influencer'
+                }
+            ])
+            .select()
+            .single()
+
+        if (insertAccountError) {
+            console.log('insertError', insertAccountError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
         const { data: registerData, error: insertError } = await supabase
             .from("influencer")
             .insert([
@@ -137,7 +213,8 @@ const mockBaseQuery = async (arg) => {
                     profilePicture,
                     categories,
                     yourInfo,
-                    accessToken: token
+                    accessToken: token,
+                    accountId: account.accountId
                 }
             ])
             .select('influId')
@@ -145,20 +222,6 @@ const mockBaseQuery = async (arg) => {
 
         if (insertError) {
             console.log('insertError', insertError)
-            return { error: { status: 500, data: "Internal Server Error" } }
-        }
-
-        const { data, error: insertAccountError } = await supabase
-            .from("account")
-            .insert([
-                {
-                    referenceUserId: registerData.influId,
-                    type: 'influencer'
-                }
-            ])
-
-        if (insertAccountError) {
-            console.log('insertError', insertAccountError)
             return { error: { status: 500, data: "Internal Server Error" } }
         }
 
@@ -205,6 +268,43 @@ const mockBaseQuery = async (arg) => {
         }
 
         const influId = findToken.influId
+        const { data: portfolios, error2 } = await supabase
+            .from("portfolio")
+            .select()
+            .eq("influId", influId);
+
+        if (error2) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        return {
+            data: portfolios.map((p) => {
+                return {
+                    title: p.title,
+                    description: p.description,
+                    firstImage: p.images[0],
+                    images: p.images
+                }
+            })
+        }
+
+    } else if (arg.url.includes('/view-portfolio')) {
+        const token = Cookies.get('accessToken')
+        if (!token) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+        const influId = arg.params
+        console.log('influId', influId)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("influId", influId)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
         const { data: portfolios, error2 } = await supabase
             .from("portfolio")
             .select()
@@ -300,6 +400,13 @@ export const authApi = createApi({
                     method: "GET"
                 })
             }),
+            viewProfile: builder.query({
+                query: (influId) => ({
+                    url: `/view-profile/${influId}`,
+                    method: "GET",
+                    params: influId
+                })
+            }),
             register: builder.mutation({
                 query: ({
                     email,
@@ -360,6 +467,13 @@ export const authApi = createApi({
                     method: "GET"
                 })
             }),
+            viewPortfolio: builder.query({
+                query: (influId) => ({
+                    url: `/view-portfolio/${influId}`,
+                    method: "GET",
+                    params: influId
+                })
+            }),
             addPortfolio: builder.mutation({
                 query: ({
                     title,
@@ -390,5 +504,7 @@ export const {
     useRegisterMutation,
     useCheckEmailMutation,
     usePortfolioQuery,
-    useAddPortfolioMutation
+    useAddPortfolioMutation,
+    useViewProfileQuery,
+    useViewPortfolioQuery
 } = authApi

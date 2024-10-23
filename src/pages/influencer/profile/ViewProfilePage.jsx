@@ -23,47 +23,20 @@ import {
 import PortfolioForm from "../authen/components/PortfolioForm";
 import CrownImg from "/crown.png";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery } from "../../../api/influencer/authApi";
+import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery, useViewPortfolioQuery, useViewProfileQuery } from "../../../api/influencer/authApi";
 import { useParams } from "react-router-dom";
 
-const ProfilePage = () => {
+const ViewProfilePage = () => {
   const screen = useBreakpoint();
-  const params = useParams()
-  const { data: me, isLoading: isLoadingMe } = useMeQuery(null)
-  const { data: portfolios, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = usePortfolioQuery(null)
-  const [addPortfolio, { isLoading: isLoadingAddPortfolio }] = useAddPortfolioMutation()
+  const { influId } = useParams()
+
+  const { data: profile, isLoading: isLoadingProfile } = useViewProfileQuery(influId)
+  const { data: portfolios, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useViewPortfolioQuery(influId)
   const [portfolioItems, setPortfolioItems] = useState([]);
-  const [visible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     setPortfolioItems(portfolios)
   }, [portfolios])
-
-  // Add new portfolio item
-  const onAdd = async (newItem) => {
-    try {
-      const newPortfolioItem = {
-        ...newItem,
-        title: `${newItem.title}`, // Add the count to the title,
-        images: newItem.images.map(el => el.url)
-      };
-
-      const resp = await addPortfolio(newPortfolioItem).unwrap()
-
-      if (resp) {
-        message.success("เพิ่ม portfolio สำเร็จ")
-        refetchPortfolio()
-      }
-    } catch (error) {
-      console.log(error)
-      message.error("Found issue")
-    }
-
-  };
-
-  // Modal controls
-  const showModal = () => setIsModalVisible(true);
-  const onClose = () => setIsModalVisible(false);
 
   const handleChangeShowImage = (index, url) => {
     const newPortfolioItems = portfolioItems.map((port, i) => {
@@ -93,8 +66,7 @@ const ProfilePage = () => {
           >
             <Avatar
               // size={300}
-              src={me?.profilePicture}
-              size={"100%"}
+              src={profile?.profilePicture}
               style={{ marginBottom: "20px", minWidth: "70%", height: "auto" }}
             />
           </div>
@@ -124,52 +96,52 @@ const ProfilePage = () => {
         <Col xs={24} md={12}>
           <Row>
             <Col xs={24} md={12}>
-              <Typography.Title level={1}>{me?.firstName} {me?.lastName}</Typography.Title>
+              <Typography.Title level={1}>{profile?.firstName} {profile?.lastName}</Typography.Title>
               {/* Social Media Links */}
               <div>
                 <Row>
                   <Typography.Text>
-                    <FacebookOutlined /> {me?.facebook}
+                    <FacebookOutlined /> {profile?.facebook}
                   </Typography.Text>
                 </Row>
                 <Row>
                   <Typography.Text>
-                    {"Follower : " + me?.facebookFollower}
-                  </Typography.Text>
-                </Row>
-                <Row>
-                  <Typography.Paragraph>
-                    <InstagramOutlined /> {me?.instagram}
-                  </Typography.Paragraph>
-                </Row>
-                <Row>
-                  <Typography.Text>
-                    {"Follower : " + me?.instagramFollower}
+                    {"Follower : " + profile?.facebookFollower}
                   </Typography.Text>
                 </Row>
                 <Row>
                   <Typography.Paragraph>
-                    <TwitterOutlined /> {me?.x}
+                    <InstagramOutlined /> {profile?.instagram}
                   </Typography.Paragraph>
                 </Row>
                 <Row>
                   <Typography.Text>
-                    {"Follower : " + me?.xFollower}
+                    {"Follower : " + profile?.instagramFollower}
                   </Typography.Text>
                 </Row>
                 <Row>
                   <Typography.Paragraph>
-                    <VideoCameraOutlined /> {me?.tiktok}
+                    <TwitterOutlined /> {profile?.x}
                   </Typography.Paragraph>
                 </Row>
                 <Row>
                   <Typography.Text>
-                    {"Follower : " + me?.tiktokFollower}
+                    {"Follower : " + profile?.xFollower}
+                  </Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Paragraph>
+                    <VideoCameraOutlined /> {profile?.tiktok}
+                  </Typography.Paragraph>
+                </Row>
+                <Row>
+                  <Typography.Text>
+                    {"Follower : " + profile?.tiktokFollower}
                   </Typography.Text>
                 </Row>
                 <Divider />
                 <Typography.Text>
-                  {me?.yourInfo}
+                  {profile?.yourInfo}
                 </Typography.Text>
               </div>
             </Col>
@@ -206,11 +178,6 @@ const ProfilePage = () => {
         ผลงาน
       </Divider >
       {/* <Typography.Title level={2}>ผลงาน</Typography.Title> */}
-      < Row style={{ marginBottom: "1rem" }} justify={"end"} >
-        <Button type="primary" onClick={() => showModal()}>
-          เพิ่มผลงาน
-        </Button>
-      </Row >
 
       {
         portfolioItems?.map((portfoilio, index) => (
@@ -264,10 +231,8 @@ const ProfilePage = () => {
           </>
         ))
       }
-
-      <PortfolioForm visible={visible} onAdd={onAdd} onClose={onClose} />
     </>
   );
 };
 
-export default ProfilePage;
+export default ViewProfilePage;

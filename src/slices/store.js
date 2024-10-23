@@ -8,6 +8,7 @@ import { financeApi } from '../api/influencer/financeApi'
 import { uploadApi } from '../api/uploadApi'
 import { mktAuthApi } from '../api/marketer/authApi'
 import { mktJobApi } from '../api/marketer/jobApi'
+import { mktFinanceApi } from '../api/marketer/financeApi'
 
 const store = configureStore({
     reducer: {
@@ -18,7 +19,8 @@ const store = configureStore({
         [financeApi.reducerPath]: financeApi.reducer,
         [uploadApi.reducerPath]: uploadApi.reducer,
         [mktAuthApi.reducerPath]: mktAuthApi.reducer,
-        [mktJobApi.reducerPath]: mktJobApi.reducer
+        [mktJobApi.reducerPath]: mktJobApi.reducer,
+        [mktFinanceApi.reducerPath]: mktFinanceApi.reducer,
     },
     middleware: (getDefaultMiddleware) => {
         return getDefaultMiddleware().concat(
@@ -27,7 +29,8 @@ const store = configureStore({
             financeApi.middleware,
             uploadApi.middleware,
             mktAuthApi.middleware,
-            mktJobApi.middleware
+            mktJobApi.middleware,
+            mktFinanceApi.middleware
         )
     }
 })

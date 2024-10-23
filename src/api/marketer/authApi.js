@@ -108,6 +108,24 @@ const mockBaseQuery = async (arg) => {
 
         const token = uuidv4()
 
+
+
+
+        const { data: account, error: insertAccountError } = await supabase
+            .from("account")
+            .insert([
+                {
+                    type: 'marketer'
+                }
+            ])
+            .select()
+            .single()
+
+        if (insertAccountError) {
+            console.log('insertError', insertAccountError)
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
         const { data: registerData, error: insertError } = await supabase
             .from("marketer")
             .insert([
@@ -123,7 +141,8 @@ const mockBaseQuery = async (arg) => {
                     profilePicture,
                     categories,
                     yourInfo,
-                    accessToken: token
+                    accessToken: token,
+                    accountId: account.accountId
                 }
             ])
             .select('marketerId')
@@ -131,21 +150,6 @@ const mockBaseQuery = async (arg) => {
 
         if (insertError) {
             console.log('insertError', insertError)
-            return { error: { status: 500, data: "Internal Server Error" } }
-        }
-
-
-        const { data, error: insertAccountError } = await supabase
-            .from("account")
-            .insert([
-                {
-                    referenceUserId: registerData.marketerId,
-                    type: 'marketer'
-                }
-            ])
-
-        if (insertAccountError) {
-            console.log('insertError', insertAccountError)
             return { error: { status: 500, data: "Internal Server Error" } }
         }
 

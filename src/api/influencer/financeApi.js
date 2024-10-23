@@ -1,89 +1,90 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../../shared/utils/delay";
-import { transactions } from "../../shared/mockup/transaction";
-import dayjs from 'dayjs'
+import { supabase } from "../../shared/supabase";
 
 const mockBaseQuery = async (arg) => {
-    let transactionsStorage = localStorage.getItem('transactionsStorage')
-    if (!transactionsStorage) {
-        localStorage.setItem('transactionsStorage', JSON.stringify(transactions))
-        transactionsStorage = transactions
-    } else {
-        transactionsStorage = JSON.parse(localStorage.getItem('transactionsStorage'))
-    }
-
     if (arg.url == '/finance-transaction') {
         const token = Cookies.get('accessToken')
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const accountId = findToken.accountId
 
-        const influTransactions = transactionsStorage.filter(t => t.sourceAccountId == accountId)
-        await delay()
-
-        influTransactions.sort((a, b) => b.transactionId - a.transactionId)
+        console.log('accountId', accountId)
+        const { data: transaction, error: transactionError } = await supabase
+            .from("transaction")
+            .select()
+            .eq("sourceAccountId", accountId)
+            .order("createDate", { ascending: false })
 
         return {
-            data: influTransactions
+            data: transaction
         }
     } else if (arg.url == '/get-balance') {
         const token = Cookies.get('accessToken')
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
-        const accountId = findToken.accountId
-        const influTransactions = transactionsStorage.filter(t => t.sourceAccountId == accountId)
-        influTransactions.sort((a, b) => b.transactionId - a.transactionId)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
 
-        return {
-            data: influTransactions[0].balance
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
         }
-    } else if (arg.url == '/deposit') {
-        const token = Cookies.get('accessToken')
-        if (!token) {
+
+        if (!findToken) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+
         const accountId = findToken.accountId
 
-        const {
-            amount,
-            sourceAccountNumber,
-            bank
-        } = arg.body
+        const { data: lastTransaction, error: lastTransactionError } = await supabase
+            .from("transaction")
+            .select()
+            .eq("sourceAccountId", accountId)
+            .order("createDate", { ascending: false })
 
-        const influTransactions = transactionsStorage.filter(t => t.sourceAccountId == accountId)
-        const balance = influTransactions[influTransactions.length - 1].balance
-        const newInfluTransactions = [
-            ...influTransactions,
-            {
-                transactionId: influTransactions.length + 1,
-                amount: amount,
-                balance: balance + amount,
-                transactionType: 'deposit',
-                sourceAccountId: accountId,
-                destinationAccountId: null,
-                createDate: dayjs().format('YYYY-MM-DD HH:mm'),
-                status: "pending",
-                remark: `ฝากเงิน จาก ${bank} เลขบัญชี ${sourceAccountNumber}`
-            },
-        ]
+        const balance = lastTransaction[0]?.balance || 0
 
-        localStorage.setItem('transactionsStorage', JSON.stringify(newInfluTransactions))
         return {
-            data: "success"
+            data: balance
         }
     } else if (arg.url == '/withdraw') {
         const token = Cookies.get('accessToken')
         if (!token) {
             return { error: { status: 401, data: "unauthorize" } }
         }
-        const findToken = authenUsers.find(auth => auth.accessToken == token)
+        const { data: findToken, error } = await supabase
+            .from("influencer")
+            .select()
+            .eq("accessToken", token)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        if (!findToken) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
         const accountId = findToken.accountId
 
         const {
@@ -92,28 +93,36 @@ const mockBaseQuery = async (arg) => {
             bank
         } = arg.body
 
-        const influTransactions = transactionsStorage.filter(t => t.sourceAccountId == accountId)
-        const balance = influTransactions[influTransactions.length - 1].balance
-        const newInfluTransactions = [
-            ...influTransactions,
-            {
-                transactionId: influTransactions.length + 1,
-                amount: -amount,
-                balance: balance - amount,
-                transactionType: 'withdraw',
-                sourceAccountId: accountId,
-                destinationAccountId: null,
-                createDate: dayjs().format('YYYY-MM-DD HH:mm'),
-                status: "pending",
-                remark: `ถอนเงิน ไปยัง ${bank} เลขบัญชี ${sourceAccountNumber}`
-            },
-        ]
+        const { data: lastTransaction, error: lastTransactionError } = await supabase
+            .from("transaction")
+            .select()
+            .eq("sourceAccountId", accountId)
+            .order("createDate", { ascending: false })
 
-        localStorage.setItem('transactionsStorage', JSON.stringify(newInfluTransactions))
+        const balance = lastTransaction[0]?.balance || 0
+
+        const { data: insertTransaction, error: insertTransactionError } = await supabase
+            .from("transaction")
+            .insert([
+                {
+                    amount: amount,
+                    balance: balance - amount,
+                    transactionType: 'withdraw',
+                    sourceAccountId: accountId,
+                    destinationAccountId: null,
+                    status: "success",
+                    remark: `ถอนเงิน ไปยัง ${bank} เลขบัญชี ${sourceAccountNumber}`
+                }
+            ])
+
+        if (insertTransactionError) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+
         return {
             data: "success"
         }
-
     }
     return { error: { status: 404, data: 'Not found' } };
 }
@@ -136,24 +145,6 @@ export const financeApi = createApi({
                     method: "GET",
                 })
             }),
-            deposit: builder.mutation({
-                query: ({
-                    amount,
-                    sourceAccountNumber,
-                    bank
-                }) => ({
-                    url: "/deposit",
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: {
-                        amount,
-                        sourceAccountNumber,
-                        bank
-                    }
-                })
-            }),
             withdraw: builder.mutation({
                 query: ({
                     amount,
@@ -172,6 +163,7 @@ export const financeApi = createApi({
                     }
                 })
             }),
+            
         }
     }
 })
@@ -179,6 +171,6 @@ export const financeApi = createApi({
 export const {
     useFinanaceTransactionsQuery,
     useGetBalanceQuery,
-    useDepositMutation,
-    useWithdrawMutation
+    useWithdrawMutation,
+    
 } = financeApi

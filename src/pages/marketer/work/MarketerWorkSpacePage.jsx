@@ -13,10 +13,12 @@ import {
   Modal,
   Input,
   Image,
+  message,
 } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CreateWork from "./components/CreateWork";
-import { useGetJobsQuery } from "../../../api/marketer/jobApi";
+import { useGetJobsQuery, useHireMutation, useRejectMutation, useRemoveJobMutation } from "../../../api/marketer/jobApi";
+import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 
 const { Content } = Layout;
 const { Paragraph } = Typography;
@@ -24,8 +26,10 @@ const { Paragraph } = Typography;
 const MarketerWorkSpace = () => {
 
   const navigate = useNavigate();
-  const { data: jobs, isLoading: isLoadingGetJobs } = useGetJobsQuery(null)
-  console.log('jobs', jobs)
+  const { data: jobs, isLoading: isLoadingGetJobs, refetch: refetchGetJobs } = useGetJobsQuery(null)
+  const [hire, { isLoading: isLoadingHire }] = useHireMutation()
+  const [reject, { isLoading: isLoadingReject }] = useRejectMutation()
+  const [removeJob, { isLoading: isLoadingRemoveJob }] = useRemoveJobMutation()
   // Dummy data for tasks and applicants
   const pendingTasks = [
     {
@@ -54,10 +58,10 @@ const MarketerWorkSpace = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalAddTaskVisible, setIsModalAddTaskVisible] = useState(false)
   const handleAddJob = () => {
-
+    setIsModalAddTaskVisible(false)
   }
   const handleCloseAddJob = () => {
-
+    setIsModalAddTaskVisible(false)
   }
   // Function to show applicants for a job
   const showApplicants = (job) => {
@@ -65,17 +69,77 @@ const MarketerWorkSpace = () => {
     setIsModalVisible(true);
   };
 
-  const handleHire = (applicant) => {
-    console.log(`Hired ${applicant.name}`);
+
+
+  const showConfirmHire = (applicant) => {
+    Modal.confirm({
+      title: 'ต้องการจ้าง Influencer คนนี้ใช่หรือไม่?',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      async onOk() {
+        const resp = await hire({ jobEnrollId: applicant?.jobEnrollId }).unwrap()
+
+        if (resp) {
+          message.success("ยืนยันการจ้างงานสำเร็จ")
+          const newJobEnroll = selectedTask.jobEnroll.filter(el => el.jobEnrollId != applicant?.jobEnrollId)
+          setSelectedTask({
+            ...selectedTask,
+            jobEnroll: newJobEnroll
+          })
+          refetchGetJobs()
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 
-  const handleReject = (applicant) => {
-    console.log(`Rejected ${applicant.name}`);
+
+  const showConfirmReject = (applicant) => {
+    Modal.confirm({
+      title: 'ต้องการปฏิเสธ หรือไม่?',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      async onOk() {
+        const resp = await reject({ jobEnrollId: applicant?.jobEnrollId }).unwrap()
+
+        if (resp) {
+          message.success("ปฏิเสธการจ้างงานสำเร็จ")
+          const newJobEnroll = selectedTask.jobEnroll.filter(el => el.jobEnrollId != applicant?.jobEnrollId)
+          setSelectedTask({
+            ...selectedTask,
+            jobEnroll: newJobEnroll
+          })
+          refetchGetJobs()
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 
-  const handleViewProfile = (profileUrl) => {
-    // navigate(profileUrl);
-  };
+  const showConfirmRemove = (job) => {
+    Modal.confirm({
+      title: 'ต้องการลบประกาศงาน หรือไม่?',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      async onOk() {
+        console.log('first', job)
+        const resp = await removeJob({ jobId: job?.jobId }).unwrap()
+
+        if (resp) {
+          message.success("ลบประกาศงานสำเร็จ")
+          refetchGetJobs()
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }
+
 
   return (
     <ConfigProvider
@@ -84,6 +148,9 @@ const MarketerWorkSpace = () => {
           Card: {
             headerBg: "linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)",
             colorBgContainer: "#2c2c2c",
+          },
+          Modal: {
+            titleColor: '#000'
           }
         },
       }}
@@ -98,46 +165,58 @@ const MarketerWorkSpace = () => {
       <Tabs defaultActiveKey="1">
         <Tabs.TabPane tab="งานที่รอดำเนินการ" key="1">
           <>
-            {jobs?.map((job, index) => (
-              <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
-                <Col span={24}>
-                  <Card
-                    title={job?.jobTitle}
-                    extra={
-                      <Button type="link" onClick={() => showApplicants(job)} disabled={job?.jobEnroll.length == 0}>
-                        รายชื่อผู้สมัคร ({job?.jobEnroll.length})
-                      </Button>
-                    }
+            {jobs?.map((job, index) => {
+              const jobEnrollPending = job?.jobEnroll?.filter(el => el.jobStatus == 'pending')
+              const getHireEnroll = job?.jobEnroll?.filter(el => el.jobStatus != 'pending' && el.jobStatus != 'cancel' && el.jobStatus != 'reject')
+              const numberDraftPending = job?.jobDraft.filter(el => el.status == 'pending').length
+              const numberPostPending = job?.jobPost.filter(el => el.status == 'pending').length
+              return (
+                <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
+                  <Col span={24}>
+                    <Card
+                      title={`${job?.jobId}: ${job?.jobTitle}`}
+                      extra={
+                        <>
+                          <Row justify={'center'} align={'middle'}>
+                            <Col style={{ 'color': '#fff' }}>
+                              <>
+                                จำนวนผู้สมัครที่ได้แล้ว {getHireEnroll.length}/{job?.influencerCount}
+                              </>
+                            </Col>
+                            <Col>
+                              <Button type="link" onClick={() => showApplicants(job)} disabled={jobEnrollPending.length == 0}>
+                                รายชื่อผู้สมัคร ({jobEnrollPending.length})
+                              </Button>
+                            </Col>
+                          </Row>
+                        </>
+                      }
 
-                    actions={[
-                      <Popconfirm
-                        title="คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?"
-                        onConfirm={() => console.log("Post deleted")}
-                      >
-
-                        <Button type="link" danger>
+                      actions={[
+                        <Button type="link" danger disabled={getHireEnroll.length > 0} onClick={() => showConfirmRemove(job)}>
                           ลบ
                         </Button>
-                      </Popconfirm>,
-                      <Button type="primary" onClick={() => navigate("/marketer/check-work")}>
-                        ตรวจงาน
-                      </Button>
+                        ,
+                        <Button type="primary" onClick={() => navigate("/marketer/check-work", { state: { jobId: job?.jobId, jobTitle: job?.jobTitle } })}>
+                          ตรวจงาน ({numberDraftPending + numberPostPending})
+                        </Button>
 
-                    ]}
-                  >
-                    <Paragraph>ชื่อผู้สร้าง: {job?.marketerName}</Paragraph>
-                    <Paragraph>รายละเอียดงาน: {job?.jobDescription}</Paragraph>
-                    <Paragraph>จำนวนผู้ติดตามInfluencer: {job?.follower}</Paragraph>
-                    <Paragraph>จำนวน Influencer : {job?.influencerCount}</Paragraph>
-                    <Paragraph>งบประมาณ : {job?.totalPayment}</Paragraph>
-                    <Paragraph>ค่าจ้างต่อคน: {job?.paymentPerInfluencer}</Paragraph>
-                    <Paragraph>รับสมัครถึงวันที่: {job?.dueDate}</Paragraph>
-                  </Card>
+                      ]}
+                    >
+                      <Paragraph>ชื่อผู้สร้าง: {job?.marketerName}</Paragraph>
+                      <Paragraph>รายละเอียดงาน: {job?.jobDescription}</Paragraph>
+                      <Paragraph>จำนวนผู้ติดตามInfluencer: {job?.follower}</Paragraph>
+                      <Paragraph>จำนวน Influencer : {job?.influencerCount}</Paragraph>
+                      <Paragraph>งบประมาณ : {job?.totalPayment}</Paragraph>
+                      <Paragraph>ค่าจ้างต่อคน: {job?.paymentPerInfluencer}</Paragraph>
+                      <Paragraph>รับสมัครถึงวันที่: {job?.dueDate}</Paragraph>
+                    </Card>
 
-                </Col>
+                  </Col>
 
-              </Row>
-            ))}
+                </Row>
+              )
+            })}
           </>
         </Tabs.TabPane>
         {/* <Tabs.TabPane tab="งานที่เสร็จสิ้น" key="2">
@@ -174,11 +253,11 @@ const MarketerWorkSpace = () => {
       }}>
         <Modal
           title={`รายชื่อผู้สมัคร ${selectedTask?.jobTitle}`}
-          open={isModalVisible}
+          open={isModalVisible && selectedTask?.jobEnroll.length != 0}
           onCancel={() => setIsModalVisible(false)}
           footer={null}
         >
-          {selectedTask?.jobEnroll.map((applicant, index) => (
+          {selectedTask?.jobEnroll.filter(el => el.jobStatus == 'pending').map((applicant, index) => (
             <>
               <Row key={index} style={{ marginBottom: "10px" }} gutter={[20, 20]}>
                 <Col span={12}>
@@ -199,19 +278,16 @@ const MarketerWorkSpace = () => {
               </Row>
               <Row key={index} justify={'space-between'}>
                 <Col>
-                  <Button
-                    type="link"
-                    onClick={() => handleViewProfile(applicant)}
-                  >
+                  <Link to={`/marketer/view-influ-profile/${applicant?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
                     โปรไฟล์
-                  </Button>
+                  </Link>
                 </Col>
-                <Col style={{ display: 'flex', gap: '0.5rem' }}>
+                <Col key={index} style={{ display: 'flex', gap: '0.5rem' }}>
 
-                  <Button danger onClick={() => handleReject(applicant)}>
+                  <Button danger onClick={() => showConfirmReject(applicant)}>
                     ปฏิเสธ
                   </Button>
-                  <Button type="primary" onClick={() => handleHire(applicant)}>
+                  <Button type="primary" onClick={() => showConfirmHire(applicant)}>
                     จ้าง
                   </Button>
                 </Col>

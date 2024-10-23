@@ -11,7 +11,7 @@ import LoginPage from "./pages/influencer/authen/LoginPage";
 import Navbar from "./components/Navbar";
 import AppLayout from "./components/AppLayout";
 import { Button, ConfigProvider, DatePicker, Typography } from "antd";
-import MainHomePage from "./pages/mainHomePage";
+import MainHomePage from "./pages/MainHomePage";
 import InfluencerHomePage from "./pages/influencer/home/InfluencerHomePage";
 import MarketerHomePage from "./pages/marketer/home/MarketerHomePage";
 import MarketerWorkSpacePage from "./pages/marketer/work/MarketerWorkSpacePage";
@@ -23,6 +23,8 @@ import MarketerLoginPage from "./pages/marketer/authen/LoginPage";
 import ProtectedMarketerAuthRoute from "./components/ProtectedMarketerAuthRoute";
 import MarketerRegisterPage from "./pages/marketer/authen/RegisterPage";
 import MarketerProfileInformationPage from "./pages/marketer/authen/ProfileInfomationPage";
+import ViewProfilePage from "./pages/influencer/profile/ViewProfilePage";
+import MarketerFinanceManagementPage from "./pages/marketer/finance/FinanceManagementPage";
 
 function App() {
   const influTheme = {
@@ -35,8 +37,8 @@ function App() {
         colorFillAlter: "#5A4FF5",
         colorBgContainer: "#000", //check
       },
-      Typography:{
-        
+      Typography: {
+
       },
       Layout: {
         bodyBg: "#000",
@@ -237,6 +239,15 @@ function App() {
                 </ProtectedMarketerAuthRoute>
               }
             />
+
+            <Route
+              path="/marketer/view-influ-profile/:influId"
+              element={
+                <ProtectedMarketerAuthRoute>
+                  <ViewProfilePage />
+                </ProtectedMarketerAuthRoute>
+              } />
+
             <Route
               path="/marketer/work-darft"
               element={
@@ -249,7 +260,7 @@ function App() {
               path="/marketer/finance"
               element={
                 <ProtectedMarketerAuthRoute>
-                  <FinanceManagementPage />
+                  <MarketerFinanceManagementPage />
                 </ProtectedMarketerAuthRoute>
               }
             />

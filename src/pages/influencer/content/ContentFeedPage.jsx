@@ -41,10 +41,10 @@ const ContentFeedPage = () => {
   const onSearch = (value) => {
     const filtered = jobs.filter(
       (post) =>
-        (post.title.toLowerCase().includes(value.toLowerCase()) &&
+        (post.jobTitle.toLowerCase().includes(value.toLowerCase()) &&
           (selectedTags.length === 0 ||
             selectedTags.includes(post.tag))) ||
-        post.brand.toLowerCase().includes(value.toLowerCase())
+        post?.marketer?.firstName?.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredPosts(filtered);
   };

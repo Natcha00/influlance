@@ -18,6 +18,7 @@ import {
   Tag,
   Image,
   Collapse,
+  Badge,
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
@@ -229,7 +230,9 @@ const WorkSpacePage = () => {
           <Col span={18}>
             <Tabs defaultActiveKey="1">
               {/* Tab 1: Pending Jobs */}
-              <TabPane tab="งานที่รอดำเนินการ" key="1">
+              <TabPane tab={<Badge count={jobEnrolls?.enrollsJob?.length} offset={[10, -5]}>
+                งานที่รอดำเนินการ
+              </Badge>} key="1">
                 <List
                   grid={{ gutter: 16, column: 1 }}
                   dataSource={jobEnrolls?.enrollsJob}
@@ -276,7 +279,9 @@ const WorkSpacePage = () => {
               </TabPane>
 
               {/* Tab 2: Jobs to Submit */}
-              <TabPane tab="งานที่ต้องส่ง Draft" key="2">
+              <TabPane tab={<Badge count={jobEnrolls?.waitDraftJob?.length} offset={[10, -5]}>
+                งานที่ต้องส่ง Draft
+              </Badge>} key="2">
                 <List
                   grid={{ gutter: 16, column: 1 }}
                   dataSource={jobEnrolls?.waitDraftJob}
@@ -288,9 +293,9 @@ const WorkSpacePage = () => {
                           <Button
                             onClick={() => showDraftModal(job)}
                             style={{ marginRight: "10px" }}
-                            disabled={job?.jobDraft.some(e => e.status == 'approve')}
+                            disabled={job?.jobDraft.some(e => e.status == 'approve' || e.status == 'pending')}
                           >
-                            กดส่งแบบร่าง
+                            {job?.jobDraft?.some(e => e.status == 'pending') ? "งานอยู่ในการรอตรวจ" : "กดส่งแบบร่าง"}
                           </Button>
                         }
                       >
@@ -362,7 +367,9 @@ const WorkSpacePage = () => {
               </TabPane>
 
               {/* Tab 3: Jobs to Submit */}
-              <TabPane tab="งานที่ต้อง post จริง" key="3">
+              <TabPane tab={<Badge count={jobEnrolls?.waitPostJob?.length} offset={[10, -5]}>
+                งานที่ต้อง Post จริง
+              </Badge>} key="3">
                 <List
                   grid={{ gutter: 16, column: 1 }}
                   dataSource={jobEnrolls?.waitPostJob}
@@ -623,7 +630,7 @@ const WorkSpacePage = () => {
         </Modal>
 
         <Modal title={
-          isView ? `view draft` : `ส่งตรวจ Post : ${currentJob?.jobTitle}`
+          isView ? `view Post` : `ส่งตรวจ Post : ${currentJob?.jobTitle}`
         }
           open={isModalPostVisible}
           onCancel={() => {
@@ -660,6 +667,18 @@ const WorkSpacePage = () => {
                 }
               } />
             </Form.Item>
+            {
+              isView && <Form.Item
+                name="reasonReject"
+                label="เหตุผลที่ปฏิเสธ"
+              >
+                <TextArea
+                  disabled={isView}
+                  rows={4}
+                  placeholder="-"
+                />
+              </Form.Item>
+            }
 
             <Form.Item>
               {

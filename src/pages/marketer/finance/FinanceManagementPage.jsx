@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Layout, Row, Col, Card, Form, Input, InputNumber, Button, Table, Typography, Divider, Select, message, Tag } from 'antd';
 import { BankOutlined, DollarOutlined } from '@ant-design/icons';
-import {  useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/influencer/financeApi';
+import { useDepositMutation, useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/marketer/financeApi';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const FinanceManagementPage = () => {
+const MarketerFinanceManagementPage = () => {
   const [form] = Form.useForm();
   const [isShowDestinationAccount, setIsShowDestinationAccount] = useState(false)
   const { data: financeTransaction, isLoading, refetch: refetchTransaction } = useFinanaceTransactionsQuery()
   const { data: balance, isLoading: isLoadingBalance, refetch: refetchBalance } = useGetBalanceQuery()
+  const [deposit, { isLoading: isLoadingDeposit }] = useDepositMutation()
   const [withdraw, { isLoading: isLoadingWithdraw }] = useWithdrawMutation()
   // คอลัมน์ของตาราง
   const columns = [
@@ -42,9 +43,7 @@ const FinanceManagementPage = () => {
               "volcano" :
               record?.transactionType == 'transfer' ?
                 "purple" :
-                record?.transactionType == 'receive' ?
-                  "lime" :
-                  "geekblue"
+                "geekblue"
         }
       >{record?.transactionType}</Tag>
     },
@@ -94,7 +93,18 @@ const FinanceManagementPage = () => {
   // เมื่อผู้ใช้กดปุ่ม "ถอนเงิน"
   const onFinish = async (values) => {
     try {
-      if (values.transactionType == 'withdraw') {
+      if (values.transactionType == 'deposit') {
+        const resp = await deposit({
+          amount: values.amount,
+          sourceAccountNumber: values.sourceAccountNumber,
+          bank: values.bank
+        }).unwrap()
+
+        if (resp) {
+          message.success("ทำรายการฝากเงินสำเร็จ !")
+          form.resetFields()
+        }
+      } else if (values.transactionType == 'withdraw') {
         const resp = await withdraw({
           amount: values.amount,
           sourceAccountNumber: values.sourceAccountNumber,
@@ -198,8 +208,7 @@ const FinanceManagementPage = () => {
                 <Select placeholder={"เลือกประเภทธุรกรรม"} options={[
                   {
                     label: "ฝาก",
-                    value: "deposit",
-                    disabled: true
+                    value: "deposit"
                   },
                   {
                     label: "ถอน",
@@ -283,4 +292,4 @@ const FinanceManagementPage = () => {
 };
 
 
-export default FinanceManagementPage;
+export default MarketerFinanceManagementPage;

@@ -12,186 +12,107 @@ import {
   Popconfirm,
   Input,
   Modal,
+  Image,
+  Form,
+  message,
+  Badge,
 } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useForm } from "antd/es/form/Form";
+import { useApproveDraftMutation, useApprovePostMutation, useCheckDraftQuery, useCheckPostQuery, useRejectDraftMutation, useRejectPostMutation } from "../../../api/marketer/jobApi";
+import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { useApprovePaycreditMutation } from "../../../api/marketer/financeApi";
 
 const { Content } = Layout;
 const { Paragraph } = Typography;
 
 const CheckWorkPage = () => {
-const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  const location = useLocation()
+  const [form] = useForm()
+  const [formPost] = useForm()
+  const { jobId,jobTitle } = location?.state
   // State to manage rejection reason modal
-  const [rejectReason, setRejectReason] = useState("");
   const [visible, setVisible] = useState(false);
+  const [visiblePost, setVisiblePost] = useState(false);
   const [currentSubmission, setCurrentSubmission] = useState(null);
+  const [currentSubmissionPost, setCurrentSubmissionPost] = useState(null);
+  const { data: jobDraft, isLoading: isLoadingJobDraft, refetch: refetchChechDraft } = useCheckDraftQuery(jobId)
+  const [approveDraft, { isLoading: isLoadingApproveDraft }] = useApproveDraftMutation()
+  const [rejectDraft, { isLoading: isLoadingRejectDraft }] = useRejectDraftMutation()
 
-  // Dummy data for draft and final submissions
-  const draftSubmissions = [
-    {
-      name: "John Doe",
-      profileUrl: "/profile/john",
-      jobDescription: "Draft submission for Product X campaign",
-      media: [
-        { type: "image", url: "/media/john-draft.jpg" },
-        { type: "video", url: "/media/john-draft.mp4" },
-      ],
-    },
-    {
-      name: "Jane Smith",
-      profileUrl: "/profile/jane",
-      jobDescription: "Draft submission for Social Media Outreach",
-      media: [
-        { type: "image", url: "/media/jane-draft.jpg" },
-      ],
-    },
-  ];
+  const { data: jobPost, isLoading: isLoadingJobPost, refetch: refetchChechPost } = useCheckPostQuery(jobId)
+  const [approvePost, { isLoading: isLoadingApprovePost }] = useApprovePostMutation()
+  const [rejectPost, { isLoading: isLoadingRejectPost }] = useRejectPostMutation()
 
-  const finalSubmissions = [
-    {
-      name: "John Doe",
-      profileUrl: "/profile/john",
-      socialLink: "https://instagram.com/johndoe/post/123",
-    },
-    {
-      name: "Jane Smith",
-      profileUrl: "/profile/jane",
-      socialLink: "https://facebook.com/janesmith/post/456",
-    },
-  ];
+  const [approvePayCredit, { isLoading: isLoadingApprovePayCredit }] = useApprovePaycreditMutation()
 
-  // Function to render media for drafts
-  const renderMedia = (media) => {
-    return media.map((item, index) => {
-      if (item.type === "image") {
-        return (
-          <img
-            key={index}
-            src={item.url}
-            alt="Draft Media"
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
-        );
-      } else if (item.type === "video") {
-        return (
-          <video key={index} controls style={{ width: "100%" }}>
-            <source src={item.url} type="video/mp4" />
-            เบราว์เซอร์ของคุณไม่รองรับแท็กวิดีโอ
-          </video>
-        );
-      }
-      return null;
+
+  const showConfirmApproveDraft = (jobDraft) => {
+    Modal.confirm({
+      title: 'อนุมัติแบบร่างนี้ หรือไม่?',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      async onOk() {
+        const resp = await approveDraft({ jobDraftId: jobDraft?.jobDraftId }).unwrap()
+
+        if (resp) {
+          message.success("อนุมัติแบบร่างนี้สำเร็จ")
+          refetchChechDraft()
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
     });
   };
 
-  // Function to handle accept action
-  const handleAccept = (name) => {
-    console.log(`${name} has been accepted.`);
-    // Implement further logic, e.g., updating state or making API calls
+  const handleSubmitRejectDraft = async (values) => {
+    const resp = await rejectDraft({ jobDraftId: currentSubmission.jobDraftId, reasonReject: values.reasonReject }).unwrap()
+    if (resp) {
+      setCurrentSubmission(null)
+      setVisible(false)
+      refetchChechDraft()
+      message.success("ปฏิเสธแบบร่างนี้ สำเร็จ")
+    }
+  }
+
+  const showConfirmApprovePost = (jobPost) => {
+    console.log('jobPost', jobPost)
+    Modal.confirm({
+      title: 'อนุมัติโพสต์นี้ หรือไม่?',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      async onOk() {
+        const resp = await approvePost({ jobPostId: jobPost?.jobPostId }).unwrap()
+
+        if (resp) {
+          const respApprovePayCredit = await approvePayCredit({
+            jobId: jobPost?.jobId,
+            referenceJobEnrollId: jobPost?.jobEnroll?.jobEnrollId,
+            influId: jobPost?.jobEnroll?.influId
+          }).unwrap()
+          if (respApprovePayCredit) {
+            message.success("อนุมัติโพสต์นี้สำเร็จ")
+            refetchChechPost()
+          }
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 
-  // Function to handle reject action
-  const handleReject = (name) => {
-    setCurrentSubmission(name); // Set the current submission being rejected
-    setVisible(true); // Show the modal for rejection reason
-  };
-
-  // Function to confirm rejection
-  const confirmReject = () => {
-    console.log(`${currentSubmission} has been rejected for: ${rejectReason}`);
-    setVisible(false); // Hide the modal
-    setRejectReason(""); // Clear the reject reason
-    setCurrentSubmission(null); // Clear the current submission
-    // Implement further logic, e.g., updating state or making API calls
-  };
-
-  // Function to handle modal cancel
-  const handleCancel = () => {
-    setVisible(false); // Hide the modal
-    setRejectReason(""); // Clear the reject reason
-    setCurrentSubmission(null); // Clear the current submission
-  };
-
-  // Tabs content for draft review
-  const renderDraftSubmissions = () => (
-    <Row gutter={[16, 16]}>
-      {draftSubmissions.map((submission, index) => (
-        <Col span={24} key={index}>
-          <Card
-            title={submission.name}
-            extra={
-              <Button
-                type="link"
-                onClick={() => navigate(submission.profileUrl)}
-              >
-                โปรไฟล์
-              </Button>
-            }
-          >
-            <Paragraph>{submission.jobDescription}</Paragraph>
-            {renderMedia(submission.media)}
-
-            {/* Accept and Reject buttons */}
-            <Row justify="end" gutter={16}>
-              <Col>
-                <Button type="primary" onClick={() => handleAccept(submission.name)}>
-                  ยืนยัน
-                </Button>
-              </Col>
-              <Col>
-                <Button type="default" danger onClick={() => handleReject(submission.name)}>
-                  ปฏิเสธ
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  );
-
-  // Tabs content for final review
-  const renderFinalSubmissions = () => (
-    <Row gutter={[16, 16]}>
-      {finalSubmissions.map((submission, index) => (
-        <Col span={24} key={index}>
-          <Card
-            title={submission.name}
-            extra={
-              <Button
-                type="link"
-                onClick={() => navigate(submission.profileUrl)}
-              >
-               โปรไฟล์
-              </Button>
-            }
-          >
-            <Paragraph>
-              ลิงค์งาน:{" "}
-              <a href={submission.socialLink} target="_blank" rel="noopener noreferrer">
-                {submission.socialLink}
-              </a>
-            </Paragraph>
-
-            {/* Accept and Reject buttons */}
-            <Row justify="end" gutter={16}>
-              <Col>
-                <Button type="primary" onClick={() => handleAccept(submission.name)}>
-                  ยืนยัน
-                </Button>
-              </Col>
-              <Col>
-                <Button type="default" danger onClick={() => handleReject(submission.name)}>
-                  ปฏิเสธ
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  );
-
+  const handleSubmitRejectPost = async (values) => {
+    const resp = await rejectPost({ jobPostId: currentSubmissionPost.jobPostId, reasonReject: values.reasonReject }).unwrap()
+    if (resp) {
+      setCurrentSubmissionPost(null)
+      setVisiblePost(false)
+      refetchChechPost()
+      message.success("ปฏิเสธโพสต์นี้ สำเร็จ")
+    }
+  }
   return (
     <ConfigProvider
       theme={{
@@ -201,51 +122,178 @@ const navigate = useNavigate();
             colorBgContainer: "#2c2c2c",
           },
           Typography: {
-            colorText: "#000",
+            colorText: "#fff",
           },
         },
       }}
     >
-      <div style={{ padding: "20px", minHeight: "100vh" }}>
-        <Row justify="center" style={{ marginBottom: "20px" }}>
-          <Col span={18}>
-            <Typography.Title level={2}>ตรวจงาน</Typography.Title>
-          </Col>
-        </Row>
+      <Row justify={'start'} style={{ marginBottom: "20px" }}>
+        <Col>
+          <Typography.Title level={2}>ตรวจงาน : {jobTitle}</Typography.Title>
+        </Col>
+      </Row>
 
-        <Divider style={{ borderColor: "#4a4a4a" }} />
+      <Divider style={{ borderColor: "#4a4a4a" }} />
 
-        {/* Tabs for reviewing work */}
-        <Content style={{ padding: "0 50px", marginTop: 64 }}>
-          <Tabs defaultActiveKey="1">
-            <Tabs.TabPane tab="ตรวจงาน Draft" key="1">
-              {renderDraftSubmissions()}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="ตรวจงานจริง" key="2">
-              {renderFinalSubmissions()}
-            </Tabs.TabPane>
-          </Tabs>
+      {/* Tabs for reviewing work */}
 
-          {/* Rejection reason modal */}
-          <Modal
-            title="เหตุผลในการปฏิเสธ"
-            visible={visible}
-            onOk={confirmReject}
-            onCancel={handleCancel}
-            okText="ยืนยัน"
-            cancelText="ยกเลิก"
-          >
+      <Tabs defaultActiveKey="1">
+        <Tabs.TabPane tab={<Badge count={jobDraft?.length} offset={[10, -5]}>
+          ตรววจงาน Draft
+        </Badge>} key="1">
+
+          {jobDraft?.map((submission, index) => (
+            <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
+              <Col span={24}>
+                <Card
+                  title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                  extra={
+                    <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                      โปรไฟล์
+                    </Link>
+                  }
+
+                  actions={[
+                    <Button type="link" danger onClick={() => {
+                      setVisible(true)
+                      setCurrentSubmission(submission)
+                    }}>
+                      ไม่อนุมัติ
+                    </Button>
+                    ,
+                    <Button type="primary" onClick={() => showConfirmApproveDraft(submission)}>
+                      อนุมัติ
+                    </Button>
+                  ]}
+                >
+                  <Paragraph>เนื้อหา : </Paragraph>
+                  <Paragraph>{submission?.content}</Paragraph>
+                  <Paragraph>รูปภาพ : </Paragraph>
+                  <Row gutter={[12, 12]} >
+                    {
+                      submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
+                        <Image src={el} width={'100%'} />
+                      </Col>
+                      )}
+                  </Row>
+                  <Paragraph>วิดิโอ : </Paragraph>
+                  <Row gutter={[12, 12]} >
+                    {
+                      submission?.videoURL?.map((el, i) => <Col span={4} key={i}>
+                        <video key={i} controls style={{ width: "100%" }}>
+                          <source src={el} type="video/mp4" />
+                          เบราว์เซอร์ของคุณไม่รองรับแท็กวิดีโอ
+                        </video>
+                      </Col>
+                      )}
+                  </Row>
+                </Card>
+
+              </Col>
+
+            </Row>
+          ))}
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={<Badge count={jobPost?.length} offset={[10, -5]}>
+          ตรววจงาน Post จริง
+        </Badge>} key="2">
+          <Row gutter={[16, 16]}>
+            {jobPost?.map((submission, index) => (
+              <Col span={24} key={index}>
+                <Card
+                  title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                  extra={
+                    <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                      โปรไฟล์
+                    </Link>
+                  }
+                  actions={[
+                    <Button type="link" danger onClick={() => {
+                      setVisiblePost(true)
+                      setCurrentSubmissionPost(submission)
+                    }}>
+                      ไม่อนุมัติ
+                    </Button>
+                    ,
+                    <Button type="primary" onClick={() => showConfirmApprovePost(submission)}>
+                      อนุมัติ
+                    </Button>
+                  ]}
+                >
+                  <Paragraph>
+                    ลิงค์งาน:{" "}
+                    <a href={submission?.postLink} target="_blank" rel="noopener noreferrer">
+                      {submission?.postLink}
+                    </a>
+                  </Paragraph>
+                  <Paragraph>รูปภาพ : </Paragraph>
+                  <Row gutter={[12, 12]} >
+                    {
+                      submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
+                        <Image src={el} width={'100%'} />
+                      </Col>
+                      )}
+                  </Row>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Tabs.TabPane>
+      </Tabs>
+
+      {/* Rejection reason modal */}
+      <Modal
+        title="เหตุผลในการปฏิเสธแบบร่าง"
+        open={visible}
+        onOk={() => {
+          form.submit()
+
+        }}
+        onCancel={() => {
+          form.resetFields()
+          setCurrentSubmission(null)
+          setVisible(false)
+        }}
+        okText="ยืนยัน"
+        cancelText="ยกเลิก"
+      >
+        <Form layout='vertical' form={form} onFinish={handleSubmitRejectDraft}>
+          <Form.Item name="reasonReject" label="เหตุผลที่ปฏิเสธ :" rules={[
+            { required: true, message: "กรุณาระบุเหตุผลที่ปฏิเสธ" },
+          ]}>
             <Input
               placeholder="กรุณาใส่เหตุผล"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
             />
-          </Modal>
+          </Form.Item>
+        </Form>
+      </Modal>
 
-          {/* Footer */}
-          <Divider />
-        </Content>
-      </div>
+
+      <Modal
+        title="เหตุผลในการปฏิเสธโพสต์"
+        open={visiblePost}
+        onOk={() => {
+          formPost.submit()
+
+        }}
+        onCancel={() => {
+          formPost.resetFields()
+          setCurrentSubmissionPost(null)
+          setVisiblePost(false)
+        }}
+        okText="ยืนยัน"
+        cancelText="ยกเลิก"
+      >
+        <Form layout='vertical' form={formPost} onFinish={handleSubmitRejectPost}>
+          <Form.Item name="reasonReject" label="เหตุผลที่ปฏิเสธ :" rules={[
+            { required: true, message: "กรุณาระบุเหตุผลที่ปฏิเสธ" },
+          ]}>
+            <Input
+              placeholder="กรุณาใส่เหตุผล"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </ConfigProvider>
   );
 };
