@@ -173,12 +173,7 @@ const mockBaseQuery = async (arg) => {
             categories,
             yourInfo
         } = arg.body
-        await delay()
-
         const token = uuidv4()
-
-
-
         const { data: account, error: insertAccountError } = await supabase
             .from("account")
             .insert([

@@ -30,8 +30,6 @@ const mockBaseQuery = async (arg) => {
             return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } };
         }
 
-        await delay();
-
         return {
             data: {
                 accessToken: findAuth.accessToken
@@ -164,13 +162,7 @@ const mockBaseQuery = async (arg) => {
             brandPicture
         } = arg.body
 
-        await delay()
-
         const token = uuidv4()
-
-
-
-
         const { data: account, error: insertAccountError } = await supabase
             .from("account")
             .insert([
