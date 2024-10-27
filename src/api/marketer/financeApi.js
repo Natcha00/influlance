@@ -1,9 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../../shared/utils/delay";
-import { transactions } from "../../shared/mockup/transaction";
-import dayjs from 'dayjs'
 import { supabase } from "../../shared/supabase";
 
 const mockBaseQuery = async (arg) => {

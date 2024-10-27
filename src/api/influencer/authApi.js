@@ -1,8 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../../shared/utils/delay";
-import { portfolios } from "../../shared/mockup/portfolio";
 import { supabase } from "../../shared/supabase";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -29,8 +26,6 @@ const mockBaseQuery = async (arg) => {
         if (findAuth.password !== password) {
             return { error: { status: 400, data: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" } };
         }
-
-        await delay();
 
         return {
             data: {

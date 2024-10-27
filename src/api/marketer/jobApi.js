@@ -1,21 +1,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { authenUsers } from "../../shared/mockup/authenUser";
 import Cookies from "js-cookie";
-import { delay } from "../../shared/utils/delay";
-import { portfolios } from "../../shared/mockup/portfolio";
 import { categories } from '../../shared/mockup/category'
-import { workSpace } from "../../shared/mockup/workspace";
 import { supabase } from "../../shared/supabase";
 
 const mockBaseQuery = async (arg) => {
     // Handle different endpoints (arg contains the query path or params)
-    let workspaceStorage = localStorage.getItem('workspaceStorage')
-    if (!workspaceStorage) {
-        localStorage.setItem('workspaceStorage', JSON.stringify(workSpace))
-        workspaceStorage = workSpace
-    } else {
-        workspaceStorage = JSON.parse(localStorage.getItem('workspaceStorage'))
-    }
     if (arg.url === '/add-post-job') {
         const token = Cookies.get('accessToken')
         if (!token) {
@@ -78,7 +67,6 @@ const mockBaseQuery = async (arg) => {
         }
 
     } else if (arg.url == '/categories') {
-        await delay()
         return {
             data: categories
         }
@@ -320,8 +308,6 @@ const mockBaseQuery = async (arg) => {
             `)
             .eq("jobId", jobId)
             .eq("jobEnroll.marketerId", marketerId)
-        // .eq("job.isDelete", false)
-
 
         if (errorJobs) {
             return { error: { status: 500, data: "Internal Server Error" } }
@@ -453,7 +439,6 @@ const mockBaseQuery = async (arg) => {
             `)
             .eq("jobId", jobId)
             .eq("jobEnroll.marketerId", marketerId)
-        // .eq("job.isDelete", false)
 
 
         if (errorJobs) {
