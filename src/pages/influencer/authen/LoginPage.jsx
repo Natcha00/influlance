@@ -1,12 +1,13 @@
 // LoginPage.js
 import React from 'react';
-import { Form, Input, Button, Row, Col, Typography, Divider, Card, message } from 'antd';
+import { Form, Input, Button, Row, Col, Typography, Divider, Card, message, Image } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
 import { useLoginMutation, useMeQuery } from '../../../api/influencer/authApi';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { setIsAuth } from '../../../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import LoginInflu from '/login_influ.png'
 
 const { Title } = Typography;
 
@@ -24,7 +25,7 @@ const LoginPage = () => {
                 const respMe = await me().unwrap()
                 if (respMe) {
                     Cookies.set('email', respMe.email)
-                    Cookies.set("role","influencer")
+                    Cookies.set("role", "influencer")
                     dispatch(setIsAuth(true))
                     message.success('เข้าสู่ระบบเรียบร้อยแล้ว')
                 }
@@ -44,9 +45,9 @@ const LoginPage = () => {
     };
 
     return (
-        <Row justify="center" >
-            <Col xs={0} md={12} style={{ background: 'grey' }}>
-
+        <Row justify="center" align={'middle'}>
+            <Col xs={0} md={12} >
+                <Image src={LoginInflu} width={'100%'} preview={false} />
             </Col>
             <Col xs={24} md={12}>
                 <Card title="Login">
@@ -96,26 +97,6 @@ const LoginPage = () => {
                         </Form.Item>
                     </Form>
 
-                    {/* OAuth Options */}
-                    <Divider>Or Login with</Divider>
-                    <Row justify="center" gutter={16}>
-                        <Col>
-                            <Button
-                                icon={<GoogleOutlined />}
-                                style={{ backgroundColor: '#DB4437', color: '#fff' }}
-                            >
-                                Google
-                            </Button>
-                        </Col>
-                        <Col>
-                            <Button
-                                icon={<AppleOutlined />}
-                                style={{ backgroundColor: '#000', color: '#fff' }}
-                            >
-                                Apple
-                            </Button>
-                        </Col>
-                    </Row>
                 </Card>
             </Col>
         </Row>

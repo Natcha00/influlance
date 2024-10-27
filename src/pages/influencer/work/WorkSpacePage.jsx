@@ -19,6 +19,7 @@ import {
   Image,
   Collapse,
   Badge,
+  Space,
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
@@ -30,6 +31,7 @@ import dayjs from "dayjs";
 import Title from "antd/es/typography/Title";
 import { supabase } from "../../../shared/supabase";
 import { useMeQuery } from "../../../api/influencer/authApi";
+import { Link } from "react-router-dom";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -43,59 +45,53 @@ const WorkSpacePage = () => {
   const [cancelEnroll, { isLoading: isLoadingCancelEnroll }] = useCancelEnrollMutation()
   const [saveDraft, { isLoading: isLoadingSaveDraft }] = useSaveDraftMutation()
   const [savePost, { isLoading: isLoadingSavePost }] = useSavePostMutation()
-
+  useEffect(() => {
+    refetchJobEnroll()
+  }, [])
   supabase
-    .channel('schema-db-changes')
+    .channel('jobEnroll_influWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
         table: "jobEnroll",
+        filter: `influId=eq.${me?.influId}`
       },
       (payload) => {
-        if (me?.influId == payload?.new?.influId) {
-          refetchJobEnroll()
-        }
+        refetchJobEnroll()
       }
     )
     .subscribe()
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobDraft_influWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
         table: "jobDraft",
+        filter: `influId=eq.${me?.influId}`
       },
       (payload) => {
-        const setOfJobsEnroll = new Set(jobEnrolls?.waitDraftJob
-          .map(el => el.jobEnrollId))
-        console.log('setOfJobsEnroll', setOfJobsEnroll)
-        if (setOfJobsEnroll.has(payload?.new?.jobEnrollId)) {
-          refetchJobEnroll()
-        }
+        refetchJobEnroll()
       }
     )
     .subscribe()
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobPost_influWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
         table: "jobPost",
+        filter: `influId=eq.${me?.influId}`
       },
       (payload) => {
-        const setOfJobsEnroll = new Set(jobEnrolls?.waitPostJob
-          .map(el => el.jobEnrollId))
-        if (setOfJobsEnroll.has(payload?.new?.jobEnrollId)) {
-          refetchJobEnroll()
-        }
+        refetchJobEnroll()
       }
     )
     .subscribe()
@@ -111,8 +107,6 @@ const WorkSpacePage = () => {
 
   // State variables
   const [isView, setIsView] = useState(false); // Control modal visibility
-  const [currentDraftIndex, setCurrentDraftIndex] = useState(null); // Track which draft is being edited
-
   // Function to handle editing a draft
   const handleViewDraft = (job, index) => {
     setIsView(true);
@@ -189,6 +183,7 @@ const WorkSpacePage = () => {
       console.log('currentJob', currentJob)
       if (currentJob.jobStatus == 'wait draft') {
         const resp = await saveDraft({
+          marketerId: currentJob.marketerId,
           jobId: currentJob.jobId,
           content: values.content,
           pictureURL: values.image?.map(el => el.url) ?? [],
@@ -214,6 +209,7 @@ const WorkSpacePage = () => {
     try {
       if (currentJob.jobStatus == 'wait post') {
         const resp = await savePost({
+          marketerId: currentJob.marketerId,
           pictureURL: values.image?.map(el => el.url) ?? [],
           postLink: values.postLink,
           jobEnrollId: currentJob.jobEnrollId,
@@ -295,17 +291,23 @@ const WorkSpacePage = () => {
                       <Card
                         title={`${job?.jobTitle}`}
                         extra={
-                          <Button
-                            color="danger"
-                            onClick={() => showConfirm(job?.jobEnrollId)} // Pass the job ID for cancellation
-                          >
-                            ยกเลิกงาน
-                          </Button>
+                          <Space>
+                            <Link to={`/influencer/view-marketer-profile/${job?.marketer?.marketerId}`} target="_blank" rel="noopener noreferrer" >
+                              ดูโปรไฟล์ผู้รับสมัคร
+                            </Link>
+                            <Button
+                              color="danger"
+                              onClick={() => showConfirm(job?.jobEnrollId)} // Pass the job ID for cancellation
+                            >
+                              ยกเลิกงาน
+                            </Button> </Space>
+
                         }
                       >
                         <Row gutter={[20, 20]}>
                           <Col span={16}>
-                            <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
+                            <Title style={{ color: "#fff", margin: 0 }} level={3}>{job?.marketer?.brand}</Title>
+                            <Divider />
                             <Paragraph style={{ color: "#fff" }}>
                               <strong>ประเภทของงาน : </strong><Tag> {job?.tag}</Tag>
                             </Paragraph>
@@ -325,6 +327,9 @@ const WorkSpacePage = () => {
                           <Col span={8}>
                             <Image src={job?.files[0]} width={'100%'} preview={false} />
                           </Col>
+
+                          <Divider orientation="left">รายละเอียดงาน</Divider>
+                          <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
                         </Row>
                       </Card>
                     </List.Item>
@@ -344,18 +349,24 @@ const WorkSpacePage = () => {
                       <Card
                         title={`${job?.jobTitle}`}
                         extra={
-                          <Button
-                            onClick={() => showDraftModal(job)}
-                            style={{ marginRight: "10px" }}
-                            disabled={job?.jobDraft.some(e => e.status == 'approve' || e.status == 'pending')}
-                          >
-                            {job?.jobDraft?.some(e => e.status == 'pending') ? "งานอยู่ในการรอตรวจ" : "กดส่งแบบร่าง"}
-                          </Button>
+                          <Space>
+                            <Link to={`/influencer/view-marketer-profile/${job?.marketer?.marketerId}`} target="_blank" rel="noopener noreferrer" >
+                              ดูโปรไฟล์ผู้รับสมัคร
+                            </Link>
+                            <Button
+                              onClick={() => showDraftModal(job)}
+                              style={{ marginRight: "10px" }}
+                              disabled={job?.jobDraft.some(e => e.status == 'approve' || e.status == 'pending')}
+                            >
+                              {job?.jobDraft?.some(e => e.status == 'pending') ? "งานอยู่ในการรอตรวจ" : "กดส่งแบบร่าง"}
+                            </Button>
+                          </Space>
                         }
                       >
                         <Row gutter={[20, 20]}>
                           <Col span={16}>
-                            <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
+                            <Title style={{ color: "#fff", margin: 0 }} level={3}>{job?.marketer?.brand}</Title>
+                            <Divider />
                             <Paragraph style={{ color: "#fff" }}>
                               <strong>ประเภทของงาน : </strong><Tag> {job?.tag}</Tag>
                             </Paragraph>
@@ -367,6 +378,8 @@ const WorkSpacePage = () => {
                           <Col span={8}>
                             <Image src={job?.files[0]} width={'100%'} preview={false} />
                           </Col>
+                          <Divider orientation="left">รายละเอียดงาน</Divider>
+                          <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
                         </Row>
                         <Divider orientation="left">ประวัติการส่งแบบร่าง</Divider>
                         <Table
@@ -432,19 +445,25 @@ const WorkSpacePage = () => {
                       <Card
                         title={`${job?.jobTitle}`}
                         extra={
-                          <Button
-                            //type="primary"
-                            onClick={() => showPostModal(job)}
-                            style={{ marginRight: "10px" }}
-                            disabled={job?.jobPost?.some(e => e.status == 'approve')}
-                          >
-                            กดส่งแบบร่าง
-                          </Button>
+                          <Space>
+                            <Link to={`/influencer/view-marketer-profile/${job?.marketer?.marketerId}`} target="_blank" rel="noopener noreferrer" >
+                              ดูโปรไฟล์ผู้รับสมัคร
+                            </Link>
+                            <Button
+                              //type="primary"
+                              onClick={() => showPostModal(job)}
+                              style={{ marginRight: "10px" }}
+                              disabled={job?.jobPost?.some(e => e.status == 'approve'|| e.status == 'pending')}
+                            >
+                              กดส่งแบบร่าง
+                            </Button>
+                          </Space>
                         }
                       >
                         <Row gutter={[20, 20]}>
                           <Col span={16}>
-                            <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
+                            <Title style={{ color: "#fff", margin: 0 }} level={3}>{job?.marketer?.brand}</Title>
+                            <Divider />
                             <Paragraph style={{ color: "#fff" }}>
                               <strong>ประเภทของงาน : </strong><Tag> {job?.tag}</Tag>
                             </Paragraph>
@@ -456,6 +475,8 @@ const WorkSpacePage = () => {
                           <Col span={8}>
                             <Image src={job?.files[0]} width={'100%'} preview={false} />
                           </Col>
+                          <Divider orientation="left">รายละเอียดงาน</Divider>
+                          <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
                         </Row>
                         {/*             <Divider orientation="left"> Draft ทีผ่านการอนุมัติ</Divider> */}
                         <Collapse
@@ -554,11 +575,19 @@ const WorkSpacePage = () => {
                     <List.Item>
                       <Card
                         title={`${job?.jobTitle}`}
-                        extra={<IoCheckmarkCircleSharp size={32} color="green" />}
+                        extra={
+                          <Space>
+                            <Link to={`/influencer/view-marketer-profile/${job?.marketer?.marketerId}`} target="_blank" rel="noopener noreferrer" >
+                              ดูโปรไฟล์ผู้รับสมัคร
+                            </Link>
+                            <IoCheckmarkCircleSharp size={32} color="green" />
+                          </Space>
+                        }
                       >
                         <Row gutter={[20, 20]}>
                           <Col span={16}>
-                            <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
+                            <Title style={{ color: "#fff", margin: 0 }} level={3}>{job?.marketer?.brand}</Title>
+                            <Divider />
                             <Paragraph style={{ color: "#fff" }}>
                               <strong>ประเภทของงาน : </strong><Tag> {job?.tag}</Tag>
                             </Paragraph>
@@ -569,6 +598,8 @@ const WorkSpacePage = () => {
                           <Col span={8}>
                             <Image src={job?.files[0]} width={'100%'} preview={false} />
                           </Col>
+                          <Divider orientation="left">รายละเอียดงาน</Divider>
+                          <Paragraph style={{ color: "#fff" }}>{job?.jobDescription}</Paragraph>
                         </Row>
                       </Card>
                     </List.Item>
@@ -621,6 +652,17 @@ const WorkSpacePage = () => {
               name="image"
               label="อัปโหลดรูปภาพ"
               valuePropName="fileList"
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const checkEveryFileComplete = value?.every(el => !!el?.url)
+                    if (checkEveryFileComplete || !value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('กรุณารอการอัปโหลดไฟล์สำเร็จก่อนบันทึก'));
+                  },
+                })
+              ]}
             >
               <DraggerUpload disabled={isView} fileList={fileList} setFileList={setFileList} form={form} multiple={true} maxCount={5} name={"image"} beforeUpload={
                 (file) => {
@@ -639,7 +681,17 @@ const WorkSpacePage = () => {
               name="video"
               label="อัปโหลดวิดิโอ"
               valuePropName="fileList"
-
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const checkEveryFileComplete = value?.every(el => !!el?.url)
+                    if (checkEveryFileComplete || !value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('กรุณารอการอัปโหลดไฟล์สำเร็จก่อนบันทึก'));
+                  },
+                })
+              ]}
             >
               <DraggerUpload disabled={isView} fileList={videoFileList} setFileList={setVideoFileList} form={form} multiple={true} maxCount={5} name={"video"} beforeUpload={
                 (file) => {
@@ -700,7 +752,14 @@ const WorkSpacePage = () => {
             onFinish={(values) => handleSubmitPost(values, currentJob)}
             initialValues={{}}>
             <Form.Item name="postLink"
-              label="ลิงต์ของโพสต์">
+              label="ลิงค์ของโพสต์"
+              rules={[
+                {
+                  required: true,
+                  message: "กรุณากรอกลิงค์ของโพสต์"
+                }
+              ]}
+            >
 
               <Input disabled={isView} placeholder="แปะลิงค์ของโพสต์" suffix={isView && <a href={link} target="_blank">ไปที่ลิงค์</a>} />
             </Form.Item>
@@ -708,6 +767,17 @@ const WorkSpacePage = () => {
               name="image"
               label="อัปโหลดรูปภาพ"
               valuePropName="fileList"
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const checkEveryFileComplete = value?.every(el => !!el?.url)
+                    if (checkEveryFileComplete || !value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('กรุณารอการอัปโหลดไฟล์สำเร็จก่อนบันทึก'));
+                  },
+                })
+              ]}
             >
               <DraggerUpload disabled={isView} fileList={imagePostFileList} setFileList={setImagePostFileList} form={formPost} multiple={true} maxCount={5} name={"image"} beforeUpload={
                 (file) => {

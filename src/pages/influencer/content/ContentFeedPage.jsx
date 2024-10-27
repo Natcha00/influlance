@@ -18,6 +18,8 @@ import {
 } from "antd";
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useCancelEnrollMutation, useCategoriesQuery, useEnrollMutation, useJobsQuery } from '../../../api/influencer/jobApi'
+import Title from "antd/es/typography/Title";
+import { Link } from "react-router-dom";
 
 
 const { Search } = Input;
@@ -44,7 +46,7 @@ const ContentFeedPage = () => {
         (post.jobTitle.toLowerCase().includes(value.toLowerCase()) &&
           (selectedTags.length === 0 ||
             selectedTags.includes(post.tag))) ||
-        post?.marketer?.firstName?.toLowerCase().includes(value.toLowerCase())
+        post?.marketer?.brand?.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredPosts(filtered);
   };
@@ -183,7 +185,12 @@ const ContentFeedPage = () => {
                 <Card
                   title={post.jobTitle}
                   extra={
-                    <Button type="primary" onClick={() => showConfirm(post)}>สมัครงาน</Button>
+                    <Space>
+                      <Link to={`/influencer/view-marketer-profile/${post?.marketer?.marketerId}`} target="_blank" rel="noopener noreferrer" >
+                      ดูโปรไฟล์ผู้รับสมัคร
+                      </Link>
+                      <Button style={{ margin: '0 0.5rem' }} type="primary" onClick={() => showConfirm(post)}>สมัครงาน</Button>
+                    </Space>
                   }
                   style={{
                     borderRadius: "10px",
@@ -194,7 +201,8 @@ const ContentFeedPage = () => {
                 >
                   <Row gutter={[20, 20]}>
                     <Col span={16}>
-                      <Paragraph style={{ color: "#fff" }}>{post.jobDescription}</Paragraph>
+                      <Title style={{ color: "#fff", margin: 0 }} level={3}>{post?.marketer?.brand}</Title>
+                      <Divider/>
                       <Paragraph style={{ color: "#fff" }}>
                         <strong>ประเภทของงาน : </strong><Tag> {post.tag}</Tag>
                       </Paragraph>
@@ -214,7 +222,8 @@ const ContentFeedPage = () => {
                     <Col span={8}>
                       <Image src={post?.files[0]} width={'100%'} preview={false} />
                     </Col>
-
+                    <Divider orientation="left">รายละเอียดงาน</Divider>
+                    <Paragraph style={{ color: "#fff" }}>{post.jobDescription}</Paragraph>
                   </Row>
 
                   {/* <Paragraph style={{ color: "#fff" }}>

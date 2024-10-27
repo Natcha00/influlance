@@ -5,12 +5,11 @@ import ProfilePage from "./pages/influencer/profile/ProfilePage";
 import ContentFeedPage from "./pages/influencer/content/ContentFeedPage";
 import SearchWorkPage from "./pages/influencer/content/SearchWorkPage";
 import WorkSpacePage from "./pages/influencer/work/WorkSpacePage";
-import WorkDraftPage from "./pages/influencer/work/WorkDraftPage";
 import FinanceManagementPage from "./pages/influencer/finance/FinanceManagementPage";
 import LoginPage from "./pages/influencer/authen/LoginPage";
 import Navbar from "./components/Navbar";
 import AppLayout from "./components/AppLayout";
-import { Button, ConfigProvider, DatePicker, Typography } from "antd";
+import { Button, ConfigProvider, DatePicker, Descriptions, Empty, Radio, Typography } from "antd";
 import MainHomePage from "./pages/MainHomePage";
 import InfluencerHomePage from "./pages/influencer/home/InfluencerHomePage";
 import MarketerHomePage from "./pages/marketer/home/MarketerHomePage";
@@ -25,6 +24,7 @@ import MarketerRegisterPage from "./pages/marketer/authen/RegisterPage";
 import MarketerProfileInformationPage from "./pages/marketer/authen/ProfileInfomationPage";
 import ViewProfilePage from "./pages/influencer/profile/ViewProfilePage";
 import MarketerFinanceManagementPage from "./pages/marketer/finance/FinanceManagementPage";
+import ViewMarketerProfilePage from "./pages/marketer/profile/ViewMarketerProfilePage";
 
 function App() {
   const influTheme = {
@@ -47,7 +47,8 @@ function App() {
         // headerBg:'#fff'
       },
       Divider: {
-        colorTextHeading: "#000",
+        colorTextHeading: "#fff",
+        colorSplit: "#fff",
       },
       Card: {
         headerBg: "linear-gradient(to right, #5A4FF5, #A582F7, #CE9FFC)",
@@ -84,12 +85,19 @@ function App() {
         headerColor: "#000",
         colorText: "#000",
       },
-      Divider: {
-        colorSplit: "#fff",
-      },
       DatePicker: {
         colorTextHeading: "#000",
         colorText: "#000"
+      },
+      Radio: {
+        buttonColor: "#000"
+      },
+      Descriptions:{
+        colorTextSecondary:"#fff"
+      },
+      
+      Empty:{
+        colorTextDescription:"#fff"
       }
     },
   };
@@ -131,6 +139,14 @@ function App() {
                 <ProfilePage />
               </ProtectedInfluencerAuthRoute>
             } />
+
+            <Route
+              path="/influencer/view-marketer-profile/:marketerId"
+              element={
+                <ProtectedInfluencerAuthRoute>
+                  <ViewMarketerProfilePage />
+                </ProtectedInfluencerAuthRoute>
+              } />
             <Route path="/influencer/content-feed" element={
               <ProtectedInfluencerAuthRoute>
                 <ContentFeedPage />
@@ -146,11 +162,7 @@ function App() {
                 <WorkSpacePage />
               </ProtectedInfluencerAuthRoute>
             } />
-            <Route path="/influencer/work-darft" element={
-              <ProtectedInfluencerAuthRoute>
-                <WorkDraftPage />
-              </ProtectedInfluencerAuthRoute>
-            } />
+           
             <Route path="/influencer/finance" element={
               <ProtectedInfluencerAuthRoute>
                 <FinanceManagementPage />
@@ -247,15 +259,6 @@ function App() {
                   <ViewProfilePage />
                 </ProtectedMarketerAuthRoute>
               } />
-
-            <Route
-              path="/marketer/work-darft"
-              element={
-                <ProtectedMarketerAuthRoute>
-                  <WorkDraftPage />
-                </ProtectedMarketerAuthRoute>
-              }
-            />
             <Route
               path="/marketer/finance"
               element={

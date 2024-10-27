@@ -33,6 +33,7 @@ const MarketerProfileInformationPage = () => {
   const location = useLocation();
   const navigate = useNavigate()
   const [fileList, setFileList] = useState([])
+  const [fileList2, setFileList2] = useState([])
   const { email, password } = location.state || {}; // Retrieve email and password from state
   if (!email || !password) {
     navigate('/marketer/register')
@@ -50,7 +51,8 @@ const MarketerProfileInformationPage = () => {
         email,
         password,
         ...values,
-        profilePicture: values.profilePicture[0].url
+        profilePicture: values.profilePicture[0].url,
+        brandPicture: values.brandPicture[0].url,
       }).unwrap()
 
       if (resp) {
@@ -205,6 +207,33 @@ const MarketerProfileInformationPage = () => {
                   </Form.Item>
                 </Col>
               </Row>
+
+              <Row gutter={10}>
+                <Col span={12}>
+                  <Form.Item
+                    name="brand"
+                    label="ชื่อ brand"
+                    rules={[
+                      {
+                        required: true,
+                        message: "กรุณากรอกชื่อ brand",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="กรุณากรอกชื่อ brand" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="brandPicture"
+                    label="รูป brand"
+                    valuePropName="fileList"
+                  >
+                    <DraggerUpload fileList={fileList2} setFileList={setFileList2} form={form} name={"brandPicture"} />
+                  </Form.Item>
+                </Col>
+              </Row>
+
 
               <Row gutter={10}>
                 <Col span={24}>

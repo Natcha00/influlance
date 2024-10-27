@@ -25,6 +25,7 @@ import CrownImg from "/crown.png";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery } from "../../../api/influencer/authApi";
 import { useParams } from "react-router-dom";
+import Link from "antd/es/typography/Link";
 
 const ProfilePage = () => {
   const screen = useBreakpoint();
@@ -128,45 +129,62 @@ const ProfilePage = () => {
               {/* Social Media Links */}
               <div>
                 <Row>
-                  <Typography.Text>
-                    <FacebookOutlined /> {me?.facebook}
-                  </Typography.Text>
+                  <Col span={24}>
+                    <FacebookOutlined />
+                    <Typography.Text>
+                      {"Follower : " + me?.facebookFollower}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={24}>
+                    <Typography.Text>
+                      <a href={me?.facebook} target="_blank">{me?.facebook}</a>
+                    </Typography.Text>
+                  </Col>
                 </Row>
+
                 <Row>
-                  <Typography.Text>
-                    {"Follower : " + me?.facebookFollower}
-                  </Typography.Text>
+                  <Col span={24}>
+                    <InstagramOutlined />
+                    <Typography.Text>
+                      {"Follower : " + me?.instagramFollower}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={24}>
+                    <Typography.Text>
+                      <a href={me?.instagram} target="_blank">{me?.instagram}</a>
+                    </Typography.Text>
+                  </Col>
                 </Row>
+
                 <Row>
-                  <Typography.Paragraph>
-                    <InstagramOutlined /> {me?.instagram}
-                  </Typography.Paragraph>
+                  <Col span={24}>
+                    <TwitterOutlined />
+                    <Typography.Text>
+                      {"Follower : " + me?.xFollower}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={24}>
+                    <Typography.Text>
+                      <a href={me?.x} target="_blank">{me?.x}</a>
+                    </Typography.Text>
+                  </Col>
                 </Row>
+
+
                 <Row>
-                  <Typography.Text>
-                    {"Follower : " + me?.instagramFollower}
-                  </Typography.Text>
+                  <Col span={24}>
+                    <VideoCameraOutlined />
+                    <Typography.Text>
+                      {"Follower : " + me?.tiktokFollower}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={24}>
+                    <Typography.Text>
+                      <a href={me?.tiktok} target="_blank">{me?.tiktok}</a>
+                    </Typography.Text>
+                  </Col>
                 </Row>
-                <Row>
-                  <Typography.Paragraph>
-                    <TwitterOutlined /> {me?.x}
-                  </Typography.Paragraph>
-                </Row>
-                <Row>
-                  <Typography.Text>
-                    {"Follower : " + me?.xFollower}
-                  </Typography.Text>
-                </Row>
-                <Row>
-                  <Typography.Paragraph>
-                    <VideoCameraOutlined /> {me?.tiktok}
-                  </Typography.Paragraph>
-                </Row>
-                <Row>
-                  <Typography.Text>
-                    {"Follower : " + me?.tiktokFollower}
-                  </Typography.Text>
-                </Row>
+
                 <Divider />
                 <Typography.Text>
                   {me?.yourInfo}

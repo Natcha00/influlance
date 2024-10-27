@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Row, Col, Card, Form, Input, InputNumber, Button, Table, Typography, Divider, Select, message, Tag } from 'antd';
+import { Layout, Row, Col, Card, Form, Input, InputNumber, Button, Table, Typography, Divider, Select, message, Tag, Radio } from 'antd';
 import { BankOutlined, DollarOutlined } from '@ant-design/icons';
 import { useDepositMutation, useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/marketer/financeApi';
 
@@ -130,7 +130,7 @@ const MarketerFinanceManagementPage = () => {
     <>
 
       <Typography.Title level={16}>
-        จัดการบัญชี
+      ธุรกรรมการเงิน
       </Typography.Title>
 
       <Row gutter={[16, 16]}>
@@ -172,6 +172,48 @@ const MarketerFinanceManagementPage = () => {
               initialValues={{ amount: 0 }}
             >
 
+
+              {/* ประเภทธุรกรรม */}
+              <Form.Item
+                label="เลือกประเภทธุรกรรม"
+                name="transactionType"
+                rules={[{ required: true, message: 'โปรดเลือกประเภทธุรกรรม !' }]}
+              >
+                {/* <Select placeholder={"เลือกประเภทธุรกรรม"} options={[
+                  {
+                    label: "ฝาก",
+                    value: "deposit"
+                  },
+                  {
+                    label: "ถอน",
+                    value: "withdraw"
+                  },
+                  {
+                    label: "โอน (เริ่มใช้เร็วๆนี้)",
+                    value: "transfer",
+                    disabled: true
+                  },
+                ]} onChange={(e) => {
+                  if (e == 'transfer') {
+                    setIsShowDestinationAccount(true)
+                  } else {
+                    setIsShowDestinationAccount(false)
+                  }
+                }} /> */}
+
+                <Radio.Group onChange={(e) => {
+                  if (e == 'transfer') {
+                    setIsShowDestinationAccount(true)
+                  } else {
+                    setIsShowDestinationAccount(false)
+                  }
+                }} block={true} size='large'>
+                  <Radio.Button value="deposit">ฝาก</Radio.Button>
+                  <Radio.Button value="withdraw">ถอน</Radio.Button>
+                  <Radio.Button value="transfer" disabled={true}>โอน (เริ่มใช้เร็วๆนี้)</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+
               {/* เลือกธนาคาร */}
               <Form.Item
                 label="ธนาคาร"
@@ -199,34 +241,6 @@ const MarketerFinanceManagementPage = () => {
               </Form.Item>
 
 
-              {/* ประเภทธุรกรรม */}
-              <Form.Item
-                label="เลือกประเภทธุรกรรม"
-                name="transactionType"
-                rules={[{ required: true, message: 'โปรดเลือกประเภทธุรกรรม !' }]}
-              >
-                <Select placeholder={"เลือกประเภทธุรกรรม"} options={[
-                  {
-                    label: "ฝาก",
-                    value: "deposit"
-                  },
-                  {
-                    label: "ถอน",
-                    value: "withdraw"
-                  },
-                  {
-                    label: "โอน (เริ่มใช้เร็วๆนี้)",
-                    value: "transfer",
-                    disabled: true
-                  },
-                ]} onChange={(e) => {
-                  if (e == 'transfer') {
-                    setIsShowDestinationAccount(true)
-                  } else {
-                    setIsShowDestinationAccount(false)
-                  }
-                }} />
-              </Form.Item>
 
               {/* เลขบัญชีธนาคาร */}
               {

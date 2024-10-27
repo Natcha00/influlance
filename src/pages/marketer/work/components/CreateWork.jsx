@@ -43,8 +43,8 @@ const CreateWork = ({ onAdd, onClose }) => {
   // Function to handle form submission
   const onFinish = async (values) => {
     try {
-      refetchBalance()
-      if (values.totalPayment > balance) {
+      const { data: lastestBalance } = await refetchBalance()
+      if (values.totalPayment > lastestBalance) {
         modal.warning({
           title: "เงินเครดิตการจ้างงานของท่านไม่เพียงพอ กรุณาเติมเงิน", content: (
             <>
@@ -62,7 +62,6 @@ const CreateWork = ({ onAdd, onClose }) => {
       })
 
       if (resp) {
-        console.log('resp', resp.data.jobId)
         const respConsumeCredit = await consumeCredit({
           amount: values.totalPayment,
           referenceJobId: resp?.data?.jobId

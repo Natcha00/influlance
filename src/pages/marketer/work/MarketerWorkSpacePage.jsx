@@ -37,55 +37,51 @@ const MarketerWorkSpace = () => {
 
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobEnroll_marketerWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: "jobEnroll",
+        filter: `marketerId=eq.${me?.marketerId}`
       },
       (payload) => {
-        if (me.marketerId == payload?.new?.marketerId) {
-          refetchGetJobs()
-        }
+        refetchGetJobs()
+
       }
     )
     .subscribe()
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobDraft_marketerWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: "jobDraft",
+        filter: `marketerId=eq.${me?.marketerId}`
       },
       (payload) => {
-        const setOfJobs = new Set(jobs.map(el => el.jobId))
-        console.log('setOfJobs', setOfJobs)
-        if (setOfJobs.has(payload?.new?.jobId)) {
-          refetchGetJobs()
-        }
+        console.log('payload', payload)
+        refetchGetJobs()
       }
     )
     .subscribe()
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobPost_marketerWorkSpace')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: "jobPost",
+        filter: `marketerId=eq.${me?.marketerId}`
       },
       (payload) => {
-        const setOfJobs = new Set(jobs.map(el => el.jobId))
-        if (setOfJobs.has(payload?.new?.jobId)) {
-          refetchGetJobs()
-        }
+        refetchGetJobs()
       }
     )
     .subscribe()
@@ -117,6 +113,7 @@ const MarketerWorkSpace = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalAddTaskVisible, setIsModalAddTaskVisible] = useState(false)
   const handleAddJob = () => {
+    refetchGetJobs()
     setIsModalAddTaskVisible(false)
   }
   const handleCloseAddJob = () => {
@@ -136,19 +133,29 @@ const MarketerWorkSpace = () => {
       icon: <ExclamationCircleFilled />,
       content: '',
       async onOk() {
-        const resp = await hire({ jobEnrollId: applicant?.jobEnrollId }).unwrap()
+        try {
+          const resp = await hire({ jobId: applicant?.jobId, jobEnrollId: applicant?.jobEnrollId }).unwrap()
 
-        if (resp) {
-          message.success("ยืนยันการจ้างงานสำเร็จ")
-          const newJobEnroll = selectedTask.jobEnroll.filter(el => el.jobEnrollId != applicant?.jobEnrollId)
-          setSelectedTask({
-            ...selectedTask,
-            jobEnroll: newJobEnroll
-          })
-          refetchGetJobs()
+          if (resp) {
+            message.success("ยืนยันการจ้างงานสำเร็จ")
+            const newJobEnroll = selectedTask.jobEnroll.filter(el => el.jobEnrollId != applicant?.jobEnrollId)
+            setSelectedTask({
+              ...selectedTask,
+              jobEnroll: newJobEnroll
+            })
+            refetchGetJobs()
+          }
+        } catch (error) {
+          if (error.data) {
+            message.error(error.data)
+          } else {
+            message.error('เกิดข้อผิดพลาด')
+          }
         }
+
       },
       onCancel() {
+
         console.log('Cancel');
       },
     });
@@ -364,7 +371,7 @@ const MarketerWorkSpace = () => {
         footer={null}
       // width={800}
       >
-        <CreateWork onAdd={handleAddJob} onClose={handleCloseAddJob} />
+        <CreateWork onAdd={handleAddJob} onClose={handleCloseAddJob} refetchGetJobs={refetchGetJobs} />
       </Modal>
       <Divider />
     </ConfigProvider>

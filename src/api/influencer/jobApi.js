@@ -38,24 +38,27 @@ const mockBaseQuery = async (arg) => {
 
         const influId = findToken.influId
 
+        const maxFollower = Math.max(findToken.facebookFollower ?? 0, findToken.tiktokFollower ?? 0, findToken.xFollower ?? 0, findToken.instagramFollower ?? 0)
+
         let { data: jobs, error: errorJobs } = await supabase
             .from("job")
             .select(`
                  * ,
                 marketer (
-                    firstName,
-                    lastName,
-                    profilePicture
+                    *
                 ),
                 jobEnroll (
                     *
                 )
                 `)
+            .order('createDate', { ascending: false })
 
 
         if (errorJobs) {
             return { error: { status: 500, data: "Internal Server Error" } }
         }
+
+
 
         jobs = jobs.filter((j) => {
             const enroll = j.jobEnroll.map(je => je.influId)
@@ -65,13 +68,12 @@ const mockBaseQuery = async (arg) => {
                 return true
             }
         })
+            .filter(el => maxFollower >= el.follower)
 
-        await delay()
         return {
             data: jobs
         };
     } else if (arg.url == '/categories') {
-        await delay()
         return {
             data: categories
         }
@@ -101,9 +103,7 @@ const mockBaseQuery = async (arg) => {
             .select(`
                 *,
                 marketer(
-                    firstName,
-                    lastName,
-                    profilePicture
+                  *
                 ),
                 job(
                 *
@@ -233,6 +233,7 @@ const mockBaseQuery = async (arg) => {
         const influId = findToken.influId
 
         const {
+            marketerId,
             jobId,
             content,
             pictureURL,
@@ -244,6 +245,8 @@ const mockBaseQuery = async (arg) => {
             .from("jobDraft")
             .insert([
                 {
+                    marketerId,
+                    influId,
                     jobId,
                     content,
                     pictureURL,
@@ -283,6 +286,7 @@ const mockBaseQuery = async (arg) => {
         const influId = findToken.influId
 
         const {
+            marketerId,
             jobId,
             pictureURL,
             postLink,
@@ -293,6 +297,8 @@ const mockBaseQuery = async (arg) => {
             .from("jobPost")
             .insert([
                 {
+                    marketerId,
+                    influId,
                     jobId,
                     pictureURL,
                     postLink,
@@ -367,6 +373,7 @@ export const jobApi = createApi({
             }),
             saveDraft: builder.mutation({
                 query: ({
+                    marketerId,
                     jobId,
                     content,
                     pictureURL,
@@ -379,6 +386,7 @@ export const jobApi = createApi({
                         'Content-Type': 'application/json'
                     },
                     body: {
+                        marketerId,
                         jobId,
                         content,
                         pictureURL,
@@ -389,6 +397,7 @@ export const jobApi = createApi({
             }),
             savePost: builder.mutation({
                 query: ({
+                    marketerId,
                     jobId,
                     pictureURL,
                     postLink,
@@ -400,6 +409,7 @@ export const jobApi = createApi({
                         'Content-Type': 'application/json'
                     },
                     body: {
+                        marketerId,
                         jobId,
                         pictureURL,
                         postLink,

@@ -161,7 +161,35 @@ const mockBaseQuery = async (arg) => {
         }
 
         const marketerId = findToken.marketerId
-        const { jobEnrollId } = arg.body
+        const { jobEnrollId, jobId } = arg.body
+
+        const { data: lastestEnroll, error: lastestEnrollError } = await supabase
+            .from("jobEnroll")
+            .select("*")
+            .eq("jobId", jobId)
+
+        if (lastestEnrollError) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        const enrollCount = lastestEnroll.filter(el => !['reject', 'cancel', 'pending'].includes(el.jobStatus)).length
+
+        const { data: job, error: jobError } = await supabase
+            .from("job")
+            .select("*")
+            .eq("jobId", jobId)
+            .single()
+
+        if (jobError) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+        const influencerCount = job.influencerCount
+        if (enrollCount >= influencerCount) {
+            return { error: { status: 400, data: "ไม่สามารถจ้างงาน influencer เกินกว่าที่กำหนดไว้ได้" } }
+        }
+
+
 
         const { data: enrollData, error: updateError } = await supabase
             .from("jobEnroll")
@@ -578,11 +606,12 @@ export const mktJobApi = createApi({
                 })
             }),
             hire: builder.mutation({
-                query: ({ jobEnrollId }) => ({
+                query: ({ jobEnrollId, jobId }) => ({
                     url: "/hire",
                     method: "POST",
                     body: {
-                        jobEnrollId
+                        jobEnrollId,
+                        jobId
                     }
                 })
             }),

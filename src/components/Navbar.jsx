@@ -50,7 +50,7 @@ function Navbar() {
       isAuth: true,
     },
     {
-      label: <div onClick={() => navigate("/influencer/finance")}>จัดการบัญชี</div>,
+      label: <div onClick={() => navigate("/influencer/finance")}>ธุรกรรมการเงิน</div>,
       isAuth: true,
     },
     {
@@ -89,7 +89,7 @@ function Navbar() {
       isAuth: true,
     },
     {
-      label: <div onClick={() => navigate("/marketer/finance")}>จัดการบัญชี</div>,
+      label: <div onClick={() => navigate("/marketer/finance")}>ธุรกรรมการเงิน</div>,
       isAuth: true,
     },
     {

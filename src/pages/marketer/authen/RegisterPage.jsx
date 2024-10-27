@@ -1,11 +1,12 @@
 // RegisterPage.js
 import React from 'react';
-import { Form, Input, Button, Row, Col, Typography, Divider, Card, message } from 'antd';
+import { Form, Input, Button, Row, Col, Typography, Divider, Card, message, Image } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRegisterInfo } from '../../../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { useCheckEmailMutation } from '../../../api/marketer/authApi';
+import RegisterMarketer from '/register_marketer.png'
 
 const { Title } = Typography;
 
@@ -40,9 +41,9 @@ const MarketerRegisterPage = () => {
     message.error(errorInfo)
   }
   return (
-    <Row justify="center" >
-      <Col xs={0} md={12} style={{ background: 'grey' }}>
-
+    <Row justify="center" align={'middle'}>
+      <Col xs={0} md={12} >
+        <Image src={RegisterMarketer} width={'100%'} preview={false} />
       </Col>
       <Col xs={24} md={12}>
         <Card title={"Register"}>
@@ -121,26 +122,6 @@ const MarketerRegisterPage = () => {
             </Form.Item>
           </Form>
 
-          {/* OAuth Options */}
-          <Divider>Or Register with</Divider>
-          <Row justify="center" gutter={16}>
-            <Col>
-              <Button
-                icon={<GoogleOutlined />}
-                style={{ backgroundColor: '#DB4437', color: '#fff' }}
-              >
-                Google
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                icon={<AppleOutlined />}
-                style={{ backgroundColor: '#000', color: '#fff' }}
-              >
-                Line
-              </Button>
-            </Col>
-          </Row>
         </Card>
 
       </Col>

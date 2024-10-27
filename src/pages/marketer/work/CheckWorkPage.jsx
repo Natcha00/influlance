@@ -16,6 +16,8 @@ import {
   Form,
   message,
   Badge,
+  Descriptions,
+  List,
 } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
@@ -48,37 +50,39 @@ const CheckWorkPage = () => {
 
   const [approvePayCredit, { isLoading: isLoadingApprovePayCredit }] = useApprovePaycreditMutation()
 
+  // Client setup
+
 
   supabase
-    .channel('schema-db-changes')
+    .channel('jobDraft_checkWork')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: "jobDraft",
+        filter: `jobId=eq.${jobId}`
       },
       (payload) => {
-        if (jobId == payload?.new?.jobId) {
-          refetchChechDraft(jobId)
-        }
+        refetchChechDraft(jobId)
       }
     )
     .subscribe()
 
+
+
   supabase
-    .channel('schema-db-changes')
+    .channel('jobPost_checkWork')
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: "jobPost",
+        filter: `jobId=eq.${jobId}`
       },
       (payload) => {
-        if (jobId == payload?.new?.jobId) {
-          refetchChechPost(jobId)
-        }
+        refetchChechPost(jobId)
       }
     )
     .subscribe()
@@ -181,103 +185,138 @@ const CheckWorkPage = () => {
         <Tabs.TabPane tab={<Badge count={jobDraft?.length} offset={[10, -5]}>
           ตรววจงาน Draft
         </Badge>} key="1">
+          <List
+            grid={{ gutter: 16, column: 1 }}
+            dataSource={jobDraft}
+            renderItem={
+              (submission, index) => (
+                <List.Item>
+                  <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
+                    <Col span={24}>
+                      <Card
+                        title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                        extra={
+                          <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                            โปรไฟล์
+                          </Link>
+                        }
 
-          {jobDraft?.map((submission, index) => (
-            <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
-              <Col span={24}>
-                <Card
-                  title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
-                  extra={
-                    <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
-                      โปรไฟล์
-                    </Link>
-                  }
+                        actions={[
+                          <Button type="link" danger onClick={() => {
+                            setVisible(true)
+                            setCurrentSubmission(submission)
+                          }}>
+                            ไม่อนุมัติ
+                          </Button>
+                          ,
+                          <Button type="primary" onClick={() => showConfirmApproveDraft(submission)}>
+                            อนุมัติ
+                          </Button>
+                        ]}
+                      >
+                        <Descriptions  bordered items={[
+                          {
+                            key: '1',
+                            label: 'เนื้อหา',
+                            children: <Paragraph>{submission?.content}</Paragraph>,
+                            span: 24
+                          },
+                          {
+                            key: '2',
+                            label: 'รูปภาพ',
+                            children: <Row gutter={[12, 12]} >
+                              {
+                                submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
+                                  <Image src={el} width={'100%'} />
+                                </Col>
+                                )}
+                            </Row>,
+                            span: 24
+                          },
+                          {
+                            key: '3',
+                            label: 'วิดิโอ',
+                            children: <Row gutter={[12, 12]} >
+                              {
+                                submission?.videoURL?.map((el, i) => <Col span={4} key={i}>
+                                  <video key={i} controls style={{ width: "100%" }}>
+                                    <source src={el} type="video/mp4" />
+                                    เบราว์เซอร์ของคุณไม่รองรับแท็กวิดีโอ
+                                  </video>
+                                </Col>
+                                )}
+                            </Row>,
+                            span: 24
+                          },
+                        ]} />
+                      </Card>
 
-                  actions={[
-                    <Button type="link" danger onClick={() => {
-                      setVisible(true)
-                      setCurrentSubmission(submission)
-                    }}>
-                      ไม่อนุมัติ
-                    </Button>
-                    ,
-                    <Button type="primary" onClick={() => showConfirmApproveDraft(submission)}>
-                      อนุมัติ
-                    </Button>
-                  ]}
-                >
-                  <Paragraph>เนื้อหา : </Paragraph>
-                  <Paragraph>{submission?.content}</Paragraph>
-                  <Paragraph>รูปภาพ : </Paragraph>
-                  <Row gutter={[12, 12]} >
-                    {
-                      submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
-                        <Image src={el} width={'100%'} />
-                      </Col>
-                      )}
+                    </Col>
                   </Row>
-                  <Paragraph>วิดิโอ : </Paragraph>
-                  <Row gutter={[12, 12]} >
-                    {
-                      submission?.videoURL?.map((el, i) => <Col span={4} key={i}>
-                        <video key={i} controls style={{ width: "100%" }}>
-                          <source src={el} type="video/mp4" />
-                          เบราว์เซอร์ของคุณไม่รองรับแท็กวิดีโอ
-                        </video>
-                      </Col>
-                      )}
-                  </Row>
-                </Card>
-
-              </Col>
-
-            </Row>
-          ))}
+                </List.Item>
+              )
+            }
+          />
         </Tabs.TabPane>
         <Tabs.TabPane tab={<Badge count={jobPost?.length} offset={[10, -5]}>
           ตรววจงาน Post จริง
         </Badge>} key="2">
-          <Row gutter={[16, 16]}>
-            {jobPost?.map((submission, index) => (
-              <Col span={24} key={index}>
-                <Card
-                  title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
-                  extra={
-                    <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
-                      โปรไฟล์
-                    </Link>
-                  }
-                  actions={[
-                    <Button type="link" danger onClick={() => {
-                      setVisiblePost(true)
-                      setCurrentSubmissionPost(submission)
-                    }}>
-                      ไม่อนุมัติ
-                    </Button>
-                    ,
-                    <Button type="primary" onClick={() => showConfirmApprovePost(submission)}>
-                      อนุมัติ
-                    </Button>
-                  ]}
-                >
-                  <Paragraph>
-                    ลิงค์งาน:{" "}
-                    <a href={submission?.postLink} target="_blank" rel="noopener noreferrer">
-                      {submission?.postLink}
-                    </a>
-                  </Paragraph>
-                  <Paragraph>รูปภาพ : </Paragraph>
-                  <Row gutter={[12, 12]} >
-                    {
-                      submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
-                        <Image src={el} width={'100%'} />
-                      </Col>
-                      )}
-                  </Row>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+
+          <List
+            grid={{ gutter: 16, column: 1 }}
+            dataSource={jobPost}
+            renderItem={
+              (submission, index) => (
+                <Row gutter={[16, 16]}>
+                  <Col span={24} key={index}>
+                    <Card
+                      title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                      extra={
+                        <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                          โปรไฟล์
+                        </Link>
+                      }
+                      actions={[
+                        <Button type="link" danger onClick={() => {
+                          setVisiblePost(true)
+                          setCurrentSubmissionPost(submission)
+                        }}>
+                          ไม่อนุมัติ
+                        </Button>
+                        ,
+                        <Button type="primary" onClick={() => showConfirmApprovePost(submission)}>
+                          อนุมัติ
+                        </Button>
+                      ]}
+                    >
+                      <Descriptions bordered items={[
+                        {
+                          key: '1',
+                          label: 'ลิงค์งาน',
+                          children: <a href={submission?.postLink} target="_blank" rel="noopener noreferrer">
+                            {submission?.postLink}
+                          </a>,
+                          span: 24
+                        },
+                        {
+                          key: '2',
+                          label: 'รูปภาพ',
+                          children: <Row gutter={[12, 12]} >
+                            {
+                              submission?.pictureURL?.map((el, i) => <Col span={4} key={i}>
+                                <Image src={el} width={'100%'} />
+                              </Col>
+                              )}
+                          </Row>,
+                          span: 24
+                        },
+                      ]} />
+                    </Card>
+                  </Col>
+                </Row>
+              )
+            }
+          />
         </Tabs.TabPane>
       </Tabs>
 

@@ -69,7 +69,9 @@ const mockBaseQuery = async (arg) => {
             tiktok,
             categories,
             yourInfo,
-            accountId
+            accountId,
+            brand,
+            brandPicture
         } = findToken
 
         return {
@@ -86,7 +88,63 @@ const mockBaseQuery = async (arg) => {
                 tiktok,
                 categories,
                 yourInfo,
-                accountId
+                accountId,
+                brand,
+                brandPicture
+            }
+        }
+    } else if (arg.url.includes('/view-profile')) {
+        const token = Cookies.get('accessToken')
+        if (!token) {
+            return { error: { status: 401, data: "unauthorize" } }
+        }
+
+        const marketerId = arg.params
+        const { data: findToken, error } = await supabase
+            .from("marketer")
+            .select()
+            .eq("marketerId", marketerId)
+            .single()
+
+        if (error) {
+            return { error: { status: 500, data: "Internal Server Error" } }
+        }
+
+
+        const {
+            email,
+            accessToken,
+            firstName,
+            lastName,
+            profilePicture,
+            facebook,
+            instagram,
+            x,
+            tiktok,
+            categories,
+            yourInfo,
+            accountId,
+            brand,
+            brandPicture
+        } = findToken
+
+        return {
+            data: {
+                marketerId,
+                email,
+                accessToken,
+                firstName,
+                lastName,
+                profilePicture,
+                facebook,
+                instagram,
+                x,
+                tiktok,
+                categories,
+                yourInfo,
+                accountId,
+                brand,
+                brandPicture
             }
         }
     } else if (arg.url == '/register') {
@@ -101,7 +159,9 @@ const mockBaseQuery = async (arg) => {
             tiktok,
             profilePicture,
             categories,
-            yourInfo
+            yourInfo,
+            brand,
+            brandPicture
         } = arg.body
 
         await delay()
@@ -142,7 +202,9 @@ const mockBaseQuery = async (arg) => {
                     categories,
                     yourInfo,
                     accessToken: token,
-                    accountId: account.accountId
+                    accountId: account.accountId,
+                    brand,
+                    brandPicture
                 }
             ])
             .select('marketerId')
@@ -210,6 +272,13 @@ export const mktAuthApi = createApi({
                     method: "GET"
                 })
             }),
+            viewProfile: builder.query({
+                query: (marketerId) => ({
+                    url: `/view-profile/${marketerId}`,
+                    method: "GET",
+                    params: marketerId
+                })
+            }),
             register: builder.mutation({
                 query: ({
                     email,
@@ -222,7 +291,9 @@ export const mktAuthApi = createApi({
                     tiktok,
                     profilePicture,
                     categories,
-                    yourInfo
+                    yourInfo,
+                    brand,
+                    brandPicture
                 }) => ({
                     url: "/register",
                     method: "POST",
@@ -240,7 +311,9 @@ export const mktAuthApi = createApi({
                         tiktok,
                         profilePicture,
                         categories,
-                        yourInfo
+                        yourInfo,
+                        brand,
+                        brandPicture
                     }
                 }),
             }),
@@ -292,5 +365,6 @@ export const {
     useRegisterMutation,
     useCheckEmailMutation,
     usePortfolioQuery,
-    useAddPortfolioMutation
+    useAddPortfolioMutation,
+    useViewProfileQuery
 } = mktAuthApi

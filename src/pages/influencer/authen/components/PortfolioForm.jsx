@@ -19,6 +19,7 @@ const PortfolioForm = ({ onAdd, visible, onClose }) => {
   };
 
   const handleSubmit = (values) => {
+    console.log('values', values)
     onAdd({
       ...values,
       images: values.files.map((file) => ({

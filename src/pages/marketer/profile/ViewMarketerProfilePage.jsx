@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   Avatar,
-  Button,
-  Card,
   Row,
   Col,
-  Collapse,
-  theme,
   Divider,
   Typography,
   Image,
-  Tag,
-  Space,
-  message,
 } from "antd";
 import {
   FacebookOutlined,
@@ -20,37 +13,15 @@ import {
   TwitterOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import PortfolioForm from "../authen/components/PortfolioForm";
 import CrownImg from "/crown.png";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
-import { useAddPortfolioMutation, useMeQuery, usePortfolioQuery, useViewPortfolioQuery, useViewProfileQuery } from "../../../api/influencer/authApi";
+import { useMeQuery, useViewProfileQuery } from "../../../api/marketer/authApi";
 import { useParams } from "react-router-dom";
 
-const ViewProfilePage = () => {
+const ViewMarketerProfilePage = () => {
   const screen = useBreakpoint();
-  const { influId } = useParams()
-
-  const { data: profile, isLoading: isLoadingProfile } = useViewProfileQuery(influId)
-  const { data: portfolios, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useViewPortfolioQuery(influId)
-  const [portfolioItems, setPortfolioItems] = useState([]);
-
-  useEffect(() => {
-    setPortfolioItems(portfolios)
-  }, [portfolios])
-
-  const handleChangeShowImage = (index, url) => {
-    const newPortfolioItems = portfolioItems.map((port, i) => {
-      if (i == index) {
-        return {
-          ...port,
-          firstImage: url,
-        };
-      } else {
-        return port;
-      }
-    });
-    setPortfolioItems(newPortfolioItems);
-  };
+  const { marketerId } = useParams()
+  const { data: profile, isLoading: isLoadingProfile } = useViewProfileQuery(marketerId)
   return (
     <>
       <Row>
@@ -66,11 +37,11 @@ const ViewProfilePage = () => {
           >
             <Avatar
               // size={300}
-              src={profile?.profilePicture}
-              style={{ marginBottom: "20px", minWidth: "70%", height: "auto" }}
+              src={profile?.brandPicture}
+              style={{ marginBottom: "20px", width: "100%", height: "auto", }}
             />
           </div>
-          <div
+          {/* <div
             style={{
               position: "relative",
               display: screen.xs ? "flex" : "none",
@@ -90,21 +61,22 @@ const ViewProfilePage = () => {
             >
               Rank A
             </Typography.Title>
-          </div>
+          </div> */}
         </Col>
         {/* Left Section: Profile Info */}
         <Col xs={24} md={12}>
           <Row>
             <Col xs={24} md={12}>
-              <Typography.Title level={1}>{profile?.firstName} {profile?.lastName}</Typography.Title>
+              <Typography.Title level={1}>{profile?.brand}</Typography.Title>
               {/* Social Media Links */}
               <div>
                 <Row>
                   <Col span={24}>
                     <FacebookOutlined />
-                    <Typography.Text>
+                    Facebook
+                    {/* <Typography.Text>
                       {"Follower : " + profile?.facebookFollower}
-                    </Typography.Text>
+                    </Typography.Text> */}
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -116,9 +88,10 @@ const ViewProfilePage = () => {
                 <Row>
                   <Col span={24}>
                     <InstagramOutlined />
-                    <Typography.Text>
+                    Instagram
+                    {/* <Typography.Text>
                       {"Follower : " + profile?.instagramFollower}
-                    </Typography.Text>
+                    </Typography.Text> */}
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -130,9 +103,10 @@ const ViewProfilePage = () => {
                 <Row>
                   <Col span={24}>
                     <TwitterOutlined />
-                    <Typography.Text>
+                    X
+                    {/* <Typography.Text>
                       {"Follower : " + profile?.xFollower}
-                    </Typography.Text>
+                    </Typography.Text> */}
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -145,9 +119,10 @@ const ViewProfilePage = () => {
                 <Row>
                   <Col span={24}>
                     <VideoCameraOutlined />
-                    <Typography.Text>
+                    Tiktok
+                    {/* <Typography.Text>
                       {"Follower : " + profile?.tiktokFollower}
-                    </Typography.Text>
+                    </Typography.Text> */}
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -162,7 +137,7 @@ const ViewProfilePage = () => {
                 </Typography.Text>
               </div>
             </Col>
-            <Col xs={0} md={12}>
+            {/* <Col xs={0} md={12}>
               <div
                 style={{
                   position: "relative",
@@ -184,72 +159,12 @@ const ViewProfilePage = () => {
                   Rank A
                 </Typography.Title>
               </div>
-            </Col>
+            </Col> */}
           </Row>
         </Col>
       </Row >
-
-      {/* Pinned Works Section */}
-      < Divider orientation="left" style={{ fontSize: "30px" }
-      }>
-        ผลงาน
-      </Divider >
-      {/* <Typography.Title level={2}>ผลงาน</Typography.Title> */}
-
-      {
-        portfolioItems?.map((portfoilio, index) => (
-          <>
-            <Row gutter={16} key={index}>
-              <Col xs={24} md={12}>
-                <Row justify={"start"}>
-                  <Col xs={24} md={20}>
-                    <Image
-                      preview={false}
-                      width={"100%"}
-                      height={"100%"}
-                      src={portfoilio.firstImage}
-                    />
-                  </Col>
-                </Row>
-
-                <Row>
-                  {portfoilio?.images.map((img, i) => {
-                    return (
-                      <Col span={6} style={{ cursor: "pointer" }}>
-                        <Image
-                          preview={false}
-                          src={img}
-                          onClick={() => handleChangeShowImage(index, img)}
-                        />
-                      </Col>
-                    );
-                  })}
-                </Row>
-              </Col>
-              <Col xs={24} md={12}>
-                <Collapse
-                  style={{ minWidth: "100%" }}
-                  items={[
-                    {
-                      key: "0",
-                      label: portfoilio.title,
-                      children: (
-                        <div style={{ minHeight: "100%", minWidth: "100%" }}>
-                          {portfoilio.description}
-                        </div>
-                      ),
-                    },
-                  ]}
-                  defaultActiveKey={["0"]}
-                />
-              </Col>
-              <Divider />
-            </Row>
-          </>
-        ))
-      }
     </>
   );
 };
 
-export default ViewProfilePage;
+export default ViewMarketerProfilePage;
