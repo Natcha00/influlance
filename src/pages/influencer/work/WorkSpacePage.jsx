@@ -20,6 +20,7 @@ import {
   Collapse,
   Badge,
   Space,
+  Spin,
 } from "antd";
 import { InboxOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
@@ -32,6 +33,7 @@ import Title from "antd/es/typography/Title";
 import { supabase } from "../../../shared/supabase";
 import { useMeQuery } from "../../../api/influencer/authApi";
 import { Link } from "react-router-dom";
+import { geminiGenerateContent } from "../../../shared/gemini/index"
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -45,6 +47,7 @@ const WorkSpacePage = () => {
   const [cancelEnroll, { isLoading: isLoadingCancelEnroll }] = useCancelEnrollMutation()
   const [saveDraft, { isLoading: isLoadingSaveDraft }] = useSaveDraftMutation()
   const [savePost, { isLoading: isLoadingSavePost }] = useSavePostMutation()
+  const [loadingGenAI, setLoadingGenAI] = useState(false)
   useEffect(() => {
     refetchJobEnroll()
   }, [])
@@ -104,7 +107,7 @@ const WorkSpacePage = () => {
   const [imagePostFileList, setImagePostFileList] = useState([])
   const [link, setLink] = useState(null)
   const [loading, setLoading] = useState(false);
-
+  const [content, setContent] = useState('')
   // State variables
   const [isView, setIsView] = useState(false); // Control modal visibility
   // Function to handle editing a draft
@@ -453,7 +456,7 @@ const WorkSpacePage = () => {
                               //type="primary"
                               onClick={() => showPostModal(job)}
                               style={{ marginRight: "10px" }}
-                              disabled={job?.jobPost?.some(e => e.status == 'approve'|| e.status == 'pending')}
+                              disabled={job?.jobPost?.some(e => e.status == 'approve' || e.status == 'pending')}
                             >
                               กดส่งแบบร่าง
                             </Button>
@@ -635,16 +638,36 @@ const WorkSpacePage = () => {
             <Form.Item
               name="content"
               label="รายละเอียดงาน"
-
               rules={[
                 { required: true, message: "กรุณาระบุรายละเอียดงาน" },
               ]}
             >
-              <TextArea
-                disabled={isView}
-                rows={4}
-                placeholder="ระบุรายละเอียดงานที่กำลังส่ง..."
-              />
+              <Spin spinning={loadingGenAI}>
+                <TextArea
+                  disabled={isView}
+                  rows={4}
+                  placeholder="ระบุรายละเอียดงานที่กำลังส่ง..."
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                />
+              </Spin>
+              <Row justify={'end'} style={{ marginTop: '0.25rem' }} >
+                <Button type="primary" onClick={async () => {
+                  setLoadingGenAI(true)
+                  try {
+                    const res = await geminiGenerateContent(currentJob?.jobTitle)
+                    if (res) {
+                      form.setFieldValue('content', res)
+                      setContent(res)
+                    }
+                  } catch (error) {
+                    message.error('ไม่สามารถส่งคำร้องขอได้ในขณะนี้')
+                  } finally {
+                    setLoadingGenAI(false)
+                  }
+
+                }} disabled={isView || content} loading={loadingGenAI}>ช่วยคิดเนื้อหา</Button>
+              </Row>
             </Form.Item>
 
             {/* File Upload */}
