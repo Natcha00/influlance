@@ -30,7 +30,7 @@ const FinanceManagementPage = () => {
       dataIndex: 'balance',
       key: 'balance',
     },
-    {
+    {//??
       title: 'ประเภทรายการ',
       dataIndex: 'transactionType',
       key: 'transactionType',
@@ -90,7 +90,7 @@ const FinanceManagementPage = () => {
       value: "Krungthai Bank"
     },
   ]
-
+//??
   // เมื่อผู้ใช้กดปุ่ม "ถอนเงิน"
   const onFinish = async (values) => {
     try {
@@ -198,7 +198,7 @@ const FinanceManagementPage = () => {
                   }
                 }} block={true} size='large'>
                   <Radio.Button value="withdraw">ถอน</Radio.Button>
-                  <Radio.Button value="deposit"disabled={true}>ฝาก (เริ่มใช้เร็วๆนี้)</Radio.Button>
+                  <Radio.Button value="deposit" disabled={true}>ฝาก (เริ่มใช้เร็วๆนี้)</Radio.Button>
                   <Radio.Button value="transfer" disabled={true}>โอน (เริ่มใช้เร็วๆนี้)</Radio.Button>
                 </Radio.Group>
               </Form.Item>

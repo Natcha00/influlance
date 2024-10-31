@@ -130,7 +130,7 @@ const mockBaseQuery = async (arg) => {
 
 export const financeApi = createApi({
     reducerPath: "financeApi",
-    baseQuery: mockBaseQuery,
+    baseQuery: mockBaseQuery, //fetchBaseQuery({ baseUrl: 'http://localhost:3000' }) 
     endpoints: (builder) => {
         return {
             finanaceTransactions: builder.query({

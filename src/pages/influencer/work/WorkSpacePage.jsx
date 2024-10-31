@@ -204,6 +204,8 @@ const WorkSpacePage = () => {
     } catch (error) {
       console.log('error', error)
       message.error("เกิดข้อผิดพลาด")
+    }finally{
+      form.resetFields()
     }
 
   };

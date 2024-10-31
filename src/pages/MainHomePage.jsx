@@ -5,7 +5,6 @@ import PIC from "/Influencer.png";
 import Picinflu from "/Logoinflu.png";
 import Picmarket from "/market.png";
 import Pic2 from "/pic_beauty.png";
-import Pic3 from "/fire.gif";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
 const { Content } = Layout;

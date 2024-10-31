@@ -115,6 +115,7 @@ const mockBaseQuery = async (arg) => {
                 `)
             .eq("marketerId", marketerId)
             .eq("isDelete", false)
+            .order('createDate', { ascending: false })
         if (errorJobs) {
             return { error: { status: 500, data: "Internal Server Error" } }
         }
