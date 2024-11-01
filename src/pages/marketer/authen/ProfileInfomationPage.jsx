@@ -98,7 +98,7 @@ const MarketerProfileInformationPage = () => {
               layout="vertical"
               onFinish={onFinish}
               initialValues={{
-                firstName: "marketer",
+              /*   firstName: "marketer",
                 lastName: "001",
                 facebook: "facebook.com/marketer",
                 instagram: "instagram.com/marketer",
@@ -113,7 +113,7 @@ const MarketerProfileInformationPage = () => {
                   }
                 ],
                 categories: ["fashion", "lifestyle"],
-                yourInfo: "กิน เที่ยว เล่นเกม หนัง"
+                yourInfo: "กิน เที่ยว เล่นเกม หนัง" */
               }}
             >
               {/* Upload Profile Picture */}
@@ -202,6 +202,12 @@ const MarketerProfileInformationPage = () => {
                     name="profilePicture"
                     label="รูปโปรไฟล์"
                     valuePropName="fileList"
+                    rules={[
+                      {
+                        required: true,
+                        message: "กรุณาอัพโหลดรูปโปรไฟล์",
+                      },
+                    ]}
                   >
                     <DraggerUpload fileList={fileList} setFileList={setFileList} form={form} name={"profilePicture"} />
                   </Form.Item>
@@ -228,6 +234,12 @@ const MarketerProfileInformationPage = () => {
                     name="brandPicture"
                     label="รูป brand"
                     valuePropName="fileList"
+                    rules={[
+                      {
+                        required: true,
+                        message: "กรุณาอัพโหลดรูป brand",
+                      },
+                    ]}
                   >
                     <DraggerUpload fileList={fileList2} setFileList={setFileList2} form={form} name={"brandPicture"} />
                   </Form.Item>

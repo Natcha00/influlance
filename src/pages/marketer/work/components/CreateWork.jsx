@@ -46,6 +46,7 @@ const CreateWork = ({ onAdd, onClose }) => {
   const onFinish = async (values) => {
     try {
       const { data: lastestBalance } = await refetchBalance()
+      console.log('last', lastestBalance)
       if (values.totalPayment > lastestBalance) {
         modal.warning({
           title: "เงินเครดิตการจ้างงานของท่านไม่เพียงพอ กรุณาเติมเงิน", content: (
@@ -116,20 +117,20 @@ const CreateWork = ({ onAdd, onClose }) => {
             onFinish={onFinish}
             style={{ maxWidth: 600 }}
             initialValues={{
-              // jobTitle: "Home Organization Hacks: Declutter Your Space, Declutter Your Mind",
-              // jobDescription: "Transform your living space with simple, effective home organization hacks. Learn how to create a clutter-free environment that promotes relaxation, focus, and overall well-being.",
-              // tag: "lifestyle",
-              // follower: 2000,
-              // totalPayment: 20000,
-              // influencerCount: 10,
-              // paymentPerInfluencer: 2000,
-              // dueDate: dayjs(),
-              // files: [{
-              //   uid: "-1",
-              //   url: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
-              //   thumbUrl: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
-              //   status: "done"
-              // }]
+            /*   jobTitle: "Home Organization Hacks: Declutter Your Space, Declutter Your Mind",
+              jobDescription: "Transform your living space with simple, effective home organization hacks. Learn how to create a clutter-free environment that promotes relaxation, focus, and overall well-being.",
+              tag: "lifestyle",
+              follower: 2000,
+              totalPayment: 20000,
+              influencerCount: 10,
+              paymentPerInfluencer: 2000,
+              dueDate: dayjs(),
+              files: [{
+                uid: "-1",
+                url: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
+                thumbUrl: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
+                status: "done"
+              }] */
             }}
           >
             <Form.Item

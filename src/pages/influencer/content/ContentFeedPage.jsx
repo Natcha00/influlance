@@ -78,6 +78,7 @@ const ContentFeedPage = () => {
 
 
   const showConfirm = (post) => {
+    console.log('post', post)
     Modal.confirm({
       title: 'ต้องการสมัครนี้ใช่หรือไม่?',
       icon: <ExclamationCircleFilled />,

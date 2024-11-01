@@ -21,6 +21,7 @@ import { useGetJobsQuery, useHireMutation, useRejectMutation, useRemoveJobMutati
 import { SearchOutlined, CloseCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "../../../shared/supabase";
 import { useMeQuery } from "../../../api/marketer/authApi";
+import dayjs from "dayjs";
 
 const { Content } = Layout;
 const { Paragraph } = Typography;
@@ -29,7 +30,7 @@ const MarketerWorkSpace = () => {
 
   const navigate = useNavigate();
   const { data: me, isLoading } = useMeQuery()
-  const { data: jobs, isLoading: isLoadingGetJobs, refetch: refetchGetJobs } = useGetJobsQuery(null)
+  const { data: jobs, isLoading: isLoadingGetJobs, refetch: refetchGetJobs } = useGetJobsQuery()
   const [hire, { isLoading: isLoadingHire }] = useHireMutation()
   const [reject, { isLoading: isLoadingReject }] = useRejectMutation()
   const [removeJob, { isLoading: isLoadingRemoveJob }] = useRemoveJobMutation()
@@ -234,24 +235,24 @@ const MarketerWorkSpace = () => {
             {jobs?.map((job, index) => {
               const jobEnrollPending = job?.jobEnroll?.filter(el => el.jobStatus == 'pending')
               const getHireEnroll = job?.jobEnroll?.filter(el => el.jobStatus != 'pending' && el.jobStatus != 'cancel' && el.jobStatus != 'reject')
-              const numberDraftPending = job?.jobDraft.filter(el => el.status == 'pending').length
-              const numberPostPending = job?.jobPost.filter(el => el.status == 'pending').length
+              const numberDraftPending = job?.jobDraft?.filter(el => el.status == 'pending').length
+              const numberPostPending = job?.jobPost?.filter(el => el.status == 'pending').length
               return (
                 <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
                   <Col span={24}>
                     <Card
-                      title={`${job?.jobId}: ${job?.jobTitle}`}
+                      title={`${job?.jobTitle}`}
                       extra={
                         <>
                           <Row justify={'center'} align={'middle'}>
                             <Col style={{ 'color': '#fff' }}>
                               <>
-                                จำนวนผู้สมัครที่ได้แล้ว {getHireEnroll.length}/{job?.influencerCount}
+                                จำนวนผู้สมัครที่ได้แล้ว {getHireEnroll?.length}/{job?.influencerCount}
                               </>
                             </Col>
                             <Col>
-                              <Button type="link" onClick={() => showApplicants(job)} disabled={jobEnrollPending.length == 0}>
-                                รายชื่อผู้สมัคร ({jobEnrollPending.length})
+                              <Button type="link" onClick={() => showApplicants(job)} disabled={jobEnrollPending?.length == 0}>
+                                รายชื่อผู้สมัคร ({jobEnrollPending?.length})
                               </Button>
                             </Col>
                           </Row>
@@ -259,7 +260,7 @@ const MarketerWorkSpace = () => {
                       }
 
                       actions={[
-                        <Button type="link" danger disabled={getHireEnroll.length > 0} onClick={() => showConfirmRemove(job)}>
+                        <Button type="link" danger disabled={getHireEnroll?.length > 0} onClick={() => showConfirmRemove(job)}>
                           ลบ
                         </Button>
                         ,
@@ -269,13 +270,14 @@ const MarketerWorkSpace = () => {
 
                       ]}
                     >
+                      <Paragraph>รหัสงาน: {job?.jobId}</Paragraph>
                       <Paragraph>ชื่อผู้สร้าง: {job?.marketerName}</Paragraph>
                       <Paragraph>รายละเอียดงาน: {job?.jobDescription}</Paragraph>
                       <Paragraph>จำนวนผู้ติดตามInfluencer: {job?.follower}</Paragraph>
                       <Paragraph>จำนวน Influencer : {job?.influencerCount}</Paragraph>
                       <Paragraph>งบประมาณ : {job?.totalPayment}</Paragraph>
                       <Paragraph>ค่าจ้างต่อคน: {job?.paymentPerInfluencer}</Paragraph>
-                      <Paragraph>รับสมัครถึงวันที่: {job?.dueDate}</Paragraph>
+                      <Paragraph>รับสมัครถึงวันที่: {dayjs(job?.dueDate).format('DD/MM/YYYY')}</Paragraph>
                     </Card>
 
                   </Col>

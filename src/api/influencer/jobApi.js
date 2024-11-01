@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { categories } from '../../shared/mockup/category'
 import { supabase } from "../../shared/supabase";
@@ -315,30 +315,48 @@ const mockBaseQuery = async (arg) => {
 
 export const jobApi = createApi({
     reducerPath: "jobApi",
-    baseQuery: mockBaseQuery,
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+        prepareHeaders: (headers) => {
+            const token = Cookies.get('accessToken')
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`)
+            }
+        }
+    }),
     endpoints: (builder) => {
         return {
             jobs: builder.query({
                 query: () => ({
-                    url: "/jobs",
+                    url: "/influencer/job/jobs",
                     method: "GET",
+                }),
+                transformResponse: (response) => response.data.map((j) => {
+                    let marketer = j.marketerId
+                    marketer.marketerId = marketer._id
+                    return {
+                        ...j,
+                        jobId: j._id,
+                        marketer
+                    }
                 })
             }),
             categories: builder.query({
                 query: () => ({
-                    url: "/categories",
+                    url: "/marketer/job/categories",
                     method: 'GET'
                 })
             }),
             jobEnrolls: builder.query({
                 query: () => ({
-                    url: "/job-enrolls",
+                    url: "/influencer/job/job-enrolls",
                     method: 'GET'
-                })
+                }),
+                transformResponse: (response) => response.data
             }),
             enroll: builder.mutation({
                 query: ({ jobId, marketerId }) => ({
-                    url: "/enroll",
+                    url: "/influencer/job/enroll",
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -351,7 +369,7 @@ export const jobApi = createApi({
             }),
             cancelEnroll: builder.mutation({
                 query: ({ jobEnrollId }) => ({
-                    url: "/cancel-enroll",
+                    url: "/influencer/job/cancel-enroll",
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
@@ -370,7 +388,7 @@ export const jobApi = createApi({
                     videoURL,
                     jobEnrollId
                 }) => ({
-                    url: "/save-darft",
+                    url: "/influencer/job/save-draft",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -393,7 +411,7 @@ export const jobApi = createApi({
                     postLink,
                     jobEnrollId
                 }) => ({
-                    url: "/save-post",
+                    url: "/influencer/job/save-post",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'

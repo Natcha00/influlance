@@ -20,7 +20,7 @@ const MarketerRegisterPage = () => {
     try {
       console.log('Form values: ', values);
       // สามารถเพิ่มการนำค่าฟอร์มไปใช้งาน เช่น ส่งไปยัง backend หรือไปหน้าถัดไปได้
-      const resp = await checkEmail({ email: values.email }).unwrap()
+      const resp = true //await checkEmail({ email: values.email }).unwrap()
 
       if (resp) {
         navigate('/marketer/profile-information', { state: { email: values.email, password: values.password } })

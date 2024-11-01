@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { supabase } from "../../shared/supabase";
 import { v4 as uuidv4 } from 'uuid';
@@ -238,12 +238,22 @@ const mockBaseQuery = async (arg) => {
 
 export const mktAuthApi = createApi({
     reducerPath: "mktAuthApi",
-    baseQuery: mockBaseQuery,
+    // baseQuery: mockBaseQuery,
+    baseQuery: fetchBaseQuery({
+        prepareHeaders: (headers) => {
+          const token = Cookies.get("accessToken");
+          if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+          }
+          return headers;
+        },
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+      }),
     endpoints: (builder) => {
         return {
             login: builder.mutation({
                 query: ({ email, password }) => ({
-                    url: "/login",
+                    url: "/marketer/auth/login",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -257,13 +267,13 @@ export const mktAuthApi = createApi({
             }),
             me: builder.query({
                 query: () => ({
-                    url: "/me",
+                    url: "marketer/auth/me",
                     method: "GET"
                 })
             }),
             viewProfile: builder.query({
                 query: (marketerId) => ({
-                    url: `/view-profile/${marketerId}`,
+                    url: `marketer/auth/view-profile/${marketerId}`,
                     method: "GET",
                     params: marketerId
                 })
@@ -284,7 +294,7 @@ export const mktAuthApi = createApi({
                     brand,
                     brandPicture
                 }) => ({
-                    url: "/register",
+                    url: "/marketer/auth/register",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -308,7 +318,7 @@ export const mktAuthApi = createApi({
             }),
             checkEmail: builder.mutation({
                 query: ({ email }) => ({
-                    url: "/check-email",
+                    url: "marketer/auth/check-email",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -320,7 +330,7 @@ export const mktAuthApi = createApi({
             }),
             portfolio: builder.query({
                 query: () => ({
-                    url: "/portfolio",
+                    url: "marketer/auth/portfolio",
                     method: "GET"
                 })
             }),
@@ -331,7 +341,7 @@ export const mktAuthApi = createApi({
                     firstImage,
                     images
                 }) => ({
-                    url: "/add-portfolio",
+                    url: "marketer/auth/add-portfolio",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'

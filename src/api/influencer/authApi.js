@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { supabase } from "../../shared/supabase";
 import { v4 as uuidv4 } from 'uuid';
@@ -367,12 +367,20 @@ const mockBaseQuery = async (arg) => {
 
 export const authApi = createApi({
     reducerPath: "authApi",
-    baseQuery: mockBaseQuery,
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+        prepareHeaders: (headers) => {
+            const token = Cookies.get('accessToken')
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`)
+            }
+        }
+    }),
     endpoints: (builder) => {
         return {
             login: builder.mutation({
                 query: ({ email, password }) => ({
-                    url: "/login",
+                    url: "/influencer/auth/login",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -386,13 +394,13 @@ export const authApi = createApi({
             }),
             me: builder.query({
                 query: () => ({
-                    url: "/me",
+                    url: "/influencer/auth/me",
                     method: "GET"
                 })
             }),
             viewProfile: builder.query({
                 query: (influId) => ({
-                    url: `/view-profile/${influId}`,
+                    url: `/influencer/auth/view-profile/${influId}`,
                     method: "GET",
                     params: influId
                 })
@@ -415,7 +423,7 @@ export const authApi = createApi({
                     categories,
                     yourInfo
                 }) => ({
-                    url: "/register",
+                    url: "/influencer/auth/register",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -441,7 +449,7 @@ export const authApi = createApi({
             }),
             checkEmail: builder.mutation({
                 query: ({ email }) => ({
-                    url: "/check-email",
+                    url: "/influencer/auth/check-email",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -453,15 +461,31 @@ export const authApi = createApi({
             }),
             portfolio: builder.query({
                 query: () => ({
-                    url: "/portfolio",
+                    url: "/influencer/auth/view-portfolio",
                     method: "GET"
+                }),
+                transformResponse: (response) => response.map((p) => {
+                    return {
+                        title: p.title,
+                        description: p.description,
+                        firstImage: p.images[0],
+                        images: p.images
+                    }
                 })
             }),
             viewPortfolio: builder.query({
                 query: (influId) => ({
-                    url: `/view-portfolio/${influId}`,
+                    url: `/influencer/auth/view-portfolio/${influId}`,
                     method: "GET",
                     params: influId
+                }),
+                transformResponse: (response) => response.map((p) => {
+                    return {
+                        title: p.title,
+                        description: p.description,
+                        firstImage: p.images[0],
+                        images: p.images
+                    }
                 })
             }),
             addPortfolio: builder.mutation({
@@ -471,7 +495,7 @@ export const authApi = createApi({
                     firstImage,
                     images
                 }) => ({
-                    url: "/add-portfolio",
+                    url: "/influencer/auth/add-portfolio",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'

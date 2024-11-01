@@ -96,7 +96,7 @@ const ProfileInformationPage = () => {
               layout="vertical"
               onFinish={onFinish}
               initialValues={{
-                firstName: "influ",
+               /*  firstName: "influ",
                 lastName: "001",
                 facebook: "facebook.com/influencer",
                 facebookFollower: 13212,
@@ -115,7 +115,7 @@ const ProfileInformationPage = () => {
                   }
                 ],
                 categories: ["fashion", "lifestyle"],
-                yourInfo: "กิน เที่ยว เล่นเกม หนัง"
+                yourInfo: "กิน เที่ยว เล่นเกม หนัง" */
               }}
             >
               {/* Upload Profile Picture */}

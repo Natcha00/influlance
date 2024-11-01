@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi,fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { supabase } from "../../shared/supabase";
 
@@ -328,20 +328,29 @@ const mockBaseQuery = async (arg) => {
 
 export const mktFinanceApi = createApi({
     reducerPath: "mktFinanceApi",
-    baseQuery: mockBaseQuery,
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+        prepareHeaders: (headers) => {
+            const token = Cookies.get('accessToken')
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`)
+            }
+        }
+    }),
     endpoints: (builder) => {
         return {
             finanaceTransactions: builder.query({
                 query: () => ({
-                    url: "/finance-transaction",
+                    url: "/marketer/finance/finance-transaction",
                     method: "GET",
                 })
             }),
             getBalance: builder.query({
                 query: () => ({
-                    url: "/get-balance",
+                    url: "/marketer/finance/get-balance",
                     method: "GET",
-                })
+                }),
+                transformResponse: (response) => response.balance
             }),
             deposit: builder.mutation({
                 query: ({
@@ -349,7 +358,7 @@ export const mktFinanceApi = createApi({
                     sourceAccountNumber,
                     bank
                 }) => ({
-                    url: "/deposit",
+                    url: "/marketer/finance/deposit",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -367,7 +376,7 @@ export const mktFinanceApi = createApi({
                     sourceAccountNumber,
                     bank
                 }) => ({
-                    url: "/withdraw",
+                    url: "/marketer/finance/withdraw",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -384,7 +393,7 @@ export const mktFinanceApi = createApi({
                     amount,
                     referenceJobId
                 }) => ({
-                    url: "/consume-credit",
+                    url: "/marketer/finance/consume-credit",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -401,7 +410,7 @@ export const mktFinanceApi = createApi({
                     jobId,
                     referenceJobEnrollId
                 }) => ({
-                    url: "/approve-pay-credit",
+                    url: "/marketer/finance/approve-pay-credit",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'

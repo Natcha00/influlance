@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { supabase } from "../../shared/supabase";
 
@@ -130,20 +130,29 @@ const mockBaseQuery = async (arg) => {
 
 export const financeApi = createApi({
     reducerPath: "financeApi",
-    baseQuery: mockBaseQuery, //fetchBaseQuery({ baseUrl: 'http://localhost:3000' }) 
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+        prepareHeaders: (headers) => {
+            const token = Cookies.get('accessToken')
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`)
+            }
+        }
+    }),
     endpoints: (builder) => {
         return {
             finanaceTransactions: builder.query({
                 query: () => ({
-                    url: "/finance-transaction",
+                    url: "/influencer/finance/finance-transaction",
                     method: "GET",
                 })
             }),
             getBalance: builder.query({
                 query: () => ({
-                    url: "/get-balance",
+                    url: "/influencer/finance/get-balance",
                     method: "GET",
-                })
+                }),
+                transformResponse: (response) => response.balance
             }),
             withdraw: builder.mutation({
                 query: ({
@@ -151,7 +160,7 @@ export const financeApi = createApi({
                     sourceAccountNumber,
                     bank
                 }) => ({
-                    url: "/withdraw",
+                    url: "/influencer/finance/withdraw",
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -163,7 +172,25 @@ export const financeApi = createApi({
                     }
                 })
             }),
-            
+            deposit: builder.mutation({
+                query: ({
+                    amount,
+                    sourceAccountNumber,
+                    bank
+                }) => ({
+                    url: "/influencer/finance/deposit",
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: {
+                        amount,
+                        sourceAccountNumber,
+                        bank
+                    }
+                })
+            })
+
         }
     }
 })
@@ -172,5 +199,6 @@ export const {
     useFinanaceTransactionsQuery,
     useGetBalanceQuery,
     useWithdrawMutation,
-    
+    useDepositMutation
+
 } = financeApi

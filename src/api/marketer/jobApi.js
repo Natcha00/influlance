@@ -1,7 +1,8 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { categories } from '../../shared/mockup/category'
 import { supabase } from "../../shared/supabase";
+
 
 const mockBaseQuery = async (arg) => {
     // Handle different endpoints (arg contains the query path or params)
@@ -549,7 +550,15 @@ const mockBaseQuery = async (arg) => {
 
 export const mktJobApi = createApi({
     reducerPath: "mktJobApi",
-    baseQuery: mockBaseQuery,
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
+        prepareHeaders: (headers) => {
+            const token = Cookies.get('accessToken')
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`)
+            }
+        }
+    }),
     endpoints: (builder) => {
         return {
             addPostJob: builder.mutation({
@@ -564,7 +573,7 @@ export const mktJobApi = createApi({
                     dueDate,
                     files
                 }) => ({
-                    url: "/add-post-job",
+                    url: "/marketer/job/add-post-job",
                     method: "POST",
                     body: {
                         jobTitle,
@@ -581,19 +590,19 @@ export const mktJobApi = createApi({
             }),
             categories: builder.query({
                 query: () => ({
-                    url: "/categories",
+                    url: "/marketer/job/categories",
                     method: 'GET'
                 })
             }),
             getJobs: builder.query({
                 query: () => ({
-                    url: "/get-jobs",
+                    url: "/marketer/job/get-jobs",
                     method: "GET"
                 })
             }),
             hire: builder.mutation({
                 query: ({ jobEnrollId, jobId }) => ({
-                    url: "/hire",
+                    url: "/marketer/job/hire",
                     method: "POST",
                     body: {
                         jobEnrollId,
@@ -603,7 +612,7 @@ export const mktJobApi = createApi({
             }),
             reject: builder.mutation({
                 query: ({ jobEnrollId }) => ({
-                    url: "/reject",
+                    url: "/marketer/job/reject",
                     method: "POST",
                     body: {
                         jobEnrollId
@@ -612,7 +621,7 @@ export const mktJobApi = createApi({
             }),
             removeJob: builder.mutation({
                 query: ({ jobId }) => ({
-                    url: "/remove-job",
+                    url: "/marketer/job/remove-job",
                     method: "POST",
                     body: {
                         jobId
@@ -621,7 +630,7 @@ export const mktJobApi = createApi({
             }),
             checkDraft: builder.query({
                 query: (jobId) => ({
-                    url: `/check-draft/${jobId}`,
+                    url: `/marketer/job/check-draft/${jobId}`,
                     method: "GET",
                     params: jobId
                 })
@@ -630,7 +639,7 @@ export const mktJobApi = createApi({
                 query: ({
                     jobDraftId
                 }) => ({
-                    url: "/approve-draft",
+                    url: "/marketer/job/approve-draft",
                     method: "POST",
                     body: {
                         jobDraftId
@@ -642,7 +651,7 @@ export const mktJobApi = createApi({
                     jobDraftId,
                     reasonReject
                 }) => ({
-                    url: "/reject-draft",
+                    url: "/marketer/job/reject-draft",
                     method: "POST",
                     body: {
                         jobDraftId,
@@ -652,7 +661,7 @@ export const mktJobApi = createApi({
             }),
             checkPost: builder.query({
                 query: (jobId) => ({
-                    url: `/check-post/${jobId}`,
+                    url: `/marketer/job/check-post/${jobId}`,
                     method: "GET",
                     params: jobId
                 })
@@ -661,7 +670,7 @@ export const mktJobApi = createApi({
                 query: ({
                     jobPostId
                 }) => ({
-                    url: "/approve-post",
+                    url: "/marketer/job/approve-post",
                     method: "POST",
                     body: {
                         jobPostId
@@ -673,7 +682,7 @@ export const mktJobApi = createApi({
                     jobPostId,
                     reasonReject
                 }) => ({
-                    url: "/reject-post",
+                    url: "/marketer/job/reject-post",
                     method: "POST",
                     body: {
                         jobPostId,

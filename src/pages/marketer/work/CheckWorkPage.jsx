@@ -133,8 +133,8 @@ const CheckWorkPage = () => {
         if (resp) {
           const respApprovePayCredit = await approvePayCredit({
             jobId: jobPost?.jobId,
-            referenceJobEnrollId: jobPost?.jobEnroll?.jobEnrollId,
-            influId: jobPost?.jobEnroll?.influId
+            referenceJobEnrollId: jobPost?.jobEnrollId,
+            influId: jobPost?.influId
           }).unwrap()
           if (respApprovePayCredit) {
             message.success("อนุมัติโพสต์นี้สำเร็จ")
@@ -194,9 +194,9 @@ const CheckWorkPage = () => {
                   <Row key={index} gutter={[16, 16]} style={{ marginBottom: '30px' }}>
                     <Col span={24}>
                       <Card
-                        title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                        title={`ผู้สมัคร : ${submission?.influencer?.firstName} ${submission?.influencer?.lastName}`}
                         extra={
-                          <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                          <Link to={`/marketer/view-influ-profile/${submission?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
                             โปรไฟล์
                           </Link>
                         }
@@ -270,9 +270,9 @@ const CheckWorkPage = () => {
                 <Row gutter={[16, 16]}>
                   <Col span={24} key={index}>
                     <Card
-                      title={`ผู้สมัคร : ${submission?.jobEnroll?.influencer?.firstName} ${submission?.jobEnroll?.influencer?.lastName}`}
+                      title={`ผู้สมัคร : ${submission?.influencer?.firstName} ${submission?.influencer?.lastName}`}
                       extra={
-                        <Link to={`/marketer/view-influ-profile/${submission?.jobEnroll?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
+                        <Link to={`/marketer/view-influ-profile/${submission?.influencer?.influId}`} target="_blank" rel="noopener noreferrer" >
                           โปรไฟล์
                         </Link>
                       }

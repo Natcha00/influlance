@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Row, Col, Card, Form, Input, InputNumber, Button, Table, Typography, Divider, Select, message, Tag, Radio } from 'antd';
 import { BankOutlined, DollarOutlined } from '@ant-design/icons';
-import { useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation } from '../../../api/influencer/financeApi';
+import { useFinanaceTransactionsQuery, useGetBalanceQuery, useWithdrawMutation, useDepositMutation } from '../../../api/influencer/financeApi';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -13,6 +13,7 @@ const FinanceManagementPage = () => {
   const { data: financeTransaction, isLoading, refetch: refetchTransaction } = useFinanaceTransactionsQuery()
   const { data: balance, isLoading: isLoadingBalance, refetch: refetchBalance } = useGetBalanceQuery()
   const [withdraw, { isLoading: isLoadingWithdraw }] = useWithdrawMutation()
+  const [deposit, { isLoading: isLoadingDeposit }] = useDepositMutation()
   // คอลัมน์ของตาราง
   const columns = [
     {
@@ -90,7 +91,7 @@ const FinanceManagementPage = () => {
       value: "Krungthai Bank"
     },
   ]
-//??
+  //??
   // เมื่อผู้ใช้กดปุ่ม "ถอนเงิน"
   const onFinish = async (values) => {
     try {
@@ -103,6 +104,17 @@ const FinanceManagementPage = () => {
 
         if (resp) {
           message.success("ทำรายการถอนเงินสำเร็จ !")
+          form.resetFields()
+        }
+      } else if (values.transactionType == 'deposit') {
+        const resp = await deposit({
+          amount: values.amount,
+          sourceAccountNumber: values.sourceAccountNumber,
+          bank: values.bank
+        }).unwrap()
+
+        if (resp) {
+          message.success("ทำรายการฝากเงินสำเร็จ !")
           form.resetFields()
         }
       }
@@ -120,7 +132,7 @@ const FinanceManagementPage = () => {
     <>
 
       <Typography.Title level={16}>
-      ธุรกรรมการเงิน
+        ธุรกรรมการเงิน
       </Typography.Title>
 
       <Row gutter={[16, 16]}>

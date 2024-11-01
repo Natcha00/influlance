@@ -490,14 +490,14 @@ const WorkSpacePage = () => {
                               <Row>
                                 <Col span={24}>
                                   <Paragraph level={5}><strong>เนื้อหา :</strong></Paragraph>
-                                  <Paragraph>{job?.jobDraft.find(el => el.status == 'approve').content}</Paragraph>
+                                  <Paragraph>{job?.jobDraft?.find(el => el.status == 'approve')?.content}</Paragraph>
                                 </Col>
                               </Row>
                               <Row>
                                 <Col span={24} >
                                   <Paragraph level={5}><strong>รูปภาพ : </strong></Paragraph>
                                 </Col>
-                                {job?.jobDraft.find(el => el.status == 'approve').pictureURL?.map((el, i) =>
+                                {job?.jobDraft?.find(el => el.status == 'approve')?.pictureURL?.map((el, i) =>
                                   <Col span={4} >
                                     <Image key={i} src={el} width={'100%'} />
                                   </Col>
@@ -508,7 +508,7 @@ const WorkSpacePage = () => {
                                 <Col span={24} >
                                   <Paragraph level={5}><strong>วิดิโอ : </strong></Paragraph>
                                 </Col>
-                                {job?.jobDraft.find(el => el.status == 'approve').videoURL?.map((el, i) =>
+                                {job?.jobDraft?.find(el => el.status == 'approve')?.videoURL?.map((el, i) =>
                                   <Col span={4} >
                                     <video src={el} width={'100%'} />
                                   </Col>
@@ -650,7 +650,10 @@ const WorkSpacePage = () => {
                   rows={4}
                   placeholder="ระบุรายละเอียดงานที่กำลังส่ง..."
                   value={content}
-                  onChange={e => setContent(e.target.value)}
+                  onChange={e => {
+                    setContent(e.target.value)
+                    form.setFieldValue('content', e.target.value)
+                  }}
                 />
               </Spin>
               <Row justify={'end'} style={{ marginTop: '0.25rem' }} >
