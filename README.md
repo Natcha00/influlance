@@ -13,7 +13,10 @@ conducting testing.
 
 ## Preview
 
-## Influencer 
+## Homepage
+![Home](homepage.png)
+
+## Influencer
 ![1](influ/1.png)
 ![2](influ/2.png)
 ![3](influ/3.png)
